@@ -7,7 +7,7 @@ servers:
 paths:
   /api/user:
     post:
-      summary: create or update a user
+      summary: Create or update a user
       tags:
         - user
       responses:
@@ -74,7 +74,7 @@ paths:
         in: path
         required: true
     get:
-      summary: get a user
+      summary: Get a user
       tags:
         - user
       responses:
@@ -106,7 +106,7 @@ paths:
       operationId: get-api-user-id
   '/api/user/{id}/list':
     post:
-      summary: create a list for a user
+      summary: Create a list for a user
       tags:
         - list
       responses:
@@ -165,7 +165,7 @@ paths:
         in: path
         required: true
     get:
-      summary: "get a user's lists"
+      summary: "Get a user's lists"
       tags:
         - list
       responses:
@@ -231,7 +231,7 @@ paths:
         in: path
         required: true
     get:
-      summary: "get a user's list"
+      summary: "Get a user's list"
       tags:
         - list
       responses:
@@ -302,6 +302,7 @@ paths:
                 properties:
                   success:
                     type: boolean
+                    description: dependent upon if user is owner or collaborator of list
                   data:
                     type: object
                     properties:
@@ -398,7 +399,7 @@ paths:
         in: path
         required: true
     post:
-      summary: send invites to friends
+      summary: Send invites to friends
       tags:
         - friends
       responses:
@@ -430,6 +431,8 @@ paths:
                   type: array
                   items:
                     type: string
+              required:
+                - usernames
   '/api/user/{id}/friends/accept/':
     parameters:
       - schema:
@@ -438,7 +441,7 @@ paths:
         in: path
         required: true
     post:
-      summary: "accept a user's friend requests"
+      summary: "Accept a user's friends' invites"
       tags:
         - friends
       responses:
@@ -470,9 +473,12 @@ paths:
                   type: array
                   items:
                     type: string
+              required:
+                - usernames
+      description: ''
   '/api/user/{id}/friends/cancel/':
     post:
-      summary: "cancel a user's friend requests"
+      summary: "Cancel a user's friend invites"
       tags:
         - friends
       responses:
@@ -504,6 +510,9 @@ paths:
                   type: array
                   items:
                     type: string
+              required:
+                - usernames
+      description: 'If the receiving user has not yet accepted the invite, the sending user can retract or cancel the invite.'
     parameters:
       - schema:
           type: string
@@ -518,7 +527,7 @@ paths:
         in: path
         required: true
     get:
-      summary: "get a user's friends"
+      summary: "Get a user's friends"
       tags:
         - friends
       responses:
@@ -566,7 +575,7 @@ paths:
       operationId: get-api-user-id-friends
   /api/media:
     post:
-      summary: get media
+      summary: Get media details
       tags:
         - media
       responses:
@@ -635,6 +644,9 @@ paths:
               properties:
                 media_id:
                   type: string
+              required:
+                - media_id
+      description: This returns detailed information for one media_id.
   '/api/user/{id}/search':
     parameters:
       - schema:
@@ -643,7 +655,7 @@ paths:
         in: path
         required: true
     post:
-      summary: search
+      summary: Search
       tags:
         - search
       operationId: post-api-user-id-search
@@ -704,7 +716,7 @@ paths:
                           type: string
   /api/search/tags:
     post:
-      summary: ''
+      summary: Search for all media by tags
       operationId: post-api-search-tags
       responses:
         '200':
@@ -749,6 +761,8 @@ paths:
                   type: array
                   items:
                     type: string
+              required:
+                - tags
   '/api/user/{id}/media/{media_id}':
     parameters:
       - schema:
@@ -762,7 +776,7 @@ paths:
         in: path
         required: true
     post:
-      summary: create or update user rating of media
+      summary: Create or update user rating of media
       tags:
         - rate
       responses:
