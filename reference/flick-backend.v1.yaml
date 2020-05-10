@@ -1,0 +1,334 @@
+openapi: 3.0.0
+info:
+  title: flick-backend
+  version: '1.0'
+servers:
+  - url: 'http://localhost:3000'
+paths:
+  /api/user:
+    post:
+      summary: create or update a user
+      tags:
+        - user
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+        '201':
+          content:
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: string
+                    enum:
+                      - 'true'
+                      - 'false'
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+      operationId: post-api-user
+      parameters: []
+      description: ''
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                id:
+                  type: string
+                name:
+                  type: string
+                facebook_id:
+                  type: string
+                profile_pic:
+                  type: string
+              required:
+                - username
+                - id
+                - name
+                - facebook_id
+                - profile_pic
+    parameters: []
+  '/api/user/{id}':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: get a user
+      tags:
+        - user
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    enum:
+                      - 'true'
+                      - 'false'
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      username:
+                        type: string
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      facebook_id:
+                        type: string
+                      profile_pic:
+                        type: string
+      operationId: get-api-user-id
+  '/api/user/{id}/list':
+    post:
+      summary: create a list for a user
+      tags:
+        - list
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      list_id:
+                        type: string
+      operationId: post-api-user-id-list
+      description: ''
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                movie_ids:
+                  type: array
+                  items:
+                    type: string
+                collaborators:
+                  type: array
+                  description: array of friend usernames
+                  items:
+                    type: string
+                is_private:
+                  type: boolean
+                timestamp:
+                  type: string
+                list_name:
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - movie_ids
+                - collaborators
+                - is_private
+                - timestamp
+        description: ''
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+  '/api/user/{id}/lists':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: "get a user's lists"
+      tags:
+        - list
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      lists:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            list_id:
+                              type: string
+                            is_favorite:
+                              type: boolean
+                            is_private:
+                              type: boolean
+                            collaborators:
+                              type: array
+                              items:
+                                type: string
+                            tags:
+                              type: array
+                              items:
+                                type: string
+      operationId: get-api-user-id-lists
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                list_ids:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - list_ids
+  '/api/user/{id}/list/{list_id}/':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+      - schema:
+          type: string
+        name: list_id
+        in: path
+        required: true
+    get:
+      summary: "get a user's list"
+      tags:
+        - list
+      responses: {}
+      operationId: get-api-user-id-list-list_id
+    delete:
+      summary: "delete a user's list"
+      tags:
+        - user
+        - list
+      responses: {}
+      operationId: delete-api-user-id-list-list_id
+    post:
+      summary: "update a user's list"
+      tags:
+        - user
+        - list
+      responses: {}
+      operationId: post-api-user-id-list-list_id
+  '/api/user/{id}/friends/invite/':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    post:
+      summary: send invites to friends
+      tags:
+        - friends
+      responses: {}
+      operationId: post-api-user-id-friends-invite
+  '/api/user/{id}/friends/accept/':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    post:
+      summary: "accept a user's friend requests"
+      tags:
+        - friends
+      responses: {}
+      operationId: post-api-user-id-friends-accept
+  '/api/user/{id}/friends/cancel/':
+    post:
+      summary: "cancel a user's friend requests"
+      tags:
+        - friends
+      responses: {}
+      operationId: post-api-user-id-friends-cancel
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+  '/api/user/{id}/friends/':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: "get a user's friends"
+      tags:
+        - friends
+      responses: {}
+      operationId: get-api-user-id-friends
+    post:
+      summary: "get a user's friends' information"
+      operationId: post-api-user-id-friends
+      responses:
+        '200':
+          description: OK
+  /api/media:
+    post:
+      summary: get media
+      tags:
+        - media
+      responses: {}
+      operationId: post-api-media
+  '/api/user/{id}/search':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    post:
+      summary: search
+      tags:
+        - search
+      responses: {}
+      operationId: post-api-user-id-search
+components:
+  schemas: {}
+  securitySchemes: {}
