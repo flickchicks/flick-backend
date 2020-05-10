@@ -53,6 +53,7 @@ paths:
                   type: string
                 id:
                   type: string
+                  description: user device token (iOS or Android dependent)
                 name:
                   type: string
                 facebook_id:
@@ -64,7 +65,6 @@ paths:
                 - id
                 - name
                 - facebook_id
-                - profile_pic
     parameters: []
   '/api/user/{id}':
     parameters:
@@ -147,16 +147,10 @@ paths:
                   type: string
                 list_name:
                   type: string
-                tags:
-                  type: array
-                  items:
-                    type: string
               required:
-                - movie_ids
-                - collaborators
-                - is_private
                 - timestamp
-        description: ''
+                - list_name
+        description: 'is_favorite is by default already created, so there is no key here'
     parameters:
       - schema:
           type: string
@@ -204,8 +198,13 @@ paths:
                                 type: string
                             tags:
                               type: array
+                              description: "all of the movies' tags in this list"
                               items:
                                 type: string
+                            list_pic:
+                              type: string
+                            list_name:
+                              type: string
       operationId: get-api-user-id-lists
       requestBody:
         content:
@@ -235,22 +234,162 @@ paths:
       summary: "get a user's list"
       tags:
         - list
-      responses: {}
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      list_id:
+                        type: string
+                      list_name:
+                        type: string
+                      list_pic:
+                        type: string
+                      is_favorite:
+                        type: string
+                      is_private:
+                        type: string
+                      tags:
+                        type: string
+                      collaborators:
+                        type: string
+                      media:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            media_id:
+                              type: string
+                            title:
+                              type: string
+                            poster_pic:
+                              type: string
+                            director:
+                              type: string
+                            tags:
+                              type: string
+                            is_tv:
+                              type: string
+                            date_released:
+                              type: string
+                            duration:
+                              type: string
+                            status:
+                              type: string
+                            language:
+                              type: string
       operationId: get-api-user-id-list-list_id
     delete:
       summary: "delete a user's list"
       tags:
         - user
         - list
-      responses: {}
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      list_id:
+                        type: string
       operationId: delete-api-user-id-list-list_id
     post:
       summary: "update a user's list"
       tags:
         - user
         - list
-      responses: {}
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      list_id:
+                        type: string
+                      list_name:
+                        type: string
+                      list_pic:
+                        type: string
+                      is_favorite:
+                        type: string
+                      is_private:
+                        type: string
+                      tags:
+                        type: string
+                      collaborators:
+                        type: array
+                        items:
+                          type: string
+                      media:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            media_id:
+                              type: string
+                            title:
+                              type: string
+                            poster_pic:
+                              type: string
+                            tags:
+                              type: string
+                            is_tv:
+                              type: string
+                            date_released:
+                              type: string
+                            duration:
+                              type: string
+                            status:
+                              type: string
+                            language:
+                              type: string
       operationId: post-api-user-id-list-list_id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                list_name:
+                  type: string
+                collaborators:
+                  type: string
+                is_private:
+                  type: string
+                tags:
+                  type: string
+                list_pic:
+                  type: string
+                add_media_ids:
+                  type: array
+                  items:
+                    type: string
+                delete_media_ids:
+                  type: array
+                  items:
+                    type: string
   '/api/user/{id}/friends/invite/':
     parameters:
       - schema:
@@ -262,8 +401,35 @@ paths:
       summary: send invites to friends
       tags:
         - friends
-      responses: {}
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      usernames:
+                        type: array
+                        description: array of usernames that have successfully sent a request to
+                        items:
+                          type: string
       operationId: post-api-user-id-friends-invite
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                usernames:
+                  type: array
+                  items:
+                    type: string
   '/api/user/{id}/friends/accept/':
     parameters:
       - schema:
@@ -275,15 +441,69 @@ paths:
       summary: "accept a user's friend requests"
       tags:
         - friends
-      responses: {}
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      friends:
+                        type: array
+                        description: array of usernames that the user is now friends with
+                        items:
+                          type: string
       operationId: post-api-user-id-friends-accept
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                usernames:
+                  type: array
+                  items:
+                    type: string
   '/api/user/{id}/friends/cancel/':
     post:
       summary: "cancel a user's friend requests"
       tags:
         - friends
-      responses: {}
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      usernames:
+                        type: array
+                        description: array of usernames that no longer have the request from the user
+                        items:
+                          type: string
       operationId: post-api-user-id-friends-cancel
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                usernames:
+                  type: array
+                  items:
+                    type: string
     parameters:
       - schema:
           type: string
@@ -301,21 +521,120 @@ paths:
       summary: "get a user's friends"
       tags:
         - friends
-      responses: {}
-      operationId: get-api-user-id-friends
-    post:
-      summary: "get a user's friends' information"
-      operationId: post-api-user-id-friends
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      friends:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            username:
+                              type: string
+                            name:
+                              type: string
+                            profile_pic:
+                              type: string
+                            lists:
+                              type: array
+                              description: only public lists and lists that are editable by user will be seen
+                              items:
+                                type: object
+                                properties:
+                                  list_id:
+                                    type: string
+                                  collaborators:
+                                    type: string
+                                  tags:
+                                    type: string
+                                  list_pic:
+                                    type: string
+                                  is_favorite:
+                                    type: string
+                                  list_name:
+                                    type: string
+      operationId: get-api-user-id-friends
   /api/media:
     post:
       summary: get media
       tags:
         - media
-      responses: {}
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      media_id:
+                        type: string
+                      title:
+                        type: string
+                      tags:
+                        type: array
+                        items:
+                          type: string
+                      poster_pic:
+                        type: string
+                      director:
+                        type: string
+                      is_tv:
+                        type: string
+                      date_released:
+                        type: string
+                      status:
+                        type: string
+                      language:
+                        type: string
+                      duration:
+                        type: string
+                      plot:
+                        type: string
+                      keywords:
+                        type: array
+                        items:
+                          type: string
+                      seasons:
+                        type: string
+                      audience_level:
+                        type: string
+                        description: 'pg13, R, not yet rated, etc.'
+                      imdb_rating:
+                        type: string
+                      tomato_rating:
+                        type: string
+                      friends_rating:
+                        type: string
+                      platforms:
+                        type: array
+                        description: 'Netflix, Amazon Prime, Hulu, etc.'
+                        items:
+                          type: string
       operationId: post-api-media
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                media_id:
+                  type: string
   '/api/user/{id}/search':
     parameters:
       - schema:
@@ -327,8 +646,162 @@ paths:
       summary: search
       tags:
         - search
-      responses: {}
       operationId: post-api-user-id-search
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      users:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            username:
+                              type: string
+                            name:
+                              type: string
+                            is_friend:
+                              type: string
+                            profile_pic:
+                              type: string
+                      media:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            title:
+                              type: string
+                            poster_pic:
+                              type: string
+                            tags:
+                              type: string
+                            director:
+                              type: string
+                            is_tv:
+                              type: string
+                            date_released:
+                              type: string
+                            duration:
+                              type: string
+                            status:
+                              type: string
+                            language:
+                              type: string
+                            media_id:
+                              type: string
+                      tags:
+                        type: array
+                        items:
+                          type: string
+  /api/search/tags:
+    post:
+      summary: ''
+      operationId: post-api-search-tags
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      title:
+                        type: string
+                      tags:
+                        type: string
+                      director:
+                        type: string
+                      poster_pic:
+                        type: string
+                      is_tv:
+                        type: string
+                      date_released:
+                        type: string
+                      status:
+                        type: string
+                      language:
+                        type: string
+                      duration:
+                        type: string
+                      media_id:
+                        type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tags:
+                  type: array
+                  items:
+                    type: string
+  '/api/user/{id}/media/{media_id}':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+      - schema:
+          type: string
+        name: media_id
+        in: path
+        required: true
+    post:
+      summary: create or update user rating of media
+      tags:
+        - rate
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      rating:
+                        type: number
+                        format: double
+                        exclusiveMinimum: true
+                        minimum: 0
+                        maximum: 10
+      operationId: post-api-user-id-media-media_id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                media_id:
+                  type: string
+                rating:
+                  type: number
+                  format: double
+                  maximum: 10
+                  minimum: 0
+                  exclusiveMinimum: true
+              required:
+                - media_id
+                - rating
 components:
   schemas: {}
   securitySchemes: {}
