@@ -288,7 +288,7 @@ paths:
                               type: string
       operationId: get-api-user-id-list-list_id
     delete:
-      summary: "delete a user's list"
+      summary: "Delete a user's list"
       tags:
         - user
         - list
@@ -310,7 +310,7 @@ paths:
                         type: string
       operationId: delete-api-user-id-list-list_id
     post:
-      summary: "update a user's list"
+      summary: "Update a user's list"
       tags:
         - user
         - list
@@ -714,6 +714,7 @@ paths:
                         type: array
                         items:
                           type: string
+      description: "Get any user (friend or not), media's details, or tags that match the search query. Media returned can appear based on synonyms of plot keywords, fuzzy match of title, director name match, etc. *TBD: order of items may not correspond to priority, we'll have to do some investigation -- we might number them / give each item a ranking to be sure later"
   /api/search/tags:
     post:
       summary: Search for all media by tags
@@ -763,6 +764,8 @@ paths:
                     type: string
               required:
                 - tags
+      tags:
+        - search
   '/api/user/{id}/media/{media_id}':
     parameters:
       - schema:
