@@ -150,7 +150,9 @@ paths:
               required:
                 - timestamp
                 - list_name
-        description: 'is_favorite is by default already created, so there is no key here'
+        description: |-
+          is_favorite is by default already created, so there is no key here
+          is_watched is by default already created, so there is no key here
     parameters:
       - schema:
           type: string
@@ -196,7 +198,7 @@ paths:
                               type: array
                               items:
                                 type: string
-                            tags:
+                            list_tags:
                               type: array
                               description: "all of the movies' tags in this list"
                               items:
@@ -257,10 +259,13 @@ paths:
                         type: string
                       is_private:
                         type: string
-                      tags:
+                      is_watched:
                         type: string
                       collaborators:
                         type: string
+                      list_tags:
+                        type: array
+                        items: {}
                       media:
                         type: array
                         items:
@@ -274,7 +279,7 @@ paths:
                               type: string
                             director:
                               type: string
-                            tags:
+                            media_tags:
                               type: string
                             is_tv:
                               type: string
@@ -337,12 +342,14 @@ paths:
                         type: string
                       is_private:
                         type: string
-                      tags:
+                      is_watched:
                         type: string
                       collaborators:
                         type: array
                         items:
                           type: string
+                      list_tags:
+                        type: string
                       media:
                         type: array
                         items:
@@ -354,7 +361,9 @@ paths:
                               type: string
                             poster_pic:
                               type: string
-                            tags:
+                            director:
+                              type: string
+                            media_tags:
                               type: string
                             is_tv:
                               type: string
@@ -375,11 +384,9 @@ paths:
               properties:
                 list_name:
                   type: string
-                collaborators:
-                  type: string
                 is_private:
                   type: string
-                tags:
+                list_tags:
                   type: string
                 list_pic:
                   type: string
@@ -388,6 +395,14 @@ paths:
                   items:
                     type: string
                 delete_media_ids:
+                  type: array
+                  items:
+                    type: string
+                add_collaborators:
+                  type: array
+                  items:
+                    type: string
+                delete_collaborators:
                   type: array
                   items:
                     type: string
@@ -564,7 +579,7 @@ paths:
                                     type: string
                                   collaborators:
                                     type: string
-                                  tags:
+                                  list_tags:
                                     type: string
                                   list_pic:
                                     type: string
@@ -573,11 +588,16 @@ paths:
                                   list_name:
                                     type: string
       operationId: get-api-user-id-friends
-  /api/media:
-    post:
-      summary: Get media details
-      tags:
-        - media
+  '/api/media/{media_id}':
+    parameters:
+      - schema:
+          type: string
+        name: media_id
+        in: path
+        required: true
+    get:
+      summary: ''
+      operationId: get-api-media-media_id
       responses:
         '200':
           description: OK
@@ -595,7 +615,7 @@ paths:
                         type: string
                       title:
                         type: string
-                      tags:
+                      media_tags:
                         type: array
                         items:
                           type: string
@@ -623,7 +643,6 @@ paths:
                         type: string
                       audience_level:
                         type: string
-                        description: 'pg13, R, not yet rated, etc.'
                       imdb_rating:
                         type: string
                       tomato_rating:
@@ -632,20 +651,8 @@ paths:
                         type: string
                       platforms:
                         type: array
-                        description: 'Netflix, Amazon Prime, Hulu, etc.'
                         items:
                           type: string
-      operationId: post-api-media
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                media_id:
-                  type: string
-              required:
-                - media_id
       description: This returns detailed information for one media_id.
   '/api/user/{id}/search':
     parameters:
@@ -734,7 +741,7 @@ paths:
                     properties:
                       title:
                         type: string
-                      tags:
+                      media_tags:
                         type: string
                       director:
                         type: string
@@ -819,6 +826,30 @@ paths:
               required:
                 - media_id
                 - rating
+  '/api/user/{id}/friends/remove/':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    post:
+      summary: Remove friends
+      tags:
+        - friends
+      responses: {}
+      operationId: post-api-user-id-friends-remove
+      description: ''
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                usernames:
+                  type: array
+                  items:
+                    type: string
 components:
   schemas: {}
   securitySchemes: {}
