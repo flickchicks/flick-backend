@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 from decouple import config 
-import allauth
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -57,8 +56,8 @@ SOCIALACCOUNT_PROVIDERS = {
         # (``socialaccount`` app) containing the required client
         # credentials, or list them here:
         'APP': {
-            'client_id': '123',
-            'secret': '456',
+            'client_id': config('google_client_id'),
+            'secret': config('google_secret'),
             'key': ''
         }
     }
