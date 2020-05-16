@@ -256,16 +256,19 @@ paths:
                       list_pic:
                         type: string
                       is_favorite:
-                        type: string
+                        type: boolean
                       is_private:
-                        type: string
+                        type: boolean
                       is_watched:
-                        type: string
+                        type: boolean
                       collaborators:
-                        type: string
+                        type: array
+                        items:
+                          type: string
                       list_tags:
                         type: array
-                        items: {}
+                        items:
+                          type: string
                       media:
                         type: array
                         items:
@@ -280,9 +283,11 @@ paths:
                             director:
                               type: string
                             media_tags:
-                              type: string
+                              type: array
+                              items:
+                                type: string
                             is_tv:
-                              type: string
+                              type: boolean
                             date_released:
                               type: string
                             duration:
@@ -339,17 +344,19 @@ paths:
                       list_pic:
                         type: string
                       is_favorite:
-                        type: string
+                        type: boolean
                       is_private:
-                        type: string
+                        type: boolean
                       is_watched:
-                        type: string
+                        type: boolean
                       collaborators:
                         type: array
                         items:
                           type: string
                       list_tags:
-                        type: string
+                        type: array
+                        items:
+                          type: string
                       media:
                         type: array
                         items:
@@ -364,9 +371,11 @@ paths:
                             director:
                               type: string
                             media_tags:
-                              type: string
+                              type: array
+                              items:
+                                type: string
                             is_tv:
-                              type: string
+                              type: boolean
                             date_released:
                               type: string
                             duration:
@@ -385,9 +394,11 @@ paths:
                 list_name:
                   type: string
                 is_private:
-                  type: string
+                  type: boolean
                 list_tags:
-                  type: string
+                  type: array
+                  items:
+                    type: string
                 list_pic:
                   type: string
                 add_media_ids:
@@ -578,13 +589,17 @@ paths:
                                   list_id:
                                     type: string
                                   collaborators:
-                                    type: string
+                                    type: array
+                                    items:
+                                      type: string
                                   list_tags:
-                                    type: string
+                                    type: array
+                                    items:
+                                      type: string
                                   list_pic:
                                     type: string
                                   is_favorite:
-                                    type: string
+                                    type: boolean
                                   list_name:
                                     type: string
       operationId: get-api-user-id-friends
@@ -624,7 +639,7 @@ paths:
                       director:
                         type: string
                       is_tv:
-                        type: string
+                        type: boolean
                       date_released:
                         type: string
                       status:
@@ -648,7 +663,11 @@ paths:
                       tomato_rating:
                         type: string
                       friends_rating:
-                        type: string
+                        type: number
+                        exclusiveMinimum: true
+                        minimum: 0
+                        maximum: 10
+                        format: double
                       platforms:
                         type: array
                         items:
@@ -689,7 +708,7 @@ paths:
                             name:
                               type: string
                             is_friend:
-                              type: string
+                              type: boolean
                             profile_pic:
                               type: string
                       media:
@@ -701,12 +720,14 @@ paths:
                               type: string
                             poster_pic:
                               type: string
-                            tags:
-                              type: string
+                            media_tags:
+                              type: array
+                              items:
+                                type: string
                             director:
                               type: string
                             is_tv:
-                              type: string
+                              type: boolean
                             date_released:
                               type: string
                             duration:
@@ -717,7 +738,7 @@ paths:
                               type: string
                             media_id:
                               type: string
-                      tags:
+                      media_tags:
                         type: array
                         items:
                           type: string
@@ -742,13 +763,15 @@ paths:
                       title:
                         type: string
                       media_tags:
-                        type: string
+                        type: array
+                        items:
+                          type: string
                       director:
                         type: string
                       poster_pic:
                         type: string
                       is_tv:
-                        type: string
+                        type: boolean
                       date_released:
                         type: string
                       status:
