@@ -40,15 +40,20 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
+
+    # third party
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.facebook',
     'allauth.socialaccount.providers.instagram',
     'allauth.socialaccount.providers.google',
+    'rest_framework',
 
     # own
-    'flickaccount'
+    'pages',
+    'api',
+    'user'
 ]
 
 SITE_ID = 1
