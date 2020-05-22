@@ -53,7 +53,8 @@ INSTALLED_APPS = [
     # own
     'pages',
     'api',
-    'user'
+    'user', 
+    'item'
 ]
 
 SITE_ID = 1
