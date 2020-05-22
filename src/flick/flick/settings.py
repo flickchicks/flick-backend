@@ -54,7 +54,8 @@ INSTALLED_APPS = [
     'pages',
     'api',
     'user', 
-    'item'
+    'item',
+    'asset'
 ]
 
 SITE_ID = 1
