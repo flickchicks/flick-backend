@@ -1,19 +1,38 @@
-from rest_framework import serializers
+from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField
 
-from user.models import User
+# from user.models import User
 from .models import Item
+from django.contrib.auth.models import User
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+class UserSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = ('username', 'name')
+        fields = (
+            'id', 
+            'username',
+            'email',
+        )
+        read_only_fields = ('id',)
 
-class ItemSerializer(serializers.Serializer):
-    id = serializers.IntegerField(read_only=True)
-    title = serializers.CharField(required=True, max_length=100)
-    subtitle = serializers.CharField(required=False, allow_blank=True, max_length=100)
-    created_at = serializers.DateTimeField(read_only=True)
-    updated_at = serializers.DateTimeField(read_only=True)
+class ItemSerializer(ModelSerializer):
+    owner = PrimaryKeyRelatedField(queryset=User.objects.all())
+    class Meta:
+        model = Item
+        fields = (
+            'id', 'title', 'subtitle', 'owner',
+        )
+        read_only_fields = ('id',) # need comma, only accepts tuple!
 
-    def create(self, validated_data):
-        return Item.objects.create(**validated_data)
+class ItemDetailSerializer(ModelSerializer):
+    owner = UserSerializer(many=False, read_only=True)
+    class Meta:
+        model = Item
+        fields = (
+            'id', 
+            'title',
+            'subtitle',
+            'owner',
+            'create_at',
+            'updated_at',
+        )
+        read_only_fields = ('id',)
