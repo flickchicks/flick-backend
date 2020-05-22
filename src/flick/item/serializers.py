@@ -1,7 +1,6 @@
-from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField
-
-# from user.models import User
 from django.contrib.auth.models import User
+
+from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField
 
 from .models import Item
 from user.serializers import UserSerializer

@@ -1,17 +1,12 @@
-from django.shortcuts import render
-
-# test
 from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
+
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
+from rest_framework import viewsets, status, generics, mixins
+
 from .models import Item
-from .serializers import ItemSerializer
-
-# Create your views here.
-from rest_framework import viewsets
-from rest_framework import status, generics, mixins
-
 from .serializers import ItemSerializer, ItemDetailSerializer
 
 class ItemList(generics.ListCreateAPIView):

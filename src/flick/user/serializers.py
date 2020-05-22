@@ -1,6 +1,6 @@
-from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField
-
 from django.contrib.auth.models import User
+
+from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField
 
 class UserSerializer(ModelSerializer):
     class Meta:
