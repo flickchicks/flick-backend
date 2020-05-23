@@ -17,6 +17,7 @@ class AssetBundleSerializer(ModelSerializer):
             'kind', 
             'base_url',
             'owner',
+            'asset_urls',
             'created_at',
         )
         read_only_fields = ('id',)
@@ -33,6 +34,7 @@ class AssetBundleDetailSerializer(ModelSerializer):
             'kind', 
             'base_url',
             'owner',
+            'asset_urls',
             'created_at',
             'updated_at',
         )

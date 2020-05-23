@@ -24,12 +24,15 @@ class AssetBundle(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        print("reaches?")
         return f"AssetBundle: {self.salt}"
 
+    @property
     def asset_urls(self):
-        assets = Asset.objects.all(asset_bundle=self)
-        return [u for u in assets.full_url]
+        assets = Asset.objects.filter(asset_bundle = self)
+        urls = {}
+        for a in assets:
+            urls[a.kind] = a.full_url
+        return urls
 
 class Asset(models.Model):
     KIND_CHOICES = (
