@@ -2,26 +2,36 @@ from django.contrib.auth.models import User
 
 from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField
 
-from .models import Item
+from .models import AssetBundle
 from user.serializers import UserSerializer
 
-class ItemSerializer(ModelSerializer):
-    owner = PrimaryKeyRelatedField(queryset=User.objects.all())
-    
-    class Meta:
-        model = Item
-        fields = (
-            'id', 'asset_bundle', 'owner', 'created_at',
-        )
-        read_only_fields = ('id',) # need comma, only accepts tuple!
+class AssetBundleSerializer(ModelSerializer):
 
-class ItemDetailSerializer(ModelSerializer):
-    owner = UserSerializer(many=False, read_only=True)
+    owner = PrimaryKeyRelatedField(queryset=User.objects.all())
+
     class Meta:
-        model = Item
+        model = AssetBundle
         fields = (
             'id', 
-            'asset_bundle',
+            'salt', 
+            'kind', 
+            'base_url',
+            'owner',
+            'created_at',
+        )
+        read_only_fields = ('id',)
+
+class AssetBundleDetailSerializer(ModelSerializer):
+
+    owner = UserSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = AssetBundle
+        fields = (
+            'id', 
+            'salt', 
+            'kind', 
+            'base_url',
             'owner',
             'created_at',
             'updated_at',

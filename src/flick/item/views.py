@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework import viewsets, status, generics, mixins
 
 from .models import Item
-from .serializers import ItemSerializer
+from .serializers import ItemSerializer, ItemDetailSerializer
 
 class ItemList(generics.ListCreateAPIView):
     """
@@ -27,10 +27,10 @@ class ItemDetail(generics.RetrieveUpdateDestroyAPIView):
     Location: Read, Write, Delete
     """
     queryset = Item.objects.all()
-    serializer_class = ItemSerializer
+    serializer_class = ItemDetailSerializer
     
     def retrieve(self, request, pk):
         queryset = self.get_object()
-        serializer = ItemSerializer(queryset, many=False)
+        serializer = ItemDetailSerializer(queryset, many=False)
         return Response(serializer.data)
 

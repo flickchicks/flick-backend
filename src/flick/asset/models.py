@@ -27,6 +27,10 @@ class AssetBundle(models.Model):
         print("reaches?")
         return f"AssetBundle: {self.salt}"
 
+    def asset_urls(self):
+        assets = Asset.objects.all(asset_bundle=self)
+        return [u for u in assets.full_url]
+
 class Asset(models.Model):
     KIND_CHOICES = (
         ('original', 'Original'),
