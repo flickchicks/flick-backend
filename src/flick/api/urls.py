@@ -6,6 +6,8 @@ from item.views import ItemList, ItemDetail
 from user.views import UserViewSet
 from asset.views import AssetBundleList, AssetBundleDetail
 
+from flick_auth import urls as auth_urls
+
 router = routers.DefaultRouter()
 router.register(r'users', UserViewSet)
 
@@ -17,6 +19,8 @@ urlpatterns = [
 
     path('asset-bundles/', AssetBundleList.as_view(), name='asset-bundles-list'),
     path('asset-bundles/<int:pk>/', AssetBundleDetail.as_view(), name='asset-bundles-detail'),
+
+    path('auth/', include(auth_urls)),
 
     path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
