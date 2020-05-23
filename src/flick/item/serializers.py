@@ -6,24 +6,13 @@ from .models import Item
 from user.serializers import UserSerializer
 
 class ItemSerializer(ModelSerializer):
-    owner = PrimaryKeyRelatedField(queryset=User.objects.all())
+    # owner = PrimaryKeyRelatedField(queryset=User.objects.all())
+    owner = UserSerializer(many=False, read_only=True)
+
     class Meta:
         model = Item
         fields = (
-            'id', 'title', 'subtitle', 'owner',
+            'id', 'asset_bundle', 'owner', 'created_at', 'updated_at'
         )
         read_only_fields = ('id',) # need comma, only accepts tuple!
 
-class ItemDetailSerializer(ModelSerializer):
-    owner = UserSerializer(many=False, read_only=True)
-    class Meta:
-        model = Item
-        fields = (
-            'id', 
-            'title',
-            'subtitle',
-            'owner',
-            'create_at',
-            'updated_at',
-        )
-        read_only_fields = ('id',)

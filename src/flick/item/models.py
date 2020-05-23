@@ -18,12 +18,18 @@ class Item(models.Model):
 
     asset_bundle = models.ForeignKey(AssetBundle, on_delete=models.CASCADE)
 
-
-    def __unicode__(self):
-        return self.title
+    def __str__(self):
+        return f"Item: {self.owner}: {self.asset_bundle}"
 
 class Comment(models.Model):
-    pass
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    body = models.TextField()
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 class Like(models.Model):
-    pass 
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
