@@ -1,13 +1,13 @@
 from django.contrib.auth.models import User
 
-from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField
+from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField, CurrentUserDefault
 
 from .models import AssetBundle
 from user.serializers import UserSerializer
 
 class AssetBundleSerializer(ModelSerializer):
 
-    owner = PrimaryKeyRelatedField(queryset=User.objects.all())
+    owner = PrimaryKeyRelatedField(read_only=True, default=CurrentUserDefault())
 
     class Meta:
         model = AssetBundle
@@ -21,6 +21,9 @@ class AssetBundleSerializer(ModelSerializer):
             'created_at',
         )
         read_only_fields = ('id',)
+        
+    def save(self):
+        user = CurrentUserDefault()
 
 class AssetBundleDetailSerializer(ModelSerializer):
 

@@ -26,15 +26,6 @@ class ItemList(generics.ListCreateAPIView):
         # can access logged in user via request.user
         self.serializer_class = ItemSerializer
         return super(ItemList, self).list(request)
-    
-    # a fix for breaking change since django 3.8
-    # for read-only fields you need to pass the value when calling save
-    # this is so that when an item is created, only the 
-    # currently authenticated user is linekd to the item and can
-    # be shown in the ItemSerializer as "owner"
-    def perform_create(self, serializer):
-        self.serializer_class = ItemSerializer
-        serializer.save(owner=self.request.user)
 
 class ItemDetail(generics.RetrieveUpdateDestroyAPIView):
     """
@@ -42,6 +33,8 @@ class ItemDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     queryset = Item.objects.all()
     serializer_class = ItemDetailSerializer
+
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
     
     def retrieve(self, request, pk):
         queryset = self.get_object()

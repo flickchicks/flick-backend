@@ -8,6 +8,7 @@ from rest_framework import viewsets, status, generics, mixins
 
 from .serializers import AssetBundleSerializer, AssetBundleDetailSerializer
 from .models import AssetBundle
+from api import settings as api_settings
 
 class AssetBundleList(generics.ListCreateAPIView):
     """
@@ -15,6 +16,8 @@ class AssetBundleList(generics.ListCreateAPIView):
     """
     queryset = AssetBundle.objects.all()
     serializer_class = AssetBundleSerializer
+
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
 
     # don't need this, generics has this code, but this overrides
     # gives option to add additional checks / customize
@@ -28,6 +31,8 @@ class AssetBundleDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     queryset = AssetBundle.objects.all()
     serializer_class = AssetBundleDetailSerializer
+
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
     
     def retrieve(self, request, pk):
         queryset = self.get_object()
