@@ -10,7 +10,12 @@ class Profile(models.Model):
     """
     User profile model. Matches one to one with built-in Django user model.
     """
+    ROLE_CHOICES = (
+        ('consumer', 'Consumer'),
+        ('staff', 'Staff')
+    )
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    role = models.CharField(max_length=8, choices=ROLE_CHOICES)
     bio = models.TextField(blank=True, null=True)
     # profile_pic = models.ForeignKey(AssetBundle, on_delete=models.CASCADE)
     phone_number = models.TextField()

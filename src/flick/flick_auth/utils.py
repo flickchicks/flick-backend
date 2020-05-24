@@ -147,7 +147,7 @@ class AuthTools:
             }
         except Exception as e:
             print(str(e))
-            raise Exception(e.message)
+            raise Exception(e)
         return None 
 
     @staticmethod

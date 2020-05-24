@@ -38,6 +38,8 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             'username': items['username'],
             'email': items['email'],
             'password': items['password'],
+            'first_name': items['first_name'],
+            'last_name': items['last_name']
         }
 
         profile_data = {
@@ -45,6 +47,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         }
 
         group = profile_data['role'] + '_basic'
+        print(f'the group is {group}')
         user = AuthTools.register(user_data, profile_data, group)
 
         if user is not None:
@@ -53,15 +56,25 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
         raise serializers.ValidationError('Unable to register with the credentials provided.')
 
-class LoginSerializer(serializers.ModelSerializer):
+class LoginSerializer(serializers.Serializer):
     auth_token = serializers.CharField(source='key')
-    user = UserSerializer(many=False, read_only=True)
+    # user = UserSerializer(many=False, read_only=True)
 
-    class Meta:
-        model = Token 
-        fields = (
-            'auth_token',
-            'user'
-        )
-        read_only_fields = fields
+    email = serializers.CharField()
+    password = serializers.CharField()
 
+    # class Meta:
+    #     model = Token 
+    #     fields = (
+    #         'auth_token',
+    #         'user',
+    #         'password'
+    #     )
+    #     read_only_fields = fields
+
+class LoginCompleteSerializer(serializers.Serializer):
+    
+    auth_token = serializers.CharField(source='key', read_only=True)  
+
+class LogoutSerializer(serializers.Serializer):
+    pass

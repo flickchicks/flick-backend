@@ -2,18 +2,20 @@ from django.shortcuts import render
 
 from django.contrib.auth import get_user_model
 from django.conf import settings as dj_settings 
-from rest_framework import generics, status
+from rest_framework import status
 from rest_framework.response import Response 
 from .utils import AuthTools
 from api import settings as api_settings
 from user.serializers import UserSerializer, ProfileSerializer
 from user.models import Profile
-from .serializers import *
+from .serializers import LoginSerializer, UserRegisterSerializer, LoginCompleteSerializer, LogoutSerializer
+from api.generics import *
 import re # regex engine
 
 User = get_user_model()
 
-class UserView(generics.RetrieveUpdateAPIView):
+class UserView(RetrieveUpdateAPIView):
+
     model = User
     serializer_class = UserSerializer
     permission_classes = api_settings.CONSUMER_PERMISSIONS
@@ -21,7 +23,8 @@ class UserView(generics.RetrieveUpdateAPIView):
     def get_object(self, *args, **kwargs):
         return self.request.user
 
-class ProfileView(generics.RetrieveUpdateAPIView):
+class ProfileView(RetrieveUpdateAPIView):
+
     model = User.profile 
     serializer_class = ProfileSerializer
     permission_classes = api_settings.CONSUMER_PERMISSIONS
@@ -29,7 +32,11 @@ class ProfileView(generics.RetrieveUpdateAPIView):
     def get_object(self, *args, **kwargs):
         return self.request.user.profile
 
-class LoginView(generics.GenericAPIView):
+class LoginView(GenericAPIView):
+
+    permission_classes = api_settings.UNPROTECTED
+    serializer_class = LoginSerializer
+
     def post(self, request):
         if 'email' in request.data and 'password' in request.data:
             email = request.data['email'].lower()
@@ -39,14 +46,15 @@ class LoginView(generics.GenericAPIView):
 
             if user is not None and AuthTools.login(request, user):
                 token = AuthTools.issue_user_token(user, 'login')
-                serializer = LoginSerializer(token)
+                serializer = LoginCompleteSerializer(token)
                 return Response(serializer.data)
 
         message = { 'message': 'Unable to login with the credentials provided.' }
         return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
-class LogoutView(generics.GenericAPIView):
+class LogoutView(GenericAPIView):
     permission_classes = api_settings.CONSUMER_PERMISSIONS
+    serializer_class = LogoutSerializer
 
     def post(self, request):
         if AuthTools.logout(request):
@@ -54,7 +62,7 @@ class LogoutView(generics.GenericAPIView):
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
-class RegisterView(generics.CreateAPIView):
+class RegisterView(CreateAPIView):
     serializer_class = UserRegisterSerializer
     permission_classes = api_settings.UNPROTECTED
 
