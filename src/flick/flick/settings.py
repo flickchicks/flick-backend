@@ -53,6 +53,12 @@ INSTALLED_APPS = [
     'flick_auth'
 ]
 
+# needed to test in Postman
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ]
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

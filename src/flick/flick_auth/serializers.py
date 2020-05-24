@@ -57,7 +57,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         raise serializers.ValidationError('Unable to register with the credentials provided.')
 
 class LoginSerializer(serializers.Serializer):
-    auth_token = serializers.CharField(source='key')
+    auth_token = serializers.CharField(source='key', read_only=True)
     # user = UserSerializer(many=False, read_only=True)
 
     email = serializers.CharField()
