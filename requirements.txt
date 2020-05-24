@@ -4,6 +4,8 @@ chardet==3.0.4
 defusedxml==0.6.0
 Django==3.0.6
 django-allauth==0.41.0
+django-rest-framework==0.1.0
+djangorestframework==3.11.0
 idna==2.9
 mysqlclient==1.4.6
 oauthlib==3.1.0
