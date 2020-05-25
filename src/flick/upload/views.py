@@ -7,6 +7,7 @@ from rest_framework.serializers import Serializer
 from api import settings as api_settings
 from api.generics import generics
 
+import boto3
 from PIL import Image
 from io import BytesIO
 import base64, json, random, re, string
@@ -26,21 +27,30 @@ class UploadImage(generics.CreateAPIView):
 
         try:
             # remove header of base64 string
-            image_data = base64.b64decode(re.sub('^data:image/.+;base64,', '', data['image']))
+            img_data = base64.b64decode(re.sub('^data:image/.+;base64,', '', data['image']))
 
             # get PIL image
-            image = Image.open(BytesIO(image_data))
+            img = Image.open(BytesIO(img_data))
 
-            image_format = image.format.lower()
+            img_format = img.format.lower()
 
-            if image_format not in ['jpeg', 'jpg', 'png', 'gif']:
+            if img_format not in ['jpeg', 'jpg', 'png', 'gif']:
                 return Response({'error': 'Image type not accepted. Must be jpeg, jpg, png, or gif.'}, status=status.HTTP_400_BAD_REQUEST)
 
+            # secure way of generating a random string
             salt = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(16))
-            print(salt)
+            
+            img_filename = f'{salt}.{img_format}'
+            img_temploc = f'tmp/{img_filename}'
+            img.save(img_temploc)
 
-            # save the image as {salt}.png in src/flick/tmp
-            image.save(f'tmp/{salt}.{image_format}')
+            s3_client = boto3.client('s3')
+            s3_client.upload_file(img_temploc, 'flick', img_filename)
+            
+            s3_resource = boto3.resource('s3')
+            # make s3 image url public
+            object_acl = s3_resource.ObjectAcl('flick', img_filename)
+            response = object_acl.put(ACL='public-read')
 
         except Exception as e:
             return Response({'error': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)
