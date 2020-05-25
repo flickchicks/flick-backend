@@ -5,6 +5,7 @@ from rest_framework import routers
 from item.views import ItemList, ItemDetail
 from user.views import UserViewSet
 from asset.views import AssetBundleList, AssetBundleDetail
+from upload.views import UploadImage
 
 from flick_auth import urls as auth_urls
 
@@ -22,6 +23,8 @@ urlpatterns = [
 
     path('auth/', include(auth_urls)),
 
+    path('media/image/', UploadImage.as_view(), name='upload'),
+
     path('', include(router.urls)),
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
