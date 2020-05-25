@@ -85,6 +85,7 @@ env.bak/
 venv.bak/ 
 credentials
 .aws/
+tmp/
 
 # mkdocs documentation 
 /site 
