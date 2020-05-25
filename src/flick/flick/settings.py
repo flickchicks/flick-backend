@@ -17,6 +17,7 @@ from decouple import config
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+TEMP_DIR = 'tmp/'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
@@ -161,4 +162,5 @@ STATIC_URL = '/static/'
 
 # S3 (for images)
 
-S3_BASE_URL = 'http://s3.com/uploads/'
+S3_BUCKET = 'flick'
+S3_BASE_URL = f'https://{S3_BUCKET}.s3-us-west-1.amazonaws.com/'
