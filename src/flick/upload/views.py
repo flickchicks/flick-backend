@@ -20,7 +20,7 @@ class UploadImage(generics.CreateAPIView):
 
     serializer_class = Serializer
 
-    def upload_image(self, request, salt, img, img_format, kind, width, height):
+    def upload_image(self, asset_bundle, salt, img, img_format, kind, width, height):
         # secure way of generating a random string        
         img_filename = f'{salt}_{kind}.{img_format}'
         img_temploc = f'{settings.TEMP_DIR}/{img_filename}'
@@ -34,18 +34,10 @@ class UploadImage(generics.CreateAPIView):
         object_acl = s3_resource.ObjectAcl(settings.S3_BUCKET, f'image/{img_filename}')
         response = object_acl.put(ACL='public-read')
 
-        # create asset bundle
-        asset_bundle = AssetBundle()
-        asset_bundle.salt = salt
-        asset_bundle.kind = 'image'
-        asset_bundle.base_url = settings.S3_BASE_URL
-        asset_bundle.owner = request.user
-        asset_bundle.save()
-
         # start making asset
         asset = Asset()
         asset.asset_bundle = asset_bundle
-        asset.kind = 'original'
+        asset.kind = kind
         asset.width = img.width
         asset.height = img.height 
         asset.extension = img_format
@@ -73,11 +65,17 @@ class UploadImage(generics.CreateAPIView):
             if img_format not in ['jpeg', 'jpg', 'png', 'gif']:
                 return Response({'error': 'Image type not accepted. Must be jpeg, jpg, png, or gif.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            asset_bundle = None
-
             aspect = img.width / img.height 
 
             salt = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(16))
+
+            # create asset bundle
+            asset_bundle = AssetBundle()
+            asset_bundle.salt = salt
+            asset_bundle.kind = 'image'
+            asset_bundle.base_url = settings.S3_BASE_URL
+            asset_bundle.owner = request.user
+            asset_bundle.save()
 
             width, height = 0, 0
             for kind, _ in Asset.KIND_CHOICES:
@@ -95,7 +93,7 @@ class UploadImage(generics.CreateAPIView):
                     new_img = new_img.resize((width, height))
                 else: 
                     print(f"error: image {kind} not handled yet!")
-                asset_bundle = self.upload_image(request, salt, new_img, img_format, kind, width, height)
+                asset_bundle = self.upload_image(asset_bundle, salt, new_img, img_format, kind, width, height)
 
         except Exception as e:
             return Response({'error': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)
