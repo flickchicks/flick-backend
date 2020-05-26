@@ -26,6 +26,13 @@ class ItemList(generics.ListCreateAPIView):
         # can access logged in user via request.user
         self.serializer_class = ItemSerializer
         return super(ItemList, self).list(request)
+    
+    # for read-only fields you need to pass the value when calling save
+    # this is so that when an item is created, only the 
+    # currently authenticated user is linked to the item and can
+    # be shown in the ItemSerializer as "owner"
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 class ItemDetail(generics.RetrieveUpdateDestroyAPIView):
     """
