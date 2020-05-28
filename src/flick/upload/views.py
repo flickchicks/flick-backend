@@ -7,7 +7,8 @@ from rest_framework.serializers import Serializer
 from api import settings as api_settings
 from api.generics import generics
 from asset.models import Asset, AssetBundle
-from asset.serializers import AssetBundleDetailSerializer
+from item.models import Item
+from item.serializers import ItemDetailSerializer
 
 import boto3
 from PIL import Image
@@ -95,8 +96,14 @@ class UploadImage(generics.CreateAPIView):
                     print(f"error: image {kind} not handled yet!")
                 asset_bundle = self.upload_image(asset_bundle, salt, new_img, img_format, kind, width, height)
 
+            item = Item()
+            item.asset_bundle = asset_bundle
+            item.owner = request.user
+            item.save()
+
+
         except Exception as e:
             return Response({'error': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = AssetBundleDetailSerializer(asset_bundle)
+        serializer = ItemDetailSerializer(item)
         return Response(serializer.data, status=status.HTTP_200_OK)
