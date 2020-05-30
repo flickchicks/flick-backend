@@ -1,19 +1,24 @@
-from django.conf import settings 
+import base64
+import json
+import os
+import random
+import re
+import string
+from io import BytesIO
+from mimetypes import guess_extension, guess_type
 
-from rest_framework import status, mixins
-from rest_framework.response import Response
-from rest_framework.serializers import Serializer
-
+import boto3
 from api import settings as api_settings
 from api.generics import generics
 from asset.models import Asset, AssetBundle
+from django.conf import settings
+from flick.tasks import add, resize_and_upload
 from item.models import Item
 from item.serializers import ItemDetailSerializer
-
-import boto3
 from PIL import Image
-from io import BytesIO
-import base64, json, os, random, re, string
+from rest_framework import mixins, status
+from rest_framework.response import Response
+from rest_framework.serializers import Serializer
 
 
 # Create your views here.
@@ -21,89 +26,53 @@ class UploadImage(generics.CreateAPIView):
 
     serializer_class = Serializer
 
-    def upload_image(self, asset_bundle, salt, img, img_format, kind, width, height):
-        # secure way of generating a random string        
-        img_filename = f'{salt}_{kind}.{img_format}'
-        img_temploc = f'{settings.TEMP_DIR}/{img_filename}'
-        img.save(img_temploc)
-
-        s3_client = boto3.client('s3')
-        s3_client.upload_file(img_temploc, settings.S3_BUCKET, f'image/{img_filename}')
-        
-        s3_resource = boto3.resource('s3')
-        # make s3 image url public
-        object_acl = s3_resource.ObjectAcl(settings.S3_BUCKET, f'image/{img_filename}')
-        response = object_acl.put(ACL='public-read')
-
-        # start making asset
-        asset = Asset()
-        asset.asset_bundle = asset_bundle
-        asset.kind = kind
-        asset.width = img.width
-        asset.height = img.height 
-        asset.extension = img_format
-        asset.save()
-
-        # os.remove(img_temploc)
-        return asset_bundle
-
     # client is expected to send a base64 string
     def post(self, request):
+        # value = add.delay(5, 7)
+        # print(f"value: {value}")
+
+        # return Response({'foo': 'bar'}, status=status.HTTP_200_OK)
+
         data = json.loads(request.body)
 
-        if not 'image' in data:
-            return Response({'error': 'no image in request.'}, status=status.HTTP_400_BAD_REQUEST)
+        if "image" not in data:
+            return Response(
+                {"error": "no image in request."}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         try:
             # remove header of base64 string
-            img_data = base64.b64decode(re.sub('^data:image/.+;base64,', '', data['image']))
-
-            # get PIL image
-            img = Image.open(BytesIO(img_data))
-
-            img_format = img.format.lower()
-
-            if img_format not in ['jpeg', 'jpg', 'png', 'gif']:
-                return Response({'error': 'Image type not accepted. Must be jpeg, jpg, png, or gif.'}, status=status.HTTP_400_BAD_REQUEST)
-
-            aspect = img.width / img.height 
-
-            salt = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(16))
+            img_str = re.sub("^data:image/.+;base64,", "", data["image"])
+            salt = "".join(
+                random.SystemRandom().choice(string.ascii_uppercase + string.digits)
+                for _ in range(16)
+            )
 
             # create asset bundle
             asset_bundle = AssetBundle()
             asset_bundle.salt = salt
-            asset_bundle.kind = 'image'
+            asset_bundle.kind = "image"
             asset_bundle.base_url = settings.S3_BASE_URL
             asset_bundle.owner = request.user
             asset_bundle.save()
 
-            width, height = 0, 0
             for kind, _ in Asset.KIND_CHOICES:
-                new_img = img
-                if kind is 'original':
-                    width = img.width
-                    height = img.height
-                elif kind is 'large':
-                    width = 1024
-                    height = int(aspect * 1024)
-                    new_img = new_img.resize((width, height))
-                elif kind is 'small':
-                    width = 128
-                    height = int(aspect * 128)
-                    new_img = new_img.resize((width, height))
-                else: 
-                    print(f"error: image {kind} not handled yet!")
-                asset_bundle = self.upload_image(asset_bundle, salt, new_img, img_format, kind, width, height)
+                # start making asset
+                asset = Asset()
+                asset.asset_bundle = asset_bundle
+                asset.kind = kind
+                asset.extension = guess_extension(guess_type(data["image"])[0])[1:]
+                # asset.processing = True
+                asset.save()
+                resize_and_upload.delay(img_str, asset.extension, salt, kind, asset.id)
 
             item = Item()
             item.asset_bundle = asset_bundle
             item.owner = request.user
             item.save()
 
-
         except Exception as e:
-            return Response({'error': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": f"{e}"}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = ItemDetailSerializer(item)
         return Response(serializer.data, status=status.HTTP_200_OK)
