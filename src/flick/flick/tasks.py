@@ -1,4 +1,3 @@
-# Create your tasks here
 from __future__ import absolute_import, unicode_literals
 
 import base64
@@ -17,29 +16,27 @@ from PIL import Image
 from rest_framework import status
 from rest_framework.response import Response
 
-# from demoapp.models import Widget
 
-
-def upload_image(asset_id, salt, img, img_format, kind, width, height):
-    # secure way of generating a random string
-    img_filename = f"{salt}_{kind}.{img_format}"
+def upload_image(asset_id, salt, img, kind, img_ext, width, height):
+    # save image in temp dir
+    img_filename = f"{salt}_{kind}.{img_ext}"
     img_temploc = f"{settings.TEMP_DIR}/{img_filename}"
     img.save(img_temploc)
 
+    # upload image to S3
     s3_client = boto3.client("s3")
     s3_client.upload_file(img_temploc, settings.S3_BUCKET, f"image/{img_filename}")
 
+    # make S3 image url public
     s3_resource = boto3.resource("s3")
-    # make s3 image url public
     object_acl = s3_resource.ObjectAcl(settings.S3_BUCKET, f"image/{img_filename}")
-    response = object_acl.put(ACL="public-read")
-    print(f"response:{response}")
+    object_acl.put(ACL="public-read")
 
+    # save image details to database
     asset = Asset.objects.get(pk=asset_id)
     asset.width = width
     asset.height = height
-    # asset.extension = img_format
-    # asset.processing = False
+    asset.is_processing = False
     asset.save()
 
     os.remove(img_temploc)
@@ -47,24 +44,15 @@ def upload_image(asset_id, salt, img, img_format, kind, width, height):
 
 
 @shared_task
-def resize_and_upload(img_str, img_format, salt, kind, asset_id):
-    img_data = base64.b64decode(img_str)
-
+def resize_and_upload(asset_id, salt, img_str, kind, img_ext):
     # get PIL image
+    img_data = base64.b64decode(img_str)
     img = Image.open(BytesIO(img_data))
 
-    # img_format = img.format.lower()
-
-    if img_format not in ["jpeg", "jpg", "png", "gif"]:
-        return Response(
-            {"error": "Image type not accepted. Must be jpeg, jpg, png, or gif."},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
     aspect = img.width / img.height
-
     width, height = 0, 0
     new_img = img
+
     if kind == "original":
         width = img.width
         height = img.height
@@ -78,7 +66,9 @@ def resize_and_upload(img_str, img_format, salt, kind, asset_id):
         new_img = new_img.resize((width, height))
     else:
         print(f"error: image {kind} not handled yet!")
-    upload_image(asset_id, salt, new_img, img_format, kind, width, height)
+
+    upload_image(asset_id, salt, new_img, kind, img_ext, width, height)
+
     return
 
 
@@ -95,15 +85,3 @@ def mul(x, y):
 @shared_task
 def xsum(numbers):
     return sum(numbers)
-
-
-# @shared_task
-# def count_widgets():
-#     return Widget.objects.count()
-
-
-# @shared_task
-# def rename_widget(widget_id, name):
-#     w = Widget.objects.get(id=widget_id)
-#     w.name = name
-#     w.save()

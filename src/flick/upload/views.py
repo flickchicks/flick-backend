@@ -21,18 +21,11 @@ from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 
 
-# Create your views here.
 class UploadImage(generics.CreateAPIView):
 
     serializer_class = Serializer
 
-    # client is expected to send a base64 string
     def post(self, request):
-        # value = add.delay(5, 7)
-        # print(f"value: {value}")
-
-        # return Response({'foo': 'bar'}, status=status.HTTP_200_OK)
-
         data = json.loads(request.body)
 
         if "image" not in data:
@@ -41,14 +34,26 @@ class UploadImage(generics.CreateAPIView):
             )
 
         try:
+            # [1:] strips off leading period
+            img_ext = guess_extension(guess_type(data["image"])[0])[1:]
+
+            if img_ext not in ["jpeg", "jpg", "png", "gif"]:
+                return Response(
+                    {
+                        "error": "Image type not accepted. Must be jpeg, jpg, png, or gif."
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
             # remove header of base64 string
             img_str = re.sub("^data:image/.+;base64,", "", data["image"])
+
+            # secure way of generating random string for image name
             salt = "".join(
                 random.SystemRandom().choice(string.ascii_uppercase + string.digits)
                 for _ in range(16)
             )
 
-            # create asset bundle
             asset_bundle = AssetBundle()
             asset_bundle.salt = salt
             asset_bundle.kind = "image"
@@ -57,14 +62,15 @@ class UploadImage(generics.CreateAPIView):
             asset_bundle.save()
 
             for kind, _ in Asset.KIND_CHOICES:
-                # start making asset
                 asset = Asset()
                 asset.asset_bundle = asset_bundle
                 asset.kind = kind
-                asset.extension = guess_extension(guess_type(data["image"])[0])[1:]
-                # asset.processing = True
+                asset.extension = img_ext
+                asset.is_processing = True
                 asset.save()
-                resize_and_upload.delay(img_str, asset.extension, salt, kind, asset.id)
+
+                # do resize_and_upload asynchronously, move onto responding to client
+                resize_and_upload.delay(asset.id, salt, img_str, kind, img_ext)
 
             item = Item()
             item.asset_bundle = asset_bundle
