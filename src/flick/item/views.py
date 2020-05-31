@@ -64,13 +64,11 @@ class LikeItem(generics.CreateAPIView):
         item = Item.objects.get(pk=data["item_id"])
 
         try:
-            print("try")
             like = Like()
             like.item = item
             like.owner = request.user
             like.save()
         except IntegrityError:
-            print("catch")
             return Response({"error": "item already liked by this user!"}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = ItemDetailSerializer(item)

@@ -1,11 +1,17 @@
 [tool.black]
 line-length = 120
-target_version = ['py37']
+include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | venv
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
   | migrations
-  | __pycache__
 )/
 '''
