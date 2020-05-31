@@ -5,12 +5,14 @@ from item.views import CommentItem, ItemDetail, ItemList, LikeItem
 from rest_framework import routers
 from upload.views import UploadImage
 from user.views import UserViewSet
+from flick_auth.views import RegisterViewSet
 
 from show.views import ShowViewSet
 
 router = routers.DefaultRouter()
 router.register(r"users", UserViewSet)
 router.register(r"shows", ShowViewSet)
+router.register(r"register", RegisterViewSet)
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
