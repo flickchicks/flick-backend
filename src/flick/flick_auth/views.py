@@ -41,18 +41,18 @@ class LoginView(GenericAPIView):
     serializer_class = LoginSerializer
 
     def post(self, request):
-        if "email" in request.data and "password" in request.data:
-            email = request.data["email"].lower()
-            password = request.data["password"]
+        if "username" in request.data and "social_id_token" in request.data:
+            username = request.data["username"]
+            social_id_token = request.data["social_id_token"]
 
-            user = AuthTools.authenticate_email(email, password)
+            user = AuthTools.authenticate_social_id_token(username, social_id_token)
 
-            if user is not None and AuthTools.login(request, user):
+            if user is not None:  # and AuthTools.login(request, user):
                 token = AuthTools.issue_user_token(user, "login")
                 serializer = LoginCompleteSerializer(token)
                 return Response(serializer.data)
 
-        message = {"message": "Unable to login with the credentials provided."}
+        message = {"error": "Unable to login with the credentials provided."}
         return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -78,3 +78,4 @@ class RegisterView(CreateAPIView):
 class RegisterViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserRegisterSerializer
+    permission_classes = api_settings.UNPROTECTED

@@ -49,10 +49,10 @@ class AuthTools:
     # good to customize authenticate, can add more interception here
     # ex. sending a notif that someone tried to authenticate, etc
     @staticmethod
-    def authenticate(username, password):
+    def authenticate(username, social_id_token):
         try:
             # built-in Django authenticate
-            user = authenticate(username=username, password=password)
+            user = authenticate(username=username, password=social_id_token)
             if user is not None:
                 return user
         except Exception as e:
@@ -70,6 +70,13 @@ class AuthTools:
             # otherwise, login as username
             return AuthTools.authenticate(email, password)
         return None
+
+    @staticmethod
+    def authenticate_social_id_token(username, social_id_token):
+        user = AuthTools.get_user_by_username(username)
+        if user is not None:
+            return AuthTools.authenticate(user.username, social_id_token)
+        return True
 
     @staticmethod
     def get_user_by_email(email):
@@ -128,6 +135,8 @@ class AuthTools:
                 return {"user": username_exists[0], "is_new": False}
 
             user = User.objects.create_user(**user_data)
+            print(f"user data is {user_data}")
+            print(f"profile data is {profile_data}")
 
             profile_data["user"] = user
             profile = Profile(**profile_data)

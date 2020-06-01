@@ -32,9 +32,20 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         data = self.init_data if hasattr(self, "init_data") else self.initial_data
 
         items = dict(data.items())
-        user_data = {"username": items["username"], "first_name": items["first_name"], "last_name": items["last_name"]}
+        user_data = {
+            "username": items["username"],
+            "first_name": items["first_name"],
+            "last_name": items["last_name"],
+            "password": items["profile.social_id_token"],
+        }
 
-        profile_data = {"role": "consumer"}
+        print(f"items is {items}")
+        profile_data = {
+            "profile_pic": items["profile.profile_pic"],
+            "social_id_token": items["profile.social_id_token"],
+            "social_id_token_type": items["profile.social_id_token_type"],
+            "role": "consumer",
+        }
 
         group = profile_data["role"] + "_basic"
         user = AuthTools.register(user_data, profile_data, group)
@@ -50,8 +61,8 @@ class LoginSerializer(serializers.Serializer):
     auth_token = serializers.CharField(source="key", read_only=True)
     # user = UserSerializer(many=False, read_only=True)
 
-    email = serializers.CharField()
-    password = serializers.CharField()
+    username = serializers.CharField()
+    social_id_token = serializers.CharField()
 
     # class Meta:
     #     model = Token
