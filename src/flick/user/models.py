@@ -41,5 +41,6 @@ class Profile(models.Model):
             print(asset_bundle)
 
         self.profile_asset_bundle = asset_bundle
+        self.profile_pic = None
         print(f"asset_bundle: {asset_bundle}")
         super(Profile, self).save(*args, **kwargs)

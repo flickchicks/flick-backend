@@ -16,7 +16,6 @@ class ProfileSerializer(ModelSerializer):
         fields = (
             "id",
             "bio",
-            "profile_pic",
             "profile_asset_bundle",
             "phone_number",
             "social_id_token_type",
