@@ -21,15 +21,10 @@ from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 
 
-def upload_image(request):
+def upload_image(image_data, user):
     try:
-        data = json.loads(request.body)
-
-        if "image" not in data:
-            return Response({"error": "no image in request."}, status=status.HTTP_400_BAD_REQUEST)
-
         # [1:] strips off leading period
-        img_ext = guess_extension(guess_type(data["image"])[0])[1:]
+        img_ext = guess_extension(guess_type(image_data)[0])[1:]
 
         if img_ext not in ["jpeg", "jpg", "png", "gif"]:
             return Response(
@@ -38,7 +33,7 @@ def upload_image(request):
             )
 
         # remove header of base64 string
-        img_str = re.sub("^data:image/.+;base64,", "", data["image"])
+        img_str = re.sub("^data:image/.+;base64,", "", image_data)
 
         # secure way of generating random string for image name
         salt = "".join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(16))
@@ -47,7 +42,7 @@ def upload_image(request):
         asset_bundle.salt = salt
         asset_bundle.kind = "image"
         asset_bundle.base_url = settings.S3_BASE_URL
-        asset_bundle.owner = request.user
+        asset_bundle.owner = user
         asset_bundle.save()
 
         for kind, _ in Asset.KIND_CHOICES:
@@ -63,4 +58,4 @@ def upload_image(request):
 
         return asset_bundle
     except Exception as e:
-        return Response({"error": f"{e}"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": f"{e} REACHES?"}, status=status.HTTP_400_BAD_REQUEST)

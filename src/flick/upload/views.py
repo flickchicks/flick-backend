@@ -27,11 +27,16 @@ class UploadImage(generics.CreateAPIView):
     serializer_class = Serializer
 
     def post(self, request):
-        asset_bundle = upload_image(request)
+        data = json.loads(request.body)
+        if "image" not in data:
+            return Response({"error": "no image in request."}, status=status.HTTP_400_BAD_REQUEST)
+        asset_bundle = upload_image(data["image"], request.user)
         if not asset_bundle:
             return Response(
                 {"Error": "Could not create asset bundle from base64 string!"}, status=status.HTTP_400_BAD_REQUEST
             )
+        elif not isinstance(asset_bundle, AssetBundle):
+            return asset_bundle
         item = Item()
         item.asset_bundle = asset_bundle
         item.owner = request.user

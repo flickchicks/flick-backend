@@ -4,10 +4,26 @@ from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField, 
 from user.models import Profile
 
 
+from asset.serializers import AssetBundleDetailSerializer
+
+
 class ProfileSerializer(ModelSerializer):
+
+    profile_asset_bundle = AssetBundleDetailSerializer(read_only=True)
+
     class Meta:
         model = Profile
-        fields = ("id", "bio", "profile_pic", "phone_number", "social_id_token_type", "social_id_token")
+        fields = (
+            "id",
+            "bio",
+            "profile_pic",
+            "profile_asset_bundle",
+            "phone_number",
+            "social_id_token_type",
+            "social_id_token",
+            "owner_lsts",
+            "collab_lsts",
+        )
         read_only_fields = ("id",)
 
 
@@ -29,7 +45,7 @@ class UserSerializer(ModelSerializer):
 
     class Meta:
         model = User
-        fields = ("id", User.USERNAME_FIELD, "first_name", "last_name", "email", "profile", "groups")
+        fields = ("id", User.USERNAME_FIELD, "first_name", "last_name", "profile", "groups")
         read_only_fields = ("id", "groups", "profile")
 
 

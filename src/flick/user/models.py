@@ -4,6 +4,8 @@ from django.db import models
 
 from lst.models import Lst
 
+# from upload.utils import upload_image
+
 
 # Create your models here.
 class Profile(models.Model):
@@ -15,8 +17,8 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     role = models.CharField(max_length=8, choices=ROLE_CHOICES, default="consumer")
     bio = models.TextField(blank=True, null=True)
-    profile_asset_bundle = models.ForeignKey(AssetBundle, on_delete=models.CASCADE, blank=True, null=True)
     profile_pic = models.TextField(blank=True, null=True)
+    profile_asset_bundle = models.ForeignKey(AssetBundle, on_delete=models.CASCADE, blank=True, null=True)
     phone_number = models.TextField(blank=True, null=True)
     social_id_token_type = models.TextField(blank=True, null=True)
     social_id_token = models.TextField(blank=True, null=True)
@@ -28,3 +30,16 @@ class Profile(models.Model):
     # override what django admin displays
     def __str__(self):
         return f"{self.user.username}, {self.user.name}"
+
+    def save(self, *args, **kwargs):
+        from upload.utils import upload_image
+
+        asset_bundle = upload_image(self.profile_pic, self.user)
+        if not asset_bundle:
+            print("Could not upload profile pic")
+        elif not isinstance(asset_bundle, AssetBundle):
+            print(asset_bundle)
+
+        self.profile_asset_bundle = asset_bundle
+        print(f"asset_bundle: {asset_bundle}")
+        super(Profile, self).save(*args, **kwargs)

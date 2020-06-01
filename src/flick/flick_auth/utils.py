@@ -8,6 +8,7 @@ from django.conf import settings as django_settings
 
 from rest_framework.authtoken.models import Token
 
+from asset.models import AssetBundle
 from user.models import Profile
 from . import settings as auth_settings
 import re
@@ -135,8 +136,6 @@ class AuthTools:
                 return {"user": username_exists[0], "is_new": False}
 
             user = User.objects.create_user(**user_data)
-            print(f"user data is {user_data}")
-            print(f"profile data is {profile_data}")
 
             profile_data["user"] = user
             profile = Profile(**profile_data)

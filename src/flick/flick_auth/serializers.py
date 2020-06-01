@@ -4,6 +4,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from rest_framework.authtoken.models import Token
 
+from asset.serializers import AssetBundleDetailSerializer
 from user.serializers import ProfileSerializer, UserSerializer
 from .utils import AuthTools
 from user.models import Profile
@@ -15,7 +16,7 @@ class ProfileRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ("profile_pic", "social_id_token", "social_id_token_type")
-        write_only_fields = fields
+        write_only_fields = ("profile_pic", "social_id_token", "social_id_token_type")
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
@@ -39,7 +40,6 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             "password": items["profile.social_id_token"],
         }
 
-        print(f"items is {items}")
         profile_data = {
             "profile_pic": items["profile.profile_pic"],
             "social_id_token": items["profile.social_id_token"],
