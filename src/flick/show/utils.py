@@ -31,7 +31,7 @@ Movie object format
 
 
 # Movie helpers
-def get_movie_from_DBinfo(self, info):
+def get_movie_from_DBinfo(info):
     tags = []
     for genre in info["genres"]:
         tags.append(genre["name"])
@@ -52,7 +52,7 @@ def get_movie_from_DBinfo(self, info):
     return movie
 
 
-def get_tv_from_DBinfo(self, info):
+def get_tv_from_DBinfo(info):
     # maybe need another separate json?? episodes/ last aired/ most recent episode etc
     tags = []
     for genre in info["genres"]:
@@ -75,51 +75,51 @@ def get_tv_from_DBinfo(self, info):
     return tv
 
 
-def get_movie_info(self, id):
+def get_movie_info(id):
     """
         Get movie info by id
     """
     movie = tmdb.Movies(id)
     try:
-        return self.get_movie_from_DBinfo(movie.info())
+        return get_movie_from_DBinfo(movie.info())
     except Exception as e:
         print(e)
         return None
 
 
-def search_movie_by_name(self, name):
+def search_movie_by_name(name):
     """
         search a movie by name:
         return a list of media ids and tiles
     """
     search = tmdb.Search()
     search.movie(query=name)
-    return self.search_result(search)
+    return search_result(search)
 
 
-def get_tv_info(self, id):
+def get_tv_info(id):
     """
         Get movie info by id
     """
     tv = tmdb.TV(id)
     try:
-        return self.get_tv_from_DBinfo(tv.info())
+        return get_tv_from_DBinfo(tv.info())
     except Exception as e:
         print(e)
         return None
 
 
-def search_tv_by_name(self, name):
+def search_tv_by_name(name):
     """
         search a movie by name:
         return a list of media ids and tiles
     """
     search = tmdb.Search()
     search.tv(query=name)
-    return self.search_result(search)
+    return search_result(search)
 
 
-def search_result(self, search):
+def search_result(search):
     """
         given the most recent search,
         return the movie_ids
@@ -131,10 +131,10 @@ def search_result(self, search):
     return result
 
 
-def infos_from_search(self, search_lst, is_tv):
+def infos_from_search(search_lst, is_tv):
     movies = []
     for movie_id in search_lst:
-        info = self.get_tv_info(movie_id) if is_tv else self.get_movie_info(movie_id)
+        info = get_tv_info(movie_id) if is_tv else get_movie_info(movie_id)
         movies.append(info)
     return movies
 
@@ -157,7 +157,7 @@ Anime json object
 
 
 # Anime helpers
-def get_anime_from_DBinfo(self, info):
+def get_anime_from_DBinfo(info):
     """
     filter information from the API
     returns a Anime Json object
@@ -176,58 +176,61 @@ def get_anime_from_DBinfo(self, info):
     )
 
 
-def search_anime_by_id(self, id):
+def search_anime_by_id(id):
     """
     search anime by the mal_id from anime API
     returns a Animal object
     """
     try:
-        search_result = self.jikan.anime(id)
-        return self.get_anime_from_DBinfo(search_result)
+        search_result = jikan.anime(id)
+        return get_anime_from_DBinfo(search_result)
     except:
         # print(e)
         return None
 
 
-def search_animal_by_keyword(self, keyword):
+def search_animal_by_keyword(keyword):
     """
     search anime by the mal_id from anime API
     returns a list of Animal title and id
     """
     result = []
-    search_result = self.jikan.search("anime", keyword, page=1)["results"]
+    search_result = jikan.search("anime", keyword, page=1)["results"]
     for anime_info in search_result:
         result.append({"title": anime_info["title"], "id": anime_info["mal_id"]})
     return result
 
 
-def search_animal_by_year(self, year, season):
+def search_animal_by_year(year, season):
     """
     search anime by year and season from anime API
     returns a list of Animal title and id
     """
     result = []
-    search_result = self.jikan.season(year=year, season=season)["anime"]
+    search_result = jikan.season(year=year, season=season)["anime"]
     for anime_info in search_result:
         result.append({"title": anime_info["title"], "id": anime_info["mal_id"]})
     return result
 
 
-def get_top_anime(self):
+def get_top_anime():
     """
     get Top animes from anime API
     returns a list of Animal title and id
     """
     results = []
-    search_result = self.jikan.top(type="anime")["top"]
+    search_result = jikan.top(type="anime")["top"]
     for anime_info in search_result:
         results.append({"title": anime_info["title"], "id": anime_info["mal_id"]})
     return results
 
 
-def anime_infos_from_search(self, search_lst):
+def anime_infos_from_search(search_lst):
     animes = []
     for anime in search_lst:
-        info = self.search_anime_by_id(anime["id"])
+        info = search_anime_by_id(anime["id"])
         animes.append(info)
     return animes
+
+
+print(get_movie_info(100))
