@@ -1,18 +1,19 @@
 from django.shortcuts import render
 
 from django.contrib.auth import get_user_model
-from django.conf import settings as dj_settings 
-from rest_framework import status
-from rest_framework.response import Response 
+from django.conf import settings as dj_settings
+from rest_framework import status, viewsets
+from rest_framework.response import Response
 from .utils import AuthTools
 from api import settings as api_settings
 from user.serializers import UserSerializer, ProfileSerializer
 from user.models import Profile
 from .serializers import LoginSerializer, UserRegisterSerializer, LoginCompleteSerializer, LogoutSerializer
-from api.generics import *
-import re # regex engine
+from api.generics import CreateAPIView, GenericAPIView, RetrieveUpdateAPIView
+import re  # regex engine
 
 User = get_user_model()
+
 
 class UserView(RetrieveUpdateAPIView):
 
@@ -23,14 +24,16 @@ class UserView(RetrieveUpdateAPIView):
     def get_object(self, *args, **kwargs):
         return self.request.user
 
+
 class ProfileView(RetrieveUpdateAPIView):
 
-    model = User.profile 
+    model = User.profile
     serializer_class = ProfileSerializer
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
     def get_object(self, *args, **kwargs):
         return self.request.user.profile
+
 
 class LoginView(GenericAPIView):
 
@@ -38,19 +41,20 @@ class LoginView(GenericAPIView):
     serializer_class = LoginSerializer
 
     def post(self, request):
-        if 'email' in request.data and 'password' in request.data:
-            email = request.data['email'].lower()
-            password = request.data['password']
+        if "username" in request.data and "social_id_token" in request.data:
+            username = request.data["username"]
+            social_id_token = request.data["social_id_token"]
 
-            user = AuthTools.authenticate_email(email, password)
+            user = AuthTools.authenticate_social_id_token(username, social_id_token)
 
-            if user is not None and AuthTools.login(request, user):
-                token = AuthTools.issue_user_token(user, 'login')
+            if user is not None:  # and AuthTools.login(request, user):
+                token = AuthTools.issue_user_token(user, "login")
                 serializer = LoginCompleteSerializer(token)
                 return Response(serializer.data)
 
-        message = { 'message': 'Unable to login with the credentials provided.' }
+        message = {"error": "Unable to login with the credentials provided."}
         return Response(message, status=status.HTTP_400_BAD_REQUEST)
+
 
 class LogoutView(GenericAPIView):
     permission_classes = api_settings.CONSUMER_PERMISSIONS
@@ -62,10 +66,16 @@ class LogoutView(GenericAPIView):
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
+
 class RegisterView(CreateAPIView):
     serializer_class = UserRegisterSerializer
     permission_classes = api_settings.UNPROTECTED
 
     def perform_create(self, serializer):
-        instance = serializer.save()
+        serializer.save()
 
+
+class RegisterViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserRegisterSerializer
+    permission_classes = api_settings.UNPROTECTED

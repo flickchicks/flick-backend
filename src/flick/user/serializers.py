@@ -1,25 +1,29 @@
-from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
-
+from django.contrib.auth.models import User
 from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField, SerializerMethodField
-
 from user.models import Profile
 
-User = get_user_model()
+
+from asset.serializers import AssetBundleDetailSerializer
+
 
 class ProfileSerializer(ModelSerializer):
+
+    profile_asset_bundle = AssetBundleDetailSerializer(read_only=True)
+
     class Meta:
         model = Profile
         fields = (
-            'id', 
-            'bio',
-            'phone_number',
-            'social_id_token_type',
-            "social_id_token"
+            "id",
+            "bio",
+            "profile_asset_bundle",
+            "phone_number",
+            "social_id_token_type",
+            "social_id_token",
+            "owner_lsts",
+            "collab_lsts",
         )
-        read_only_fields = ('id',)
-
-User = get_user_model()
+        read_only_fields = ("id",)
 
 
 class UserSerializer(ModelSerializer):
@@ -29,7 +33,8 @@ class UserSerializer(ModelSerializer):
 
     profile = ProfileSerializer(many=False)
 
-    groups = SerializerMethodField('get_user_groups')
+    groups = SerializerMethodField("get_user_groups")
+
     def get_user_groups(self, user):
         results = []
         for group in user.groups.all():
@@ -37,40 +42,20 @@ class UserSerializer(ModelSerializer):
 
         return results
 
-
     class Meta:
         model = User
-        fields = (
-            'id',
-            User.USERNAME_FIELD,
-            'first_name',
-            'last_name',
-            'email',
-            'profile',
-            'groups',
-        )
-        read_only_fields = (
-            'id',
-            'groups',
-            'profile',
-        )
+        fields = ("id", User.USERNAME_FIELD, "first_name", "last_name", "profile", "groups")
+        read_only_fields = ("id", "groups", "profile")
+
 
 class UserDetailSerializer(UserSerializer):
     """
     User Detail Serializer
     """
 
-
     class Meta:
         model = User
-        fields = (
-            'id',
-            User.USERNAME_FIELD,
-            'first_name',
-            'last_name',
-            'email',
-            'groups',
-        )
+        fields = ("id", User.USERNAME_FIELD, "first_name", "last_name", "email", "groups")
         read_only_fields = fields
 
 
@@ -81,11 +66,5 @@ class UserListSerializer(UserSerializer):
 
     class Meta:
         model = User
-        fields = (
-            'id',
-            User.USERNAME_FIELD,
-            'first_name',
-            'last_name',
-            'email',
-        )
+        fields = ("id", User.USERNAME_FIELD, "first_name", "last_name", "email")
         read_only_fields = fields
