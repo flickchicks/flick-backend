@@ -193,6 +193,17 @@ class TMDB_API:
         return success_response(movies)
 
     @staticmethod
+    def get_top_tv(page=1):
+        tv = tmdb.Tv()
+        lst = tv.top_rated(page)["results"]
+        tvs = []
+        for tv_info in lst:
+            info = get_tv_from_DBinfo(tv_info)
+            if info is not None:
+                tvs.append(info)
+        return success_response(tvs)
+
+    @staticmethod
     def search_tv_by_name(name):
         """
             search a movie by name:
