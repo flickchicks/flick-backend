@@ -182,6 +182,17 @@ class TMDB_API:
             return failure_response("The TV ID {} does not exist.".format(id))
 
     @staticmethod
+    def get_top_movie(page=1):
+        movie = tmdb.Movies()
+        lst = movie.top_rated(page)["results"]
+        movies = []
+        for movie_info in lst:
+            info = get_movie_from_DBinfo(movie_info)
+            if info is not None:
+                movies.append(info)
+        return success_response(movies)
+
+    @staticmethod
     def search_tv_by_name(name):
         """
             search a movie by name:
