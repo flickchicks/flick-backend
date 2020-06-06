@@ -194,7 +194,7 @@ class TMDB_API:
 
     @staticmethod
     def get_top_tv(page=1):
-        tv = tmdb.Tv()
+        tv = tmdb.TV()
         lst = tv.top_rated(page)["results"]
         tvs = []
         for tv_info in lst:
