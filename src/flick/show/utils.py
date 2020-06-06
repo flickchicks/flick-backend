@@ -1,12 +1,11 @@
-import json
-import os
-import pprint as pp
 import tmdbsimple as tmdb
 from jikanpy import Jikan
 from rest_framework import status
 from rest_framework.response import Response
-
-# from settings import TMDB_API_KEY
+import os
+import sys
+import json
+import pprint as pp
 
 
 # create an instance of the Anime API
