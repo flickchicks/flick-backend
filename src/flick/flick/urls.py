@@ -17,9 +17,12 @@ from django.contrib import admin
 from django.conf.urls import url
 from django.urls import path, include
 from pages.views import home_view, contact_view
+from flick_auth import urls as auth_urls
+
 
 urlpatterns = [
-    path('home/', home_view, name='home'),
-    path('admin/', admin.site.urls),
-    url(r'^api/', include('api.urls')),
+    path("home/", home_view, name="home"),
+    path("admin/", admin.site.urls),
+    url(r"^api/", include("api.urls")),
+    path("accounts/", include(auth_urls)),
 ]

@@ -40,6 +40,12 @@ class LoginView(GenericAPIView):
     permission_classes = api_settings.UNPROTECTED
     serializer_class = LoginSerializer
 
+    def get(self, request):
+        if request.user.is_anonymous:
+            return Response("You are currently not logged in!", status=status.HTTP_200_OK)
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     def post(self, request):
         if "username" in request.data and "social_id_token" in request.data:
             username = request.data["username"]

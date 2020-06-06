@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField, SerializerMethodField
 from user.models import Profile
 
+from friendship.models import Friend, Follow, Block
 
 from asset.serializers import AssetBundleDetailSerializer
 
