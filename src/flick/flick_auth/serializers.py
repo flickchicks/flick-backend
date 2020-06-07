@@ -1,13 +1,13 @@
 from django.contrib.auth import get_user_model
 
 from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
 from rest_framework.authtoken.models import Token
+from rest_framework.validators import UniqueValidator
 
-from asset.serializers import AssetBundleDetailSerializer
-from user.serializers import ProfileSerializer, UserSerializer
 from .utils import AuthTools
+from asset.serializers import AssetBundleDetailSerializer
 from user.models import Profile
+from user.serializers import ProfileSerializer, UserSerializer
 
 User = get_user_model()
 

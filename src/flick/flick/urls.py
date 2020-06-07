@@ -16,10 +16,13 @@ Including another URLconf
 from django.contrib import admin
 from django.conf.urls import url
 from django.urls import path, include
+
+from flick_auth import urls as auth_urls
 from pages.views import home_view, contact_view
 
 urlpatterns = [
-    path('home/', home_view, name='home'),
-    path('admin/', admin.site.urls),
-    url(r'^api/', include('api.urls')),
+    path("home/", home_view, name="home"),
+    path("admin/", admin.site.urls),
+    url(r"^api/", include("api.urls")),
+    # path("accounts/", include(auth_urls)),
 ]

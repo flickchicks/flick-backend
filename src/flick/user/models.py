@@ -1,13 +1,10 @@
-from asset.models import AssetBundle
 from django.contrib.auth.models import User
 from django.db import models
 
+from asset.models import AssetBundle
 from lst.models import Lst
 
-# from upload.utils import upload_image
 
-
-# Create your models here.
 class Profile(models.Model):
     """
     User profile model. Matches one to one with built-in Django user model.
@@ -24,8 +21,6 @@ class Profile(models.Model):
     social_id_token = models.TextField(blank=True, null=True)
     owner_lsts = models.ManyToManyField(Lst, related_name="owner_lsts", blank=True)
     collab_lsts = models.ManyToManyField(Lst, related_name="collab_lsts", blank=True)
-    # owner_lsts = models.ForeignKey(Lst, related_name='owner_lsts', on_delete=models.CASCADE)
-    # collab_lsts = models.ForeignKey(Lst, related_name='collab_lsts', on_delete=models.CASCADE)
 
     # override what django admin displays
     def __str__(self):

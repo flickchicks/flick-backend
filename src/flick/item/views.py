@@ -1,16 +1,17 @@
-import json
-
-from api import settings as api_settings
 from django.db import IntegrityError
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
+
 from rest_framework import generics, mixins, status, viewsets
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
 from .models import Comment, Item, Like
 from .serializers import ItemDetailSerializer, ItemSerializer
+from api import settings as api_settings
+
+import json
 
 
 class ItemList(generics.ListCreateAPIView):
