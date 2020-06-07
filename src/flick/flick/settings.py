@@ -11,8 +11,15 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+from pathlib import Path
 
 from decouple import config
+
+from dotenv import load_dotenv
+
+env_path = Path(".") / ".env"
+load_dotenv(dotenv_path=env_path)
+TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

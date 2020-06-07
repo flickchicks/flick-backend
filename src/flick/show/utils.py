@@ -1,12 +1,13 @@
+import json
+import os
+import pprint as pp
+import sys
+
 from rest_framework import status
 from rest_framework.response import Response
+
 import tmdbsimple as tmdb
 from jikanpy import Jikan
-import os
-import sys
-import json
-import pprint as pp
-
 
 # create an instance of the Anime API
 jikan = Jikan()
@@ -18,16 +19,15 @@ tmdb.API_KEY = os.getenv("TMDB_API_KEY")
 """
 Movie object format
 {
-media_id:string
-title : string
-poster_pic : string
-director : string
-media_tags: array #for now we use genre ids
-is_tv: boolean
-date_released: string
-duration: string
-language: string
-description: string
+    media_id:string
+    title : string
+    poster_pic : string
+    media_tags: array
+    is_tv: boolean
+    date_released: string
+    duration: integer
+    language: string
+    description: string
 }
 """
 
@@ -45,46 +45,43 @@ def get_movie_from_DBinfo(info):
     get a flick movie object similar by parsing the
     information returned by movieDB
     """
-    tags = []
-    for genre in info["genres"]:
-        tags.append(genre["name"])
+    genres = info.get("genres")
+    tags = [genre.get("name") for genre in genres] if genres else []
 
-    movie = json.dumps(
-        {
-            "media_id": info["id"],
-            "title": info["original_title"],
-            "poster_pic": info["poster_path"],
-            "media_tags": tags,
-            "is_tv": False,
-            "date_released": info["release_date"],
-            "duration": info["runtime"],
-            "language": info["original_language"],
-            "description": info["overview"],
-        }
-    )
+    movie = {
+        "media_id": info.get("id"),
+        "title": info.get("original_title"),
+        "poster_pic": info.get("poster_path"),
+        "media_tags": tags,
+        "is_tv": False,
+        "date_released": info.get("release_date"),
+        "duration": info.get("runtime"),
+        "language": info.get("original_language"),
+        "description": info.get("overview"),
+    }
+
     return movie
 
 
 def get_tv_from_DBinfo(info):
     # maybe need another separate json?? episodes/ last aired/ most recent episode etc
-    tags = []
-    for genre in info["genres"]:
-        tags.append(genre["name"])
+    genres = info.get("genres")
+    tags = [genre.get("name") for genre in genres] if genres else []
+    duration = info.get("episode_run_time")[0] if info.get("episode_run_time") else None
 
-    tv = json.dumps(
-        {
-            "media_id": info["id"],
-            "title": info["original_name"],
-            "poster_pic": info["poster_path"],
-            "media_tags": tags,
-            "is_tv": True,
-            "date_released": info["first_air_date"],
-            #  'duration': info['runtime'],
-            "language": info["original_language"],
-            "description": info["overview"],
-            "status": info["status"],
-        }
-    )
+    tv = {
+        "media_id": info.get("id"),
+        "title": info.get("original_name"),
+        "poster_pic": info.get("poster_path"),
+        "media_tags": tags,
+        "is_tv": True,
+        "date_released": info.get("first_air_date"),
+        "duration": duration,
+        "language": info.get("original_language"),
+        "description": info.get("overview"),
+        "status": info.get("status"),
+    }
+
     return tv
 
 
@@ -94,8 +91,9 @@ def get_movie_info(id):
     """
     movie = tmdb.Movies(id)
     try:
-        return TMDB_API.get_movie_from_DBinfo(movie.info())
-    except:
+        return json.dumps(get_movie_from_DBinfo(movie.info()))
+    except Exception as e:
+        print(e)
         return None
 
 
@@ -104,11 +102,8 @@ def search_result(search):
         given the most recent search,
         return the media ids
     """
-    result = []
-    for movie_info in search.results:
-        movie_id = movie_info["id"]
-        result.append(movie_id)
-    return result
+    movie_ids = [movie_info["id"] for movie_info in search.results]
+    return movie_ids
 
 
 def get_tv_info(id):
@@ -117,8 +112,9 @@ def get_tv_info(id):
     """
     tv = tmdb.TV(id)
     try:
-        return get_tv_from_DBinfo(tv.info())
-    except:
+        return json.dumps(get_tv_from_DBinfo(tv.info()))
+    except Exception as e:
+        print(e)
         return None
 
 
@@ -127,24 +123,23 @@ def get_anime_from_DBinfo(info):
     filter information from the API
     returns a Anime Json object
     """
-    return json.dumps(
-        {
-            "media_id": info["mal_id"],
-            "title": info["title"],
-            "poster_pic": info["image_url"],
-            "is_tv": True,  # assuming
-            "date_released": info["aired"]["from"],
-            "description": info["synopsis"],
-            "status": info["status"],
-            "duration": info["duration"],
-        }
-    )
+    anime = {
+        "media_id": info.get(["mal_id"]),
+        "title": info["title"],
+        "poster_pic": info["image_url"],
+        "is_tv": True,  # assuming
+        "date_released": info["aired"]["from"],
+        "description": info["synopsis"],
+        "status": info["status"],
+        "duration": info["duration"],
+    }
+    return anime
 
 
 def search_anime(id):
     try:
         search_result = jikan.anime(id)
-        return get_anime_from_DBinfo(search_result)
+        return json.dumps(get_anime_from_DBinfo(search_result))
     except:
         return None
 
@@ -154,11 +149,14 @@ class TMDB_API:
 
     @staticmethod
     def get_movie_info_from_id(id):
+        """
+            Get movie detailed info by id
+        """
         info = get_movie_info(id)
         if info is not None:
             return success_response(info)
         else:
-            return failure_response("The movie ID {} does not exist.".format(id))
+            return failure_response(f"The movie ID {id} does not exist.")
 
     @staticmethod
     def search_movie_by_name(name):
@@ -168,23 +166,27 @@ class TMDB_API:
         """
         search = tmdb.Search()
         search.movie(query=name)
-        return success_response(search_result(search))
+        media_ids = search_result(search)
+        return success_response(media_ids)
 
     @staticmethod
     def get_tv_info_from_id(id):
         """
-            Get movie info by id
+            Get TV detailed info by id
         """
         info = get_tv_info(id)
         try:
             return success_response(info)
         except:
-            return failure_response("The TV ID {} does not exist.".format(id))
+            return failure_response(f"The TV ID {id} does not exist.")
 
     @staticmethod
     def get_top_movie(page=1):
+        """
+            Get a list of top rated movie detailed info
+        """
         movie = tmdb.Movies()
-        lst = movie.top_rated(page)["results"]
+        lst = movie.top_rated(page=page).get("results")
         movies = []
         for movie_info in lst:
             info = get_movie_from_DBinfo(movie_info)
@@ -194,8 +196,11 @@ class TMDB_API:
 
     @staticmethod
     def get_top_tv(page=1):
+        """
+            Get a list of top rated TV detailed info
+        """
         tv = tmdb.TV()
-        lst = tv.top_rated(page)["results"]
+        lst = tv.top_rated(page=page).get("results")
         tvs = []
         for tv_info in lst:
             info = get_tv_from_DBinfo(tv_info)
@@ -206,19 +211,20 @@ class TMDB_API:
     @staticmethod
     def search_tv_by_name(name):
         """
-            search a movie by name:
+            search a TV by name:
             return a list of media ids
         """
         search = tmdb.Search()
         search.tv(query=name)
-        return success_response(search_result(search))
+        media_ids = search_result(search)
+        return success_response(media_ids)
 
     @staticmethod
     # testing function for all info from search
-    def infos_from_search(search_lst, is_tv):
+    def info_from_search(search_lst, is_tv):
         """
             given a list of media IDs from search and the boolean is_tv,
-            give back a list of movie infos
+            give back a list of detailed info
         """
         movies = []
         for movie_id in search_lst:
@@ -258,7 +264,7 @@ class Anim_API:
         if info is not None:
             return success_response(info)
         else:
-            return failure_response("The anime ID {} does not exist.".format(id))
+            return failure_response(f"The anime ID {id} does not exist.")
 
     @staticmethod
     def search_anime_by_keyword(keyword):
@@ -267,9 +273,9 @@ class Anim_API:
         returns a list of Anime id
         """
         result = []
-        search_result = jikan.search("anime", keyword, page=1)["results"]
+        search_result = jikan.search("anime", keyword, page=1).get("results")
         for anime_info in search_result:
-            result.append({"id": anime_info["mal_id"]})
+            result.append({"id": anime_info.get("mal_id")})
         return success_response(result)
 
     @staticmethod
@@ -279,9 +285,9 @@ class Anim_API:
         returns a list of Anime id
         """
         result = []
-        search_result = jikan.season(year=year, season=season)["anime"]
+        search_result = jikan.season(year=year, season=season).get("anime")
         for anime_info in search_result:
-            result.append({"id": anime_info["mal_id"]})
+            result.append({"id": anime_info.get("mal_id")})
         return success_response(result)
 
     @staticmethod
@@ -291,16 +297,16 @@ class Anim_API:
         returns a list of Animal id
         """
         result = []
-        search_result = jikan.top(type="anime")["top"]
+        search_result = jikan.top(type="anime").get("top")
         for anime_info in search_result:
-            result.append({"id": anime_info["mal_id"]})
+            result.append({"id": anime_info.get("mal_id")})
         return success_response(result)
 
     @staticmethod
-    def anime_infos_from_search(search_lst):
+    def anime_info_from_search(search_lst):
         animes = []
         for anime in search_lst:
-            info = search_anime(anime["id"])
+            info = search_anime(anime.get("id"))
             if info is not None:
                 animes.append(info)
         return success_response(animes)
