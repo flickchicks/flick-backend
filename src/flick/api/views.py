@@ -1,7 +1,7 @@
-from django.shortcuts import render
 from django.contrib.auth.models import User
-from friendship.models import Friend, Follow, Block
+from django.shortcuts import render
 
+from friendship.models import Friend, Follow, Block
 
 # def my_view(request):
 #     # List of this user's friends

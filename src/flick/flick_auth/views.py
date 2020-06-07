@@ -1,16 +1,18 @@
-from django.shortcuts import render
-
 from django.contrib.auth import get_user_model
 from django.conf import settings as dj_settings
+from django.shortcuts import render
+
 from rest_framework import status, viewsets
 from rest_framework.response import Response
+
 from .utils import AuthTools
-from api import settings as api_settings
-from user.serializers import UserSerializer, ProfileSerializer
-from user.models import Profile
 from .serializers import LoginSerializer, UserRegisterSerializer, LoginCompleteSerializer, LogoutSerializer
+from api import settings as api_settings
 from api.generics import CreateAPIView, GenericAPIView, RetrieveUpdateAPIView
-import re  # regex engine
+from user.models import Profile
+from user.serializers import UserSerializer, ProfileSerializer
+
+import re
 
 User = get_user_model()
 

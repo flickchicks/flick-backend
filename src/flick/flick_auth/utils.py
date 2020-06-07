@@ -1,16 +1,17 @@
-from django.core import signing
-from django.urls import reverse
-from django.core.validators import validate_email
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.conf import settings as django_settings
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User, Group
-from django.conf import settings as django_settings
+from django.core import signing
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.validators import validate_email
+from django.urls import reverse
 
 from rest_framework.authtoken.models import Token
 
+from . import settings as auth_settings
 from asset.models import AssetBundle
 from user.models import Profile
-from . import settings as auth_settings
+
 import re
 
 

@@ -1,14 +1,14 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
-from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField, SerializerMethodField
-from user.models import Profile
 
 from friendship.models import Friend, Follow, Block
+from rest_framework import serializers
 
 from asset.serializers import AssetBundleDetailSerializer
+from user.models import Profile
 
 
-class ProfileSerializer(ModelSerializer):
+class ProfileSerializer(serializers.ModelSerializer):
 
     profile_asset_bundle = AssetBundleDetailSerializer(read_only=True)
 
@@ -27,14 +27,14 @@ class ProfileSerializer(ModelSerializer):
         read_only_fields = ("id",)
 
 
-class UserSerializer(ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     """
     User Serializer
     """
 
     profile = ProfileSerializer(many=False)
 
-    groups = SerializerMethodField("get_user_groups")
+    groups = serializers.SerializerMethodField("get_user_groups")
 
     def get_user_groups(self, user):
         results = []

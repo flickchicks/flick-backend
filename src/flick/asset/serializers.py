@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 
-from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField, CurrentUserDefault
+from rest_framework.serializers import CurrentUserDefault, ModelSerializer, PrimaryKeyRelatedField
 
 from .models import AssetBundle
 

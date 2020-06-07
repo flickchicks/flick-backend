@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "api",
     "asset",
     "flick_auth",
+    "friend",
     "item",
     "lst",
     "pages",

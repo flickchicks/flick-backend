@@ -1,6 +1,7 @@
-from asset.models import AssetBundle
 from django.contrib.auth.models import User
 from django.db import models
+
+from asset.models import AssetBundle
 
 
 # Create your models here.

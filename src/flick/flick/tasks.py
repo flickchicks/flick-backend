@@ -1,20 +1,22 @@
 from __future__ import absolute_import, unicode_literals
 
+from django.conf import settings
+
+from rest_framework import status
+from rest_framework.response import Response
+
+from asset.models import Asset, AssetBundle
+
 import base64
+import boto3
+from celery import shared_task
+from io import BytesIO
 import json
 import os
+from PIL import Image
 import random
 import re
 import string
-from io import BytesIO
-
-import boto3
-from asset.models import Asset, AssetBundle
-from celery import shared_task
-from django.conf import settings
-from PIL import Image
-from rest_framework import status
-from rest_framework.response import Response
 
 
 def upload_image(asset_id, salt, img, kind, img_ext, width, height):

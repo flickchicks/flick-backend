@@ -1,11 +1,10 @@
-from asset.serializers import AssetBundleDetailSerializer
 from django.contrib.auth.models import User
 
-# from rest_framework.fields import CurrentUserDefault
 from rest_framework.serializers import CurrentUserDefault, ModelSerializer, PrimaryKeyRelatedField
-from user.serializers import UserSerializer
 
 from .models import Item
+from asset.serializers import AssetBundleDetailSerializer
+from user.serializers import UserSerializer
 
 
 class ItemSerializer(ModelSerializer):
