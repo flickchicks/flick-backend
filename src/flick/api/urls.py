@@ -4,6 +4,7 @@ from item.views import CommentItem, ItemDetail, ItemList, LikeItem
 from rest_framework import routers
 from upload.views import UploadImage
 from user.views import UserViewSet
+from flick_auth import urls as auth_urls
 from flick_auth.views import RegisterViewSet
 
 from show.views import ShowViewSet
@@ -25,5 +26,6 @@ urlpatterns = [
     path("comment/", CommentItem.as_view(), name="comment"),
     path("", include(router.urls)),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
+    path("auth/", include(auth_urls)),
     path("friendship/", include("friendship.urls")),
 ]
