@@ -1,15 +1,14 @@
-from django.urls import include, path
-
-from rest_framework import routers
-
 from asset.views import AssetBundleDetail, AssetBundleList
+from django.urls import include, path
 from flick_auth import urls as auth_urls
 from flick_auth.views import RegisterViewSet
-from friend.views import FriendList
 from item.views import CommentItem, ItemDetail, ItemList, LikeItem
-from show.views import ShowViewSet
+from rest_framework import routers
 from upload.views import UploadImage
 from user.views import UserViewSet
+
+from friend.views import FriendList
+from show.views import SearchShow, ShowViewSet
 
 router = routers.DefaultRouter()
 router.register(r"users", UserViewSet)
@@ -31,4 +30,5 @@ urlpatterns = [
     path("items/<int:pk>/", ItemDetail.as_view(), name="item-detail"),
     path("like/", LikeItem.as_view(), name="like"),
     path("media/image/", UploadImage.as_view(), name="upload"),
+    path("search/", SearchShow.as_view(), name="search-show"),
 ]

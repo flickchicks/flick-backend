@@ -3,6 +3,7 @@ import os
 import pprint as pp
 import sys
 
+from django.conf import settings
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -13,7 +14,7 @@ from jikanpy import Jikan
 jikan = Jikan()
 
 # set up the TMDB API access key from .env
-tmdb.API_KEY = os.getenv("TMDB_API_KEY")
+tmdb.API_KEY = settings.TMDB_API_KEY
 
 # Movie data format
 """
@@ -30,14 +31,6 @@ Movie object format
     description: string
 }
 """
-
-
-def success_response(data, status=status.HTTP_200_OK):
-    return Response(json.dumps({"success": True, "data": data}), status=status)
-
-
-def failure_response(message, status=status.HTTP_404_NOT_FOUND):
-    return Response(json.dumps({"success": False, "error": message}), status=status)
 
 
 def get_movie_from_DBinfo(info):
@@ -91,7 +84,7 @@ def get_movie_info(id):
     """
     movie = tmdb.Movies(id)
     try:
-        return json.dumps(get_movie_from_DBinfo(movie.info()))
+        return get_movie_from_DBinfo(movie.info())
     except Exception as e:
         print(e)
         return None
@@ -112,7 +105,7 @@ def get_tv_info(id):
     """
     tv = tmdb.TV(id)
     try:
-        return json.dumps(get_tv_from_DBinfo(tv.info()))
+        return get_tv_from_DBinfo(tv.info())
     except Exception as e:
         print(e)
         return None
@@ -139,7 +132,7 @@ def get_anime_from_DBinfo(info):
 def search_anime(id):
     try:
         search_result = jikan.anime(id)
-        return json.dumps(get_anime_from_DBinfo(search_result))
+        return get_anime_from_DBinfo(search_result)
     except:
         return None
 
@@ -154,9 +147,8 @@ class TMDB_API:
         """
         info = get_movie_info(id)
         if info is not None:
-            return success_response(info)
-        else:
-            return failure_response(f"The movie ID {id} does not exist.")
+            return info
+        return f"The movie ID {id} does not exist."
 
     @staticmethod
     def search_movie_by_name(name):
@@ -167,7 +159,7 @@ class TMDB_API:
         search = tmdb.Search()
         search.movie(query=name)
         media_ids = search_result(search)
-        return success_response(media_ids)
+        return media_ids
 
     @staticmethod
     def get_tv_info_from_id(id):
@@ -176,9 +168,9 @@ class TMDB_API:
         """
         info = get_tv_info(id)
         try:
-            return success_response(info)
+            return info
         except:
-            return failure_response(f"The TV ID {id} does not exist.")
+            return f"The TV ID {id} does not exist."
 
     @staticmethod
     def get_top_movie(page=1):
@@ -192,7 +184,7 @@ class TMDB_API:
             info = get_movie_from_DBinfo(movie_info)
             if info is not None:
                 movies.append(info)
-        return success_response(movies)
+        movies
 
     @staticmethod
     def get_top_tv(page=1):
@@ -206,7 +198,7 @@ class TMDB_API:
             info = get_tv_from_DBinfo(tv_info)
             if info is not None:
                 tvs.append(info)
-        return success_response(tvs)
+        return tvs
 
     @staticmethod
     def search_tv_by_name(name):
@@ -217,7 +209,7 @@ class TMDB_API:
         search = tmdb.Search()
         search.tv(query=name)
         media_ids = search_result(search)
-        return success_response(media_ids)
+        return media_ids
 
     @staticmethod
     # testing function for all info from search
@@ -231,7 +223,7 @@ class TMDB_API:
             info = get_tv_info(movie_id) if is_tv else get_movie_info(movie_id)
             if info is not None:
                 movies.append(info)
-        return success_response(movies)
+        return movies
 
 
 # Anime Data format
@@ -251,7 +243,7 @@ Anime json object
 """
 
 
-class Anim_API:
+class AnimeList_API:
     # Anime helpers
 
     @staticmethod
@@ -262,9 +254,9 @@ class Anim_API:
         """
         info = search_anime(id)
         if info is not None:
-            return success_response(info)
+            return info
         else:
-            return failure_response(f"The anime ID {id} does not exist.")
+            return f"The anime ID {id} does not exist."
 
     @staticmethod
     def search_anime_by_keyword(keyword):
@@ -276,7 +268,7 @@ class Anim_API:
         search_result = jikan.search("anime", keyword, page=1).get("results")
         for anime_info in search_result:
             result.append({"id": anime_info.get("mal_id")})
-        return success_response(result)
+        return result
 
     @staticmethod
     def search_anime_by_year(year, season):
@@ -288,7 +280,7 @@ class Anim_API:
         search_result = jikan.season(year=year, season=season).get("anime")
         for anime_info in search_result:
             result.append({"id": anime_info.get("mal_id")})
-        return success_response(result)
+        return result
 
     @staticmethod
     def get_top_anime():
@@ -300,7 +292,7 @@ class Anim_API:
         search_result = jikan.top(type="anime").get("top")
         for anime_info in search_result:
             result.append({"id": anime_info.get("mal_id")})
-        return success_response(result)
+        return result
 
     @staticmethod
     def anime_info_from_search(search_lst):
@@ -309,4 +301,4 @@ class Anim_API:
             info = search_anime(anime.get("id"))
             if info is not None:
                 animes.append(info)
-        return success_response(animes)
+        return animes
