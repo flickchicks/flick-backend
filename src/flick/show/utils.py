@@ -20,10 +20,10 @@ tmdb.API_KEY = settings.TMDB_API_KEY
 """
 Movie object format
 {
-    media_id:string
+    show_id:string
     title : string
     poster_pic : string
-    media_tags: array
+    show_tags: array
     is_tv: boolean
     date_released: string
     duration: integer
@@ -42,10 +42,10 @@ def get_movie_from_DBinfo(info):
     tags = [genre.get("name") for genre in genres] if genres else []
 
     movie = {
-        "media_id": info.get("id"),
+        "show_id": info.get("id"),
         "title": info.get("original_title"),
         "poster_pic": info.get("poster_path"),
-        "media_tags": tags,
+        "show_tags": tags,
         "is_tv": False,
         "date_released": info.get("release_date"),
         "duration": info.get("runtime"),
@@ -63,10 +63,10 @@ def get_tv_from_DBinfo(info):
     duration = info.get("episode_run_time")[0] if info.get("episode_run_time") else None
 
     tv = {
-        "media_id": info.get("id"),
+        "show_id": info.get("id"),
         "title": info.get("original_name"),
         "poster_pic": info.get("poster_path"),
-        "media_tags": tags,
+        "show_tags": tags,
         "is_tv": True,
         "date_released": info.get("first_air_date"),
         "duration": duration,
@@ -117,7 +117,7 @@ def get_anime_from_DBinfo(info):
     returns a Anime Json object
     """
     anime = {
-        "media_id": info.get(["mal_id"]),
+        "show_id": info.get(["mal_id"]),
         "title": info["title"],
         "poster_pic": info["image_url"],
         "is_tv": True,  # assuming
@@ -158,8 +158,8 @@ class TMDB_API:
         """
         search = tmdb.Search()
         search.movie(query=name)
-        media_ids = search_result(search)
-        return media_ids
+        show_ids = search_result(search)
+        return show_ids
 
     @staticmethod
     def get_tv_info_from_id(id):
@@ -208,8 +208,8 @@ class TMDB_API:
         """
         search = tmdb.Search()
         search.tv(query=name)
-        media_ids = search_result(search)
-        return media_ids
+        show_ids = search_result(search)
+        return show_ids
 
     @staticmethod
     # testing function for all info from search
@@ -231,7 +231,7 @@ class TMDB_API:
 """
 Anime json object
 {
-    media_id:string
+    show_id:string
     title : string
     poster_pic : string
     is_tv: boolean
