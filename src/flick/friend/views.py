@@ -13,6 +13,8 @@ from rest_framework.views import APIView
 from friend.serializers import FriendUserSerializer
 from friendship.models import Block, Follow, Friend
 
+from api.utils import failure_response, success_response
+
 
 class FriendList(APIView):
     """
@@ -24,4 +26,4 @@ class FriendList(APIView):
     def get(self, request, format=None):
         friends = [User.objects.get(pk=friend.pk) for friend in Friend.objects.friends(user=request.user)]
         serializer = FriendUserSerializer(friends, many=True)
-        return Response(serializer.data)
+        return success_response(serializer.data)

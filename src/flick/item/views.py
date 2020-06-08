@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from .models import Comment, Item, Like
 from .serializers import ItemDetailSerializer, ItemSerializer
 from api import settings as api_settings
+from api.utils import failure_response, success_response
 
 import json
 
@@ -53,7 +54,7 @@ class ItemDetail(generics.RetrieveUpdateDestroyAPIView):
     def retrieve(self, request, pk):
         queryset = self.get_object()
         serializer = ItemDetailSerializer(queryset, many=False)
-        return Response(serializer.data)
+        return success_response(serializer.data)
 
 
 class LikeItem(generics.CreateAPIView):
@@ -61,7 +62,7 @@ class LikeItem(generics.CreateAPIView):
         data = json.loads(request.body)
 
         if "item_id" not in data:
-            return Response({"error": "no item_id in request."}, status=status.HTTP_400_BAD_REQUEST)
+            return failure_response("No item_id in request!")
         item = Item.objects.get(pk=data["item_id"])
 
         try:
@@ -70,10 +71,10 @@ class LikeItem(generics.CreateAPIView):
             like.owner = request.user
             like.save()
         except IntegrityError:
-            return Response({"error": "item already liked by this user!"}, status=status.HTTP_400_BAD_REQUEST)
+            return failure_response("Item already liked by this user!")
 
         serializer = ItemDetailSerializer(item)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return success_response(serializer.data)
 
 
 class CommentItem(generics.CreateAPIView):
@@ -81,10 +82,10 @@ class CommentItem(generics.CreateAPIView):
         data = json.loads(request.body)
 
         if "item_id" not in data:
-            return Response({"error": "no item_id in request."}, status=status.HTTP_400_BAD_REQUEST)
+            return failure_response("No item_id in request")
 
         if "body" not in data:
-            return Response({"error": "no body in request."}, status=status.HTTP_400_BAD_REQUEST)
+            return failure_response("No body in request")
         item = Item.objects.get(pk=data["item_id"])
 
         comment = Comment()
@@ -94,4 +95,4 @@ class CommentItem(generics.CreateAPIView):
         comment.save()
 
         serializer = ItemDetailSerializer(item)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return success_response(serializer.data)

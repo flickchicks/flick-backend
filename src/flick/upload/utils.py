@@ -6,6 +6,7 @@ from rest_framework.serializers import Serializer
 
 from api import settings as api_settings
 from api.generics import generics
+from api.utils import failure_response, success_response
 from asset.models import Asset, AssetBundle
 from flick.tasks import add, resize_and_upload
 from item.models import Item
@@ -29,9 +30,8 @@ def upload_image(image_data, user):
         img_ext = guess_extension(guess_type(image_data)[0])[1:]
 
         if img_ext not in ["jpeg", "jpg", "png", "gif"]:
-            return Response(
-                {"error": "Image type not accepted. Must be jpeg, jpg, png, or gif."},
-                status=status.HTTP_400_BAD_REQUEST,
+            return failure_response(
+                "Image type not accepted. Must be jpeg, jpg, png, or gif.", status=status.HTTP_400_BAD_REQUEST
             )
 
         # remove header of base64 string
@@ -60,4 +60,4 @@ def upload_image(image_data, user):
 
         return asset_bundle
     except Exception as e:
-        return Response({"error": f"{e} REACHES?"}, status=status.HTTP_400_BAD_REQUEST)
+        return failure_response(f"Unable to upload image because of {e}.")

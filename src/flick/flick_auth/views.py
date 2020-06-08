@@ -9,6 +9,7 @@ from .utils import AuthTools
 from .serializers import LoginSerializer, UserRegisterSerializer, LoginCompleteSerializer, LogoutSerializer
 from api import settings as api_settings
 from api.generics import CreateAPIView, GenericAPIView, RetrieveUpdateAPIView
+from api.utils import failure_response, success_response
 from user.models import Profile
 from user.serializers import UserSerializer, ProfileSerializer
 
@@ -24,7 +25,7 @@ class UserView(RetrieveUpdateAPIView):
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
     def get_object(self, *args, **kwargs):
-        return self.request.user
+        return success_response(self.request.user)
 
 
 class ProfileView(RetrieveUpdateAPIView):
@@ -34,7 +35,7 @@ class ProfileView(RetrieveUpdateAPIView):
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
     def get_object(self, *args, **kwargs):
-        return self.request.user.profile
+        return success_response(self.request.user.profile)
 
 
 class LoginView(GenericAPIView):
@@ -44,9 +45,9 @@ class LoginView(GenericAPIView):
 
     def get(self, request):
         if request.user.is_anonymous:
-            return Response("You are currently not logged in!", status=status.HTTP_200_OK)
+            return success_response("You are currently not logged in!")
         serializer = UserSerializer(request.user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return success_response(serializer.data)
 
     def post(self, request):
         if "username" in request.data and "social_id_token" in request.data:
@@ -58,10 +59,10 @@ class LoginView(GenericAPIView):
             if user is not None:  # and AuthTools.login(request, user):
                 token = AuthTools.issue_user_token(user, "login")
                 serializer = LoginCompleteSerializer(token)
-                return Response(serializer.data)
+                return success_response(serializer.data)
 
-        message = {"error": "Unable to login with the credentials provided."}
-        return Response(message, status=status.HTTP_400_BAD_REQUEST)
+        message = {"Unable to login with the credentials provided."}
+        return failure_response(message)
 
 
 class LogoutView(GenericAPIView):
@@ -70,9 +71,9 @@ class LogoutView(GenericAPIView):
 
     def post(self, request):
         if AuthTools.logout(request):
-            return Response(status=status.HTTP_200_OK)
+            return success_response(None)
 
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        return failure_response(None)
 
 
 class RegisterView(CreateAPIView):
