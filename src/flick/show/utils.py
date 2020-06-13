@@ -20,7 +20,7 @@ tmdb.API_KEY = settings.TMDB_API_KEY
 """
 Movie object format
 {
-    show_id:string
+    ext_api_id:string
     title : string
     poster_pic : string
     show_tags: array
@@ -28,7 +28,7 @@ Movie object format
     date_released: string
     duration: integer
     language: string
-    description: string
+    plot: string
 }
 """
 
@@ -42,7 +42,8 @@ def get_movie_from_DBinfo(info):
     tags = [genre.get("name") for genre in genres] if genres else []
 
     movie = {
-        "show_id": info.get("id"),
+        "ext_api_id": info.get("id"),
+        "ext_api_source": "tmdb",
         "title": info.get("original_title"),
         "poster_pic": info.get("poster_path"),
         "show_tags": tags,
@@ -50,7 +51,7 @@ def get_movie_from_DBinfo(info):
         "date_released": info.get("release_date"),
         "duration": info.get("runtime"),
         "language": info.get("original_language"),
-        "description": info.get("overview"),
+        "plot": info.get("overview"),
     }
 
     return movie
@@ -61,9 +62,12 @@ def get_tv_from_DBinfo(info):
     genres = info.get("genres")
     tags = [genre.get("name") for genre in genres] if genres else []
     duration = info.get("episode_run_time")[0] if info.get("episode_run_time") else None
+    print("get_tv_from_DBinfo")
+    print(info)
 
     tv = {
-        "show_id": info.get("id"),
+        "ext_api_id": info.get("id"),
+        "ext_api_source": "tmdb",
         "title": info.get("original_name"),
         "poster_pic": info.get("poster_path"),
         "show_tags": tags,
@@ -71,8 +75,9 @@ def get_tv_from_DBinfo(info):
         "date_released": info.get("first_air_date"),
         "duration": duration,
         "language": info.get("original_language"),
-        "description": info.get("overview"),
+        "plot": info.get("overview"),
         "status": info.get("status"),
+        "seasons": info.get("number_of_seasons"),
     }
 
     return tv
@@ -117,12 +122,13 @@ def get_anime_from_DBinfo(info):
     returns a Anime Json object
     """
     anime = {
-        "show_id": info.get(["mal_id"]),
+        "ext_api_id": info.get(["mal_id"]),
+        "ext_api_source": "animelist",
         "title": info["title"],
         "poster_pic": info["image_url"],
         "is_tv": True,  # assuming
         "date_released": info["aired"]["from"],
-        "description": info["synopsis"],
+        "plot": info["synopsis"],
         "status": info["status"],
         "duration": info["duration"],
     }
@@ -148,7 +154,8 @@ class TMDB_API:
         info = get_movie_info(id)
         if info is not None:
             return info
-        return f"The movie ID {id} does not exist."
+        print(f"The movie ID {id} does not exist.")
+        return None
 
     @staticmethod
     def search_movie_by_name(name):
@@ -158,8 +165,8 @@ class TMDB_API:
         """
         search = tmdb.Search()
         search.movie(query=name)
-        show_ids = search_result(search)
-        return show_ids
+        ext_api_ids = search_result(search)
+        return ext_api_ids
 
     @staticmethod
     def get_tv_info_from_id(id):
@@ -170,7 +177,8 @@ class TMDB_API:
         try:
             return info
         except:
-            return f"The TV ID {id} does not exist."
+            print(f"The TV ID {id} does not exist.")
+            return None
 
     @staticmethod
     def get_top_movie(page=1):
@@ -208,8 +216,8 @@ class TMDB_API:
         """
         search = tmdb.Search()
         search.tv(query=name)
-        show_ids = search_result(search)
-        return show_ids
+        ext_api_ids = search_result(search)
+        return ext_api_ids
 
     @staticmethod
     # testing function for all info from search
@@ -231,13 +239,13 @@ class TMDB_API:
 """
 Anime json object
 {
-    show_id:string
+    ext_api_id:string
     title : string
     poster_pic : string
     is_tv: boolean
     date_released: string
     status: string
-    description: string
+    plot: string
     duration: string
 }
 """
@@ -256,7 +264,8 @@ class AnimeList_API:
         if info is not None:
             return info
         else:
-            return f"The anime ID {id} does not exist."
+            print(f"The anime ID {id} does not exist.")
+            return None
 
     @staticmethod
     def search_anime_by_keyword(keyword):

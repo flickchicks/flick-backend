@@ -41,7 +41,6 @@ class ShowViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.Gen
 
 
 class SearchShow(APIView):
-
     permission_classes = api_settings.UNPROTECTED
 
     def get(self, request, *args, **kwargs):
@@ -77,4 +76,28 @@ class SearchShow(APIView):
                 # anime info from search?
                 anime_info = [AnimeList_API.search_anime_by_id(id) for id in anime_ids]
                 shows += anime_info
-        return success_response(shows)
+
+        serializer_data = []
+
+        # print(f"shows {shows}")
+        for search_result in shows:
+            if not search_result:
+                continue
+            try:
+                show = Show()
+                show.title = search_result.get("title")
+                show.ext_api_id = search_result.get("ext_api_id")
+                show.ext_api_source = search_result.get("ext_api_source")
+                show.poster_pic = search_result.get("poster_pic")
+                show.is_tv = search_result.get("is_tv")
+                show.status = search_result.get("status")
+                show.language = search_result.get("language")
+                show.plot = search_result.get("plot")
+                show.seasons = search_result.get("seasons")
+                show.save()
+                serializer = ShowSerializer(show)
+                serializer_data.append(serializer.data)
+            except Exception as e:
+                print(e)
+
+        return success_response(serializer_data)

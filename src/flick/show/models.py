@@ -12,7 +12,7 @@ class Show(models.Model):
     poster_pic = models.URLField(blank=True, null=True)
     director = models.CharField(max_length=100)
     is_tv = models.BooleanField()
-    date_released = models.DateField()
+    date_released = models.DateField(blank=True, null=True)
     status = models.CharField(max_length=100, blank=True, null=True)
     language = models.CharField(max_length=100, blank=True, null=True)
     duration = models.DurationField(blank=True, null=True)
@@ -26,6 +26,9 @@ class Show(models.Model):
     keywords = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("ext_api_id", "ext_api_source")
 
     @property
     def friends_rating(self):
