@@ -7,6 +7,7 @@ from rest_framework.serializers import Serializer
 from .utils import upload_image
 from api import settings as api_settings
 from api.generics import generics
+from api.utils import failure_response, success_response
 from asset.models import Asset, AssetBundle
 from flick.tasks import add, resize_and_upload
 from item.models import Item
@@ -31,12 +32,10 @@ class UploadImage(generics.CreateAPIView):
     def post(self, request):
         data = json.loads(request.body)
         if "image" not in data:
-            return Response({"error": "no image in request."}, status=status.HTTP_400_BAD_REQUEST)
+            return failure_response("No image in request.")
         asset_bundle = upload_image(data["image"], request.user)
         if not asset_bundle:
-            return Response(
-                {"Error": "Could not create asset bundle from base64 string!"}, status=status.HTTP_400_BAD_REQUEST
-            )
+            return failure_response("Could not create asset bundle from base64 string!")
         elif not isinstance(asset_bundle, AssetBundle):
             return asset_bundle
         item = Item()
@@ -44,4 +43,4 @@ class UploadImage(generics.CreateAPIView):
         item.owner = request.user
         item.save()
         serializer = ItemDetailSerializer(item)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return success_response(serializer.data)

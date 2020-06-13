@@ -37,7 +37,7 @@ class ShowViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.Gen
     # def retrieve(self, request, pk):
     #     queryset = self.get_object()
     #     serializer = ShowDetailSerializer(queryset, many=False)
-    #     return Response(serializer.data)
+    #     return success_response(serializer.data)
 
 
 class SearchShow(APIView):
