@@ -54,6 +54,8 @@ class SearchShow(APIView):
 
         shows = []
 
+        known_shows = []
+
         if is_top:
             if is_movie:
                 top_movies = TMDB_API.get_top_movie()
@@ -66,19 +68,33 @@ class SearchShow(APIView):
                 shows += top_anime if top_anime else []
         else:
             if is_movie:
+                print("is movie")
                 movie_ids = TMDB_API.search_movie_by_name(query)
-                movie_info = [TMDB_API.get_movie_info_from_id(id) for id in movie_ids]
-                shows += movie_info
+                for movie_id in movie_ids:
+                    known_show = Show.objects.filter(ext_api_id=movie_id, ext_api_source="tmdb", is_tv=False)
+                    if not known_show.exists():
+                        shows.append(TMDB_API.get_movie_info_from_id(movie_id))
+                    else:
+                        known_show = Show.objects.get(ext_api_id=movie_id, ext_api_source="tmdb", is_tv=False)
+                        known_shows.append(ShowSerializer(known_show).data)
             if is_tv:
+                print("is tv")
                 tv_ids = TMDB_API.search_tv_by_name(query)
-                tv_info = [TMDB_API.get_movie_info_from_id(id) for id in tv_ids]
-                shows += tv_info
+                for tv_id in tv_ids:
+                    known_show = Show.objects.filter(ext_api_id=tv_id, ext_api_source="tmdb", is_tv=True)
+                    if not known_show.exists():
+                        shows.append(TMDB_API.get_movie_info_from_id(tv_id))
+                    else:
+                        known_show = Show.objects.get(ext_api_id=movie_id, ext_api_source="tmdb", is_tv=True)
+                        known_shows.append(ShowSerializer(known_show).data)
             if is_anime:
                 anime_ids = AnimeList_API.search_anime_by_keyword(query)
                 anime_info = [AnimeList_API.search_anime_by_id(id) for id in anime_ids]
                 shows += anime_info
 
         serializer_data = []
+
+        # print(f"known_shows {known_shows}")
 
         # print(f"shows {shows}")
         for search_result in shows:
@@ -104,7 +120,12 @@ class SearchShow(APIView):
                 show.save()
                 serializer = ShowSerializer(show)
                 serializer_data.append(serializer.data)
-            except Exception as e:
-                print(e)
+            except:  # Exception as e:
+                print("ignore")
+                # print(f"{e}: {search_result}")
+        for show in known_shows:
+            serializer_data.append(show)
+
+        print(f"known shows {known_shows}")
 
         return success_response(serializer_data)

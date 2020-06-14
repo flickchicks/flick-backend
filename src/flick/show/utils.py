@@ -50,7 +50,7 @@ def get_movie_from_DBinfo(info):
         "show_tags": tags,
         "is_tv": False,
         "date_released": info.get("release_date"),
-        "duration": datetime.timedelta(minutes=info.get("runtime")),
+        "duration": datetime.timedelta(minutes=info.get("runtime", 0)),
         "language": info.get("original_language"),
         "plot": info.get("overview"),
     }
@@ -62,7 +62,7 @@ def get_tv_from_DBinfo(info):
     # maybe need another separate json?? episodes/ last aired/ most recent episode etc
     genres = info.get("genres")
     tags = [genre.get("name") for genre in genres] if genres else []
-    duration = info.get("episode_run_time")[0] if info.get("episode_run_time") else None
+    duration = info.get("episode_run_time")[0] if info.get("episode_run_time") else 0
 
     tv = {
         "ext_api_id": info.get("id"),
@@ -120,16 +120,17 @@ def get_anime_from_DBinfo(info):
     filter information from the API
     returns a Anime Json object
     """
+    duration = datetime.timedelta(minutes=info.get("duration")) if info.get("duration") else None
     anime = {
         "ext_api_id": info.get(["mal_id"]),
         "ext_api_source": "animelist",
-        "title": info["title"],
-        "poster_pic": info["image_url"],
+        "title": info.get("title"),
+        "poster_pic": info.get("image_url"),
         "is_tv": True,  # assuming
         "date_released": info["aired"]["from"],
-        "plot": info["synopsis"],
-        "status": info["status"],
-        "duration": datetime.timedelta(minutes=info["duration"]),
+        "plot": info.get("synopsis"),
+        "status": info.get("status"),
+        "duration": duration,
     }
     return anime
 

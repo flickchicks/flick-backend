@@ -8,11 +8,13 @@ from show.simple_serializers import ShowSimpleSerializer
 class TagSerializer(ModelSerializer):
     class Meta:
         model = Tag
-        fields = ("id", "tag", "shows")
+        fields = ("id", "tag")
         read_only_fields = fields
 
 
 class TagDetailSerializer(ModelSerializer):
+    shows = ShowSimpleSerializer(many=True, read_only=True)
+
     class Meta:
         model = Tag
         fields = ("id", "tag", "shows")

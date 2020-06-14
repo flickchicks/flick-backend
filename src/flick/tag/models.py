@@ -15,4 +15,5 @@ class Tag(models.Model):
             print(f"show: {show}")
             print(f"show.title: {show.title}")
             res += show.title
+        print(f"res: {res}")
         return res
