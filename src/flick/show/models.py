@@ -17,7 +17,7 @@ class Show(models.Model):
     language = models.CharField(max_length=100, blank=True, null=True)
     duration = models.DurationField(blank=True, null=True)
     plot = models.TextField()
-    tags = models.ManyToManyField(Tag, blank=True)
+    tags = models.ManyToManyField(Tag, related_name="shows", blank=True)
     seasons = models.IntegerField(blank=True, null=True)
     audience_level = models.CharField(max_length=100, blank=True, null=True)
     imdb_rating = models.CharField(max_length=10, blank=True, null=True)

@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 import pprint as pp
@@ -49,7 +50,7 @@ def get_movie_from_DBinfo(info):
         "show_tags": tags,
         "is_tv": False,
         "date_released": info.get("release_date"),
-        "duration": info.get("runtime"),
+        "duration": datetime.timedelta(minutes=info.get("runtime")),
         "language": info.get("original_language"),
         "plot": info.get("overview"),
     }
@@ -62,8 +63,6 @@ def get_tv_from_DBinfo(info):
     genres = info.get("genres")
     tags = [genre.get("name") for genre in genres] if genres else []
     duration = info.get("episode_run_time")[0] if info.get("episode_run_time") else None
-    print("get_tv_from_DBinfo")
-    print(info)
 
     tv = {
         "ext_api_id": info.get("id"),
@@ -73,7 +72,7 @@ def get_tv_from_DBinfo(info):
         "show_tags": tags,
         "is_tv": True,
         "date_released": info.get("first_air_date"),
-        "duration": duration,
+        "duration": datetime.timedelta(minutes=duration),
         "language": info.get("original_language"),
         "plot": info.get("overview"),
         "status": info.get("status"),
@@ -90,8 +89,8 @@ def get_movie_info(id):
     movie = tmdb.Movies(id)
     try:
         return get_movie_from_DBinfo(movie.info())
-    except Exception as e:
-        print(e)
+    except:
+        # print(e)
         return None
 
 
@@ -111,8 +110,8 @@ def get_tv_info(id):
     tv = tmdb.TV(id)
     try:
         return get_tv_from_DBinfo(tv.info())
-    except Exception as e:
-        print(e)
+    except:
+        # print(e)
         return None
 
 
@@ -130,7 +129,7 @@ def get_anime_from_DBinfo(info):
         "date_released": info["aired"]["from"],
         "plot": info["synopsis"],
         "status": info["status"],
-        "duration": info["duration"],
+        "duration": datetime.timedelta(minutes=info["duration"]),
     }
     return anime
 
@@ -154,7 +153,7 @@ class TMDB_API:
         info = get_movie_info(id)
         if info is not None:
             return info
-        print(f"The movie ID {id} does not exist.")
+        # print(f"The movie ID {id} does not exist.")
         return None
 
     @staticmethod
@@ -177,7 +176,7 @@ class TMDB_API:
         try:
             return info
         except:
-            print(f"The TV ID {id} does not exist.")
+            # print(f"The TV ID {id} does not exist.")
             return None
 
     @staticmethod
@@ -264,7 +263,7 @@ class AnimeList_API:
         if info is not None:
             return info
         else:
-            print(f"The anime ID {id} does not exist.")
+            # print(f"The anime ID {id} does not exist.")
             return None
 
     @staticmethod

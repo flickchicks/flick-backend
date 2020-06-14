@@ -1,3 +1,4 @@
+import datetime
 import json
 
 from api import settings as api_settings
@@ -14,6 +15,7 @@ from rest_framework.views import APIView
 from .models import Show
 from .serializers import ShowSerializer
 from .utils import TMDB_API, AnimeList_API
+from tag.models import Tag
 
 
 class ShowViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
@@ -73,7 +75,6 @@ class SearchShow(APIView):
                 shows += tv_info
             if is_anime:
                 anime_ids = AnimeList_API.search_anime_by_keyword(query)
-                # anime info from search?
                 anime_info = [AnimeList_API.search_anime_by_id(id) for id in anime_ids]
                 shows += anime_info
 
@@ -90,10 +91,16 @@ class SearchShow(APIView):
                 show.ext_api_source = search_result.get("ext_api_source")
                 show.poster_pic = search_result.get("poster_pic")
                 show.is_tv = search_result.get("is_tv")
+                show.date_released = search_result.get("date_released")
                 show.status = search_result.get("status")
                 show.language = search_result.get("language")
+                show.duration = search_result.get("duration")
                 show.plot = search_result.get("plot")
                 show.seasons = search_result.get("seasons")
+                show.save()
+                for tag_name in search_result.get("show_tags"):
+                    print("tag_name {tag_name}")
+                    show.tags.create(tag=tag_name)
                 show.save()
                 serializer = ShowSerializer(show)
                 serializer_data.append(serializer.data)
