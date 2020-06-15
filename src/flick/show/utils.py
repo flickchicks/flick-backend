@@ -11,6 +11,11 @@ from rest_framework.response import Response
 import tmdbsimple as tmdb
 from jikanpy import Jikan
 
+from .models import Show
+from .serializers import ShowSerializer
+from tag.models import Tag
+
+
 # create an instance of the Anime API
 jikan = Jikan()
 
@@ -32,6 +37,38 @@ Movie object format
     plot: string
 }
 """
+
+
+def create_show_objects(show_info_lst):
+    serializer_data = []
+    for show_info in show_info_lst:
+        if not show_info:
+            continue
+        try:
+            show = Show()
+            show.title = show_info.get("title")
+            show.ext_api_id = show_info.get("ext_api_id")
+            show.ext_api_source = show_info.get("ext_api_source")
+            show.poster_pic = show_info.get("poster_pic")
+            show.is_tv = show_info.get("is_tv")
+            show.date_released = show_info.get("date_released")
+            show.status = show_info.get("status")
+            show.language = show_info.get("language")
+            show.duration = show_info.get("duration")
+            show.plot = show_info.get("plot")
+            show.seasons = show_info.get("seasons")
+            show.save()
+            for tag_name in show_info.get("show_tags"):
+                try:
+                    show.tags.create(tag=tag_name)
+                except:
+                    show.tags.add(Tag.objects.get(tag=tag_name))
+            show.save()
+            serializer = ShowSerializer(show)
+            serializer_data.append(serializer.data)
+        except Exception as e:
+            print(f"{e}: {show_info}")
+    return serializer_data
 
 
 def get_movie_from_DBinfo(info):
@@ -276,7 +313,7 @@ class AnimeList_API:
         result = []
         search_result = jikan.search("anime", keyword, page=1).get("results")
         for anime_info in search_result:
-            result.append({"id": anime_info.get("mal_id")})
+            result.append(anime_info.get("mal_id"))
         return result
 
     @staticmethod
@@ -288,7 +325,7 @@ class AnimeList_API:
         result = []
         search_result = jikan.season(year=year, season=season).get("anime")
         for anime_info in search_result:
-            result.append({"id": anime_info.get("mal_id")})
+            result.append(anime_info.get("mal_id"))
         return result
 
     @staticmethod
@@ -300,14 +337,14 @@ class AnimeList_API:
         result = []
         search_result = jikan.top(type="anime").get("top")
         for anime_info in search_result:
-            result.append({"id": anime_info.get("mal_id")})
+            result.append(anime_info.get("mal_id"))
         return result
 
     @staticmethod
-    def anime_info_from_search(search_lst):
+    def anime_info_from_search(anime_ids):
         animes = []
-        for anime in search_lst:
-            info = search_anime(anime.get("id"))
+        for anime_id in anime_ids:
+            info = search_anime(anime_id)
             if info is not None:
                 animes.append(info)
         return animes

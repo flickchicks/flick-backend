@@ -3,6 +3,7 @@ import json
 
 from api import settings as api_settings
 from api.utils import failure_response, success_response
+from django.core.cache import caches
 from django.db import IntegrityError
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
@@ -14,8 +15,10 @@ from rest_framework.views import APIView
 
 from .models import Show
 from .serializers import ShowSerializer
-from .utils import TMDB_API, AnimeList_API
+from .utils import TMDB_API, AnimeList_API, create_show_objects
 from tag.models import Tag
+
+local_cache = caches["local"]
 
 
 class ShowViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
@@ -45,87 +48,98 @@ class ShowViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.Gen
 class SearchShow(APIView):
     permission_classes = api_settings.UNPROTECTED
 
+    # cache to store get_top_movie and search_movie_by_name (and tv and anime)
+    # get_top_movie example: ("top", "movie"), movie_id
+    # search_movie_by_name example: ("query", "movie"), movie_id
+
+    def get_top(self, shows, is_movie, is_tv, is_anime):
+        if is_movie:
+            top_movies = local_cache.get(("top", "movie"))
+            if not top_movies:
+                top_movies = TMDB_API.get_top_movie()
+                local_cache.set(("top", "movie"), top_movies)
+            shows += top_movies if top_movies else []
+        if is_tv:
+            top_shows = local_cache.get(("top", "shows"))
+            if not top_shows:
+                top_shows = TMDB_API.get_top_tv()
+                local_cache.set(("top", "shows"), top_shows)
+            shows += top_shows if top_shows else []
+        if is_anime:
+            top_anime = local_cache.get(("top", "anime"))
+            if not top_anime:
+                top_anime = AnimeList_API.get_top_anime()
+                local_cache.set(("top", "anime"), top_anime)
+            shows += top_anime if top_anime else []
+
     def get(self, request, *args, **kwargs):
         query = request.query_params.get("query")
-        is_anime = request.query_params.get("is_anime")
-        is_movie = request.query_params.get("is_movie")
-        is_tv = request.query_params.get("is_tv")
-        is_top = request.query_params.get("is_top")
+        print(f"query: {query}")
+        is_anime = bool(request.query_params.get("is_anime"))
+        print(f"is_anime: {is_anime}")
+        is_movie = bool(request.query_params.get("is_movie"))
+        print(f"is_movie: {is_movie}")
+        is_tv = bool(request.query_params.get("is_tv"))
+        print(f"is_tv: {is_tv}")
+        is_top = bool(request.query_params.get("is_top"))
+        print(f"is_top: {is_top}")
 
         shows = []
-
         known_shows = []
 
         if is_top:
-            if is_movie:
-                top_movies = TMDB_API.get_top_movie()
-                shows += top_movies if top_movies else []
-            if is_tv:
-                top_shows = TMDB_API.get_top_tv()
-                shows += top_shows if top_shows else []
-            if is_anime:
-                top_anime = AnimeList_API.get_top_anime()
-                shows += top_anime if top_anime else []
+            self.get_top(shows, is_movie, is_tv, is_anime)
+
         else:
             if is_movie:
-                print("is movie")
-                movie_ids = TMDB_API.search_movie_by_name(query)
+                movie_ids = local_cache.get((query, "movie"))
+                if not movie_ids:
+                    movie_ids = TMDB_API.search_movie_by_name(query)
+                    local_cache.set((query, "movie"), movie_ids)
                 for movie_id in movie_ids:
-                    known_show = Show.objects.filter(ext_api_id=movie_id, ext_api_source="tmdb", is_tv=False)
-                    if not known_show.exists():
-                        shows.append(TMDB_API.get_movie_info_from_id(movie_id))
-                    else:
-                        known_show = Show.objects.get(ext_api_id=movie_id, ext_api_source="tmdb", is_tv=False)
+                    known_show = Show.objects.filter(ext_api_id=movie_id, ext_api_source="tmdb")
+                    if known_show.exists():
+                        known_show = Show.objects.get(ext_api_id=movie_id, ext_api_source="tmdb")
                         known_shows.append(ShowSerializer(known_show).data)
+                    else:
+                        show = TMDB_API.get_movie_info_from_id(movie_id)
+                        if show:
+                            shows.append(show)
+
             if is_tv:
-                print("is tv")
-                tv_ids = TMDB_API.search_tv_by_name(query)
+                tv_ids = local_cache.get((query, "tv"))
+                if not tv_ids:
+                    tv_ids = TMDB_API.search_tv_by_name(query)
+                    local_cache.set((query, "tv"), tv_ids)
                 for tv_id in tv_ids:
-                    known_show = Show.objects.filter(ext_api_id=tv_id, ext_api_source="tmdb", is_tv=True)
-                    if not known_show.exists():
-                        shows.append(TMDB_API.get_movie_info_from_id(tv_id))
-                    else:
-                        known_show = Show.objects.get(ext_api_id=movie_id, ext_api_source="tmdb", is_tv=True)
+                    known_show = Show.objects.filter(ext_api_id=tv_id, ext_api_source="tmdb")
+                    if known_show.exists():
+                        known_show = Show.objects.get(ext_api_id=tv_id, ext_api_source="tmdb")
                         known_shows.append(ShowSerializer(known_show).data)
+                    else:
+                        show = TMDB_API.get_movie_info_from_id(tv_id)
+                        if show:
+                            shows.append(show)
+
             if is_anime:
-                anime_ids = AnimeList_API.search_anime_by_keyword(query)
-                anime_info = [AnimeList_API.search_anime_by_id(id) for id in anime_ids]
-                shows += anime_info
+                anime_ids = local_cache.get((query, "anime"))
+                if not anime_ids:
+                    anime_ids = AnimeList_API.search_anime_by_keyword(query)
+                    local_cache.set((query, "anime"), anime_ids)
+                for anime_id in anime_ids:
+                    known_show = Show.objects.filter(ext_api_id=anime_id, ext_api_source="animelist")
+                    if known_show.exists():
+                        known_show = Show.objects.get(ext_api_id=anime_id, ext_api_source="animelist")
+                        known_shows.append(ShowSerializer(known_show).data)
+                    else:
+                        show = AnimeList_API.search_anime_by_id(anime_id)
+                        if show:
+                            shows.append(show)
 
         serializer_data = []
 
-        # print(f"known_shows {known_shows}")
+        serializer_data.extend(create_show_objects(shows))
 
-        # print(f"shows {shows}")
-        for search_result in shows:
-            if not search_result:
-                continue
-            try:
-                show = Show()
-                show.title = search_result.get("title")
-                show.ext_api_id = search_result.get("ext_api_id")
-                show.ext_api_source = search_result.get("ext_api_source")
-                show.poster_pic = search_result.get("poster_pic")
-                show.is_tv = search_result.get("is_tv")
-                show.date_released = search_result.get("date_released")
-                show.status = search_result.get("status")
-                show.language = search_result.get("language")
-                show.duration = search_result.get("duration")
-                show.plot = search_result.get("plot")
-                show.seasons = search_result.get("seasons")
-                show.save()
-                for tag_name in search_result.get("show_tags"):
-                    print("tag_name {tag_name}")
-                    show.tags.create(tag=tag_name)
-                show.save()
-                serializer = ShowSerializer(show)
-                serializer_data.append(serializer.data)
-            except:  # Exception as e:
-                print("ignore")
-                # print(f"{e}: {search_result}")
-        for show in known_shows:
-            serializer_data.append(show)
-
-        print(f"known shows {known_shows}")
+        serializer_data.extend(known_shows)
 
         return success_response(serializer_data)
