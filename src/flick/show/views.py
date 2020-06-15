@@ -15,9 +15,13 @@ from rest_framework.views import APIView
 
 from .models import Show
 from .serializers import ShowSerializer
-from .utils import TMDB_API, AnimeList_API, create_show_objects
+from .utils import API
 from tag.models import Tag
 
+
+# cache to store get_top_movie and search_movie_by_name (and tv and anime)
+# get_top_movie example: ("top", "movie"), movie_id
+# search_movie_by_name example: ("query", "movie"), movie_id
 local_cache = caches["local"]
 
 
@@ -32,45 +36,53 @@ class ShowViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.Gen
     # if api_settings.UNPROTECTED, then any user can see this
     permission_classes = api_settings.STANDARD_PERMISSIONS
 
-    # don't need this, generics has this code, but this overrides
-    # gives option to add additional checks / customize
-    # def list(self, request):
-    #     # can access logged in user via request.user
-    #     self.serializer_class = ShowSerializer
-    #     return super(ItemList, self).list(request)
-
-    # def retrieve(self, request, pk):
-    #     queryset = self.get_object()
-    #     serializer = ShowDetailSerializer(queryset, many=False)
-    #     return success_response(serializer.data)
-
 
 class SearchShow(APIView):
-    permission_classes = api_settings.UNPROTECTED
+    shows = []
+    known_shows = []
 
-    # cache to store get_top_movie and search_movie_by_name (and tv and anime)
-    # get_top_movie example: ("top", "movie"), movie_id
-    # search_movie_by_name example: ("query", "movie"), movie_id
+    # show_type can be "movie", "tv", "anime"
+    def get_shows_by_type_and_query(self, query, show_type, source):
+        show_ids = local_cache.get((query, show_type))
+        print(f"44 show_ids {show_ids}")
+        if not show_ids:
+            show_ids = API.search_show_ids_by_name(show_type, query)
+            print(f"48 show-IDs ****: {show_ids}")
+            local_cache.set((query, show_type), show_ids)
+        for show_id in show_ids:
+            known_show = Show.objects.filter(ext_api_id=show_id, ext_api_source=source)
+            if known_show.exists():
+                known_show = Show.objects.get(ext_api_id=show_id, ext_api_source=source)
+                self.known_shows.append(ShowSerializer(known_show).data)
+            else:
+                show = API.get_show_info_from_id(show_type, show_id)
+                if show:
+                    self.shows.append(show)
 
-    def get_top(self, shows, is_movie, is_tv, is_anime):
+    def get_shows_by_query(self, query, is_movie, is_tv, is_anime):
         if is_movie:
-            top_movies = local_cache.get(("top", "movie"))
-            if not top_movies:
-                top_movies = TMDB_API.get_top_movie()
-                local_cache.set(("top", "movie"), top_movies)
-            shows += top_movies if top_movies else []
+            print(f"BEFORE self.shows {self.shows}")
+            self.get_shows_by_type_and_query(query, "movie", "tmdb")
+            print(f"AFTER self.shows {self.shows}")
         if is_tv:
-            top_shows = local_cache.get(("top", "shows"))
-            if not top_shows:
-                top_shows = TMDB_API.get_top_tv()
-                local_cache.set(("top", "shows"), top_shows)
-            shows += top_shows if top_shows else []
+            self.get_shows_by_type_and_query(query, "tv", "tmdb")
         if is_anime:
-            top_anime = local_cache.get(("top", "anime"))
-            if not top_anime:
-                top_anime = AnimeList_API.get_top_anime()
-                local_cache.set(("top", "anime"), top_anime)
-            shows += top_anime if top_anime else []
+            self.get_shows_by_type_and_query(query, "anime", "animelist")
+
+    def get_top_shows_by_type(self, show_type):
+        top_shows = local_cache.get(("top", show_type))
+        if not top_shows:
+            top_shows = API.get_top_show_info(show_type)
+            local_cache.set(("top", show_type), top_shows)
+        self.shows += top_shows if top_shows else []
+
+    def get_top_shows(self, is_movie, is_tv, is_anime):
+        if is_movie:
+            self.get_top_shows_by_type("movie")
+        if is_tv:
+            self.get_top_shows_by_type("tv")
+        if is_anime:
+            self.get_top_shows_by_type("anime")
 
     def get(self, request, *args, **kwargs):
         query = request.query_params.get("query")
@@ -84,62 +96,16 @@ class SearchShow(APIView):
         is_top = bool(request.query_params.get("is_top"))
         print(f"is_top: {is_top}")
 
-        shows = []
-        known_shows = []
+        self.shows = []
+        self.known_shows = []
 
         if is_top:
-            self.get_top(shows, is_movie, is_tv, is_anime)
-
+            self.get_top_shows(is_movie, is_tv, is_anime)
         else:
-            if is_movie:
-                movie_ids = local_cache.get((query, "movie"))
-                if not movie_ids:
-                    movie_ids = TMDB_API.search_movie_by_name(query)
-                    local_cache.set((query, "movie"), movie_ids)
-                for movie_id in movie_ids:
-                    known_show = Show.objects.filter(ext_api_id=movie_id, ext_api_source="tmdb")
-                    if known_show.exists():
-                        known_show = Show.objects.get(ext_api_id=movie_id, ext_api_source="tmdb")
-                        known_shows.append(ShowSerializer(known_show).data)
-                    else:
-                        show = TMDB_API.get_movie_info_from_id(movie_id)
-                        if show:
-                            shows.append(show)
-
-            if is_tv:
-                tv_ids = local_cache.get((query, "tv"))
-                if not tv_ids:
-                    tv_ids = TMDB_API.search_tv_by_name(query)
-                    local_cache.set((query, "tv"), tv_ids)
-                for tv_id in tv_ids:
-                    known_show = Show.objects.filter(ext_api_id=tv_id, ext_api_source="tmdb")
-                    if known_show.exists():
-                        known_show = Show.objects.get(ext_api_id=tv_id, ext_api_source="tmdb")
-                        known_shows.append(ShowSerializer(known_show).data)
-                    else:
-                        show = TMDB_API.get_movie_info_from_id(tv_id)
-                        if show:
-                            shows.append(show)
-
-            if is_anime:
-                anime_ids = local_cache.get((query, "anime"))
-                if not anime_ids:
-                    anime_ids = AnimeList_API.search_anime_by_keyword(query)
-                    local_cache.set((query, "anime"), anime_ids)
-                for anime_id in anime_ids:
-                    known_show = Show.objects.filter(ext_api_id=anime_id, ext_api_source="animelist")
-                    if known_show.exists():
-                        known_show = Show.objects.get(ext_api_id=anime_id, ext_api_source="animelist")
-                        known_shows.append(ShowSerializer(known_show).data)
-                    else:
-                        show = AnimeList_API.search_anime_by_id(anime_id)
-                        if show:
-                            shows.append(show)
+            self.get_shows_by_query(query, is_movie, is_tv, is_anime)
 
         serializer_data = []
-
-        serializer_data.extend(create_show_objects(shows))
-
-        serializer_data.extend(known_shows)
+        serializer_data.extend(API.create_show_objects(self.shows))
+        serializer_data.extend(self.known_shows)
 
         return success_response(serializer_data)
