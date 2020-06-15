@@ -15,6 +15,8 @@ from .models import Show
 from .serializers import ShowSerializer
 from tag.models import Tag
 
+from django.db import IntegrityError
+
 
 # create an instance of the Anime API
 jikan = Jikan()
@@ -60,16 +62,25 @@ class API:
                 show.plot = show_info.get("plot")
                 show.seasons = show_info.get("seasons")
                 show.save()
-                for tag_name in show_info.get("show_tags"):
-                    try:
-                        show.tags.create(tag=tag_name)
-                    except:
-                        show.tags.add(Tag.objects.get(tag=tag_name))
-                show.save()
+                if show_info.get("show_tags"):
+                    for tag_name in show_info.get("show_tags"):
+                        try:
+                            show.tags.create(tag=tag_name)
+                        except:
+                            show.tags.add(Tag.objects.get(tag=tag_name))
+                    show.save()
+                serializer = ShowSerializer(show)
+                serializer_data.append(serializer.data)
+            except IntegrityError:
+                show = Show.objects.get(
+                    title=show_info.get("title"),
+                    ext_api_id=show_info.get("ext_api_id"),
+                    ext_api_source=show_info.get("ext_api_source"),
+                )
                 serializer = ShowSerializer(show)
                 serializer_data.append(serializer.data)
             except Exception as e:
-                print(f"{e}: {show_info}")
+                print(e)
         return serializer_data
 
     @staticmethod
@@ -238,12 +249,12 @@ class AnimeList_API:
         """
         duration = datetime.timedelta(minutes=info.get("duration")) if info.get("duration") else None
         anime = {
-            "ext_api_id": info.get(["mal_id"]),
+            "ext_api_id": info.get("mal_id"),
             "ext_api_source": "animelist",
             "title": info.get("title"),
             "poster_pic": info.get("image_url"),
             "is_tv": True,  # assuming
-            "date_released": info["aired"]["from"],
+            "date_released": info.get("start_date"),
             "plot": info.get("synopsis"),
             "status": info.get("status"),
             "duration": duration,
@@ -279,4 +290,4 @@ class AnimeList_API:
         Get top anime from animelist API, returns a list of anime ids.
         """
         anime_info_lst = jikan.top(type="anime").get("top")
-        return [anime_info.get("mal_id") for anime_info in anime_info_lst]
+        return [self.get_anime_from_animelist_info(anime_info) for anime_info in anime_info_lst if anime_info]

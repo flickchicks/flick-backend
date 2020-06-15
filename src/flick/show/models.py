@@ -12,11 +12,11 @@ class Show(models.Model):
     poster_pic = models.URLField(blank=True, null=True)
     director = models.CharField(max_length=100)
     is_tv = models.BooleanField()
-    date_released = models.DateField(blank=True, null=True)
+    date_released = models.CharField(max_length=100, blank=True, null=True)  # models.DateField(blank=True, null=True)
     status = models.CharField(max_length=100, blank=True, null=True)
     language = models.CharField(max_length=100, blank=True, null=True)
     duration = models.DurationField(blank=True, null=True)
-    plot = models.TextField()
+    plot = models.TextField(blank=True, null=True)
     tags = models.ManyToManyField(Tag, related_name="shows", blank=True)
     seasons = models.IntegerField(blank=True, null=True)
     audience_level = models.CharField(max_length=100, blank=True, null=True)
@@ -28,7 +28,7 @@ class Show(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ("title", "ext_api_id", "ext_api_source", "poster_pic")
+        unique_together = ("title", "ext_api_id", "ext_api_source", "poster_pic", "date_released")
 
     @property
     def friends_rating(self):

@@ -70,7 +70,7 @@ class SearchShow(APIView):
         if not top_shows:
             top_shows = API.get_top_show_info(show_type)
             local_cache.set(("top", show_type), top_shows)
-        self.shows += top_shows if top_shows else []
+        self.shows.extend(top_shows)
 
     def get_top_shows(self, is_movie, is_tv, is_anime):
         if is_movie:
