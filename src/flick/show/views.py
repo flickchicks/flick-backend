@@ -44,10 +44,8 @@ class SearchShow(APIView):
     # show_type can be "movie", "tv", "anime"
     def get_shows_by_type_and_query(self, query, show_type, source):
         show_ids = local_cache.get((query, show_type))
-        print(f"44 show_ids {show_ids}")
         if not show_ids:
             show_ids = API.search_show_ids_by_name(show_type, query)
-            print(f"48 show-IDs ****: {show_ids}")
             local_cache.set((query, show_type), show_ids)
         for show_id in show_ids:
             known_show = Show.objects.filter(ext_api_id=show_id, ext_api_source=source)
@@ -61,9 +59,7 @@ class SearchShow(APIView):
 
     def get_shows_by_query(self, query, is_movie, is_tv, is_anime):
         if is_movie:
-            print(f"BEFORE self.shows {self.shows}")
             self.get_shows_by_type_and_query(query, "movie", "tmdb")
-            print(f"AFTER self.shows {self.shows}")
         if is_tv:
             self.get_shows_by_type_and_query(query, "tv", "tmdb")
         if is_anime:

@@ -93,9 +93,7 @@ class API:
         """
         if show_type == "movie":
             api = TMDB_API()
-            result = api.search_movie_by_name(name)
-            print(f"result {result}")
-            return result
+            return api.search_movie_by_name(name)
         elif show_type == "tv":
             api = TMDB_API()
             return api.search_tv_by_name(name)
@@ -107,12 +105,9 @@ class API:
 
     @staticmethod
     def get_show_info_from_id(show_type, id):
-        print(f"getshow info from id {id}")
         if show_type == "movie":
             api = TMDB_API()
-            movie = api.get_movie_info_from_id(id)
-            print(f"movie: {movie}")
-            return movie
+            return api.get_movie_info_from_id(id)
         elif show_type == "tv":
             api = TMDB_API()
             return api.get_tv_info_from_id(id)
