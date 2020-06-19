@@ -94,7 +94,6 @@ class API:
         elif show_type == "anime":
             api = AnimeList_API()
             return api.get_top_anime()
-        print("only movie, tv, and anime show types are supported!")
         return None
 
     @staticmethod
@@ -111,7 +110,6 @@ class API:
         elif show_type == "anime":
             api = AnimeList_API()
             return api.search_anime_by_name(name)
-        print("only movie, tv, and anime show types are supported!")
         return None
 
     @staticmethod
