@@ -13,7 +13,12 @@ from rest_framework.views import APIView
 from friendship.models import Follow, Friend, FriendshipRequest, Block
 
 from api.utils import failure_response, success_response
-from friend.serializers import FriendUserSerializer, FriendRequestSerializer, FriendshipSerializer
+from friend.serializers import (
+    FriendUserSerializer,
+    FriendRequestSerializer,
+    FriendshipSerializer,
+    IncomingRequestSerializer,
+)
 
 import json
 
@@ -67,7 +72,7 @@ class FriendAcceptListAndCreate(generics.ListCreateAPIView):
 
     def get(self, request, format=None):
         friend_requests = Friend.objects.unrejected_requests(user=request.user)
-        serializer = FriendRequestSerializer(friend_requests, many=True)
+        serializer = IncomingRequestSerializer(friend_requests, many=True)
         return success_response(serializer.data)
 
     def post(self, request, format=None):

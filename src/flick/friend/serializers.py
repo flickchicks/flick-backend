@@ -43,6 +43,19 @@ class FriendRequestSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+class IncomingRequestSerializer(serializers.ModelSerializer):
+    """
+    Friend Request Serializer
+    """
+
+    from_user = FriendUserSerializer(read_only=True)
+
+    class Meta:
+        model = FriendshipRequest
+        fields = ("from_user", "created", "rejected", "viewed")
+        read_only_fields = fields
+
+
 class FriendshipSerializer(serializers.ModelSerializer):
     """
     Friend Serializer
