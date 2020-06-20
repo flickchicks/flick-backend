@@ -28,9 +28,6 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    """
-    User Serializer
-    """
 
     profile = ProfileSerializer(many=False)
 
@@ -40,7 +37,6 @@ class UserSerializer(serializers.ModelSerializer):
         results = []
         for group in user.groups.all():
             results.append(group.name)
-
         return results
 
     class Meta:
@@ -50,10 +46,6 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserDetailSerializer(UserSerializer):
-    """
-    User Detail Serializer
-    """
-
     class Meta:
         model = User
         fields = ("id", User.USERNAME_FIELD, "first_name", "last_name", "email", "groups")
@@ -61,10 +53,6 @@ class UserDetailSerializer(UserSerializer):
 
 
 class UserListSerializer(UserSerializer):
-    """
-    User List Serializer
-    """
-
     class Meta:
         model = User
         fields = ("id", User.USERNAME_FIELD, "first_name", "last_name", "email")

@@ -10,13 +10,11 @@ pip3 install -r requirements.txt
 ```
 
 # Setup Environment Variables 
-## With Slack
+## .env With Slack
 There is a `.env` file pinned in the backend channel of the Slack, and you
 must put this file in the project.
-There is also a `.aws.zip` file pinned, and you must unzip it and put it in your 
-computer's home directory.
 
-## Manually
+## .env Manually
 For devs other than those on the Flick team, here is how you can set the
 environment variables up.
 
@@ -24,6 +22,8 @@ Make sure to create your own `.env` file by running:
 ```
 cp env.template .env
 ```
+
+## .aws 
 Make sure to create your own `.aws` credentials folder in your home directory 
 (your computer's home directory, not in this project!), with two files 
 `credentials` and `config` in them:
@@ -37,10 +37,11 @@ aws_secret_access_key=<YOUR_SECRET_ACCESS_KEY>
 `~/.aws/config`:
 ```
 [default]
-region=us-east-1
+region=us-west-1
 ```
 The access key ID and secret access key can be found in the "Security 
-Credentials" section of your AWS account.
+Credentials" section of your AWS account (or, find it pinned in our backend
+slack channel!)
 
 # Setup Django
 ```
@@ -58,20 +59,29 @@ python manage.py createsuperuser
 # Setup Celery & Redis
 To help us manage asynchronous tasks, we use a Celery, and as a result, use
 Redis as our cache for saving those future tasks. 
+
 Ensure you have Redis installed and that your server is running:
 ```
 brew install redis
 brew services start redis
-redis-cli ping
 ```
-You should get `PONG` back!
 Open the Redis server:
 ```
 redis_server
 ```
+or if that doesn't work,
+```
+redis-server
+```
+Now, try pinging the server
+```
+redis-cli ping
+```
+You should get `PONG` back!
+
 Start the celery worker:
 ```
-celery -A cfehome worker -l info
+celery -A flick worker -l info
 ```
 Now you should be able to run the backend with asynchronous tasks!
 Our current use case with this is to upload images while we send the AWS S3
