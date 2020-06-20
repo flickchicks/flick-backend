@@ -17,7 +17,7 @@ jikan = Jikan()
 tmdb.API_KEY = settings.TMDB_API_KEY
 
 # base URL for posters
-base_movie_url = "http://image.tmdb.org/t/p/w185"
+BASE_MOVIE_URL = "http://image.tmdb.org/t/p/w185"
 
 # Movie data format
 """
@@ -54,7 +54,7 @@ def get_movie_from_DBinfo(info, credit):
     movie = {
         "show_id": info.get("id"),
         "title": info.get("original_title"),
-        "poster_pic": base_movie_url + info.get("poster_path"),
+        "poster_pic": BASE_MOVIE_URL + info.get("poster_path"),
         "show_tags": tags,
         "is_tv": False,
         "date_released": info.get("release_date"),
@@ -85,7 +85,7 @@ def get_tv_from_DBinfo(info, credit):
     tv = {
         "show_id": info.get("id"),
         "title": info.get("original_name"),
-        "poster_pic": base_movie_url + info.get("poster_path"),
+        "poster_pic": BASE_MOVIE_URL + info.get("poster_path"),
         "show_tags": tags,
         "is_tv": True,
         "date_released": info.get("first_air_date"),

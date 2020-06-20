@@ -2,7 +2,7 @@ from api import settings as api_settings
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics, mixins, status, viewsets
 from rest_framework.parsers import JSONParser
@@ -10,10 +10,11 @@ from rest_framework.response import Response
 from rest_framework.serializers import CurrentUserDefault, ModelSerializer, PrimaryKeyRelatedField
 from rest_framework.views import APIView
 
-from friend.serializers import FriendUserSerializer, FriendRequestSerializer, FriendshipSerializer
 from friendship.models import Follow, Friend, FriendshipRequest, Block
 
 from api.utils import failure_response, success_response
+from friend.serializers import FriendUserSerializer, FriendRequestSerializer, FriendshipSerializer
+
 import json
 
 
@@ -50,8 +51,7 @@ class FriendRequestListAndCreate(generics.ListCreateAPIView):
                 user = User.objects.get(username=username)
                 friend_requests.append(Friend.objects.add_friend(request.user, user))
             except Exception as e:
-                # return failure_response(str(e))
-                print(str(e))  # what to do with the messages from requests that failed?
+                print(str(e))
                 continue
 
         serializer = FriendRequestSerializer(friend_requests, many=True)
