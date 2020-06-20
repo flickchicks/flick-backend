@@ -16,6 +16,9 @@ jikan = Jikan()
 # set up the TMDB API access key from .env
 tmdb.API_KEY = settings.TMDB_API_KEY
 
+# base URL for posters
+base_movie_url = "http://image.tmdb.org/t/p/w185"
+
 # Movie data format
 """
 Movie object format
@@ -33,39 +36,56 @@ Movie object format
 """
 
 
-def get_movie_from_DBinfo(info):
+def get_movie_from_DBinfo(info, credit):
     """
     get a flick movie object similar by parsing the
     information returned by movieDB
     """
     genres = info.get("genres")
-    tags = [genre.get("name") for genre in genres] if genres else []
+    crew = credit.get("crew")
+    cast = credit.get("cast")
+    tags = [g.get("name") for g in genres] if genres else []
+    castInfo = [p.get("name") for p in cast] if cast else []
+    directors = []
+    for c in crew:
+        if c.get("job") == "Director":
+            directors.append(c.get("name"))
 
     movie = {
         "show_id": info.get("id"),
         "title": info.get("original_title"),
-        "poster_pic": info.get("poster_path"),
+        "poster_pic": base_movie_url + info.get("poster_path"),
         "show_tags": tags,
         "is_tv": False,
         "date_released": info.get("release_date"),
         "duration": info.get("runtime"),
         "language": info.get("original_language"),
         "description": info.get("overview"),
+        "director(s)": directors,
+        "cast": castInfo,
     }
 
     return movie
 
 
-def get_tv_from_DBinfo(info):
+def get_tv_from_DBinfo(info, credit):
     # maybe need another separate json?? episodes/ last aired/ most recent episode etc
     genres = info.get("genres")
+    crew = credit.get("crew")
+    cast = credit.get("cast")
     tags = [genre.get("name") for genre in genres] if genres else []
+    castInfo = [p.get("name") for p in cast] if cast else []
+
     duration = info.get("episode_run_time")[0] if info.get("episode_run_time") else None
+    producers = []
+    for c in crew:
+        if c.get("job") == "Producer":
+            producers.append(c.get("name"))
 
     tv = {
         "show_id": info.get("id"),
         "title": info.get("original_name"),
-        "poster_pic": info.get("poster_path"),
+        "poster_pic": base_movie_url + info.get("poster_path"),
         "show_tags": tags,
         "is_tv": True,
         "date_released": info.get("first_air_date"),
@@ -73,6 +93,8 @@ def get_tv_from_DBinfo(info):
         "language": info.get("original_language"),
         "description": info.get("overview"),
         "status": info.get("status"),
+        "director(s)": producers,
+        "cast": castInfo,
     }
 
     return tv
@@ -84,7 +106,7 @@ def get_movie_info(id):
     """
     movie = tmdb.Movies(id)
     try:
-        return get_movie_from_DBinfo(movie.info())
+        return get_movie_from_DBinfo(movie.info(), movie.credits())
     except Exception as e:
         print(e)
         return None
@@ -105,7 +127,7 @@ def get_tv_info(id):
     """
     tv = tmdb.TV(id)
     try:
-        return get_tv_from_DBinfo(tv.info())
+        return get_tv_from_DBinfo(tv.info(), tv.credits())
     except Exception as e:
         print(e)
         return None

@@ -7,7 +7,13 @@ from rest_framework import routers
 from upload.views import UploadImage
 from user.views import UserViewSet
 
-from friend.views import FriendList
+from friend.views import (
+    FriendList,
+    FriendRequestListAndCreate,
+    FriendAcceptListAndCreate,
+    FriendRejectListAndCreate,
+    FriendRemoveListAndCreate,
+)
 from show.views import SearchShow, ShowViewSet
 
 router = routers.DefaultRouter()
@@ -26,6 +32,10 @@ urlpatterns = [
     path("comment/", CommentItem.as_view(), name="comment"),
     path("friendship/", include("friendship.urls")),
     path("friends/", FriendList.as_view(), name="friend-list"),
+    path("friends/request", FriendRequestListAndCreate.as_view(), name="friend-request"),
+    path("friends/accept", FriendAcceptListAndCreate.as_view(), name="friend-accept"),
+    path("friends/reject", FriendRejectListAndCreate.as_view(), name="friend-reject"),
+    path("friends/remove", FriendRemoveListAndCreate.as_view(), name="friend-remove"),
     path("items/", ItemList.as_view(), name="item-list"),
     path("items/<int:pk>/", ItemDetail.as_view(), name="item-detail"),
     path("like/", LikeItem.as_view(), name="like"),
