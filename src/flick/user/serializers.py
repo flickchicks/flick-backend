@@ -8,28 +8,9 @@ from asset.serializers import AssetBundleDetailSerializer
 from user.models import Profile
 
 
-class ProfileSerializer(serializers.ModelSerializer):
-
-    profile_asset_bundle = AssetBundleDetailSerializer(read_only=True)
-
-    class Meta:
-        model = Profile
-        fields = (
-            "id",
-            "bio",
-            "profile_asset_bundle",
-            "phone_number",
-            "social_id_token_type",
-            "social_id_token",
-            "owner_lsts",
-            "collab_lsts",
-        )
-        read_only_fields = ("id",)
-
-
 class UserSerializer(serializers.ModelSerializer):
 
-    profile = ProfileSerializer(many=False)
+    # profile = ProfileSerializer(many=False)
 
     groups = serializers.SerializerMethodField("get_user_groups")
 
@@ -41,8 +22,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ("id", User.USERNAME_FIELD, "first_name", "last_name", "profile", "groups")
-        read_only_fields = ("id", "groups", "profile")
+        fields = ("id", User.USERNAME_FIELD, "first_name", "last_name", "groups")
+        read_only_fields = fields
 
 
 class UserDetailSerializer(UserSerializer):
@@ -56,4 +37,24 @@ class UserListSerializer(UserSerializer):
     class Meta:
         model = User
         fields = ("id", User.USERNAME_FIELD, "first_name", "last_name", "email")
+        read_only_fields = fields
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    profile_asset_bundle = AssetBundleDetailSerializer(read_only=True)
+    user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Profile
+        fields = (
+            "id",
+            "user",
+            "bio",
+            "profile_asset_bundle",
+            "phone_number",
+            "social_id_token_type",
+            "social_id_token",
+            # "owner_lsts",
+            # "collab_lsts",
+        )
         read_only_fields = fields

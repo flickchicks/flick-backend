@@ -18,24 +18,25 @@ import re
 User = get_user_model()
 
 
-class UserView(RetrieveUpdateAPIView):
-
-    model = User
-    serializer_class = UserSerializer
+class UserView(GenericAPIView):
+    model = Profile
+    serializer_class = ProfileSerializer
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
-    def get_object(self, *args, **kwargs):
-        return success_response(self.request.user)
+    def get(self, request):
+        profile = Profile.objects.get(user=self.request.user)
+        serializer = ProfileSerializer(profile)
+        return success_response(serializer.data)
 
 
 class ProfileView(RetrieveUpdateAPIView):
 
-    model = User.profile
+    model = Profile
     serializer_class = ProfileSerializer
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
     def get_object(self, *args, **kwargs):
-        return success_response(self.request.user.profile)
+        return success_response(self.request.profile)
 
 
 class LoginView(GenericAPIView):

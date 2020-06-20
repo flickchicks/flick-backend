@@ -24,7 +24,7 @@ class Profile(models.Model):
 
     # override what django admin displays
     def __str__(self):
-        return f"{self.user.username}, {self.user.name}"
+        return f"{self.user.username}, {self.user.first_name}"
 
     def save(self, *args, **kwargs):
         from upload.utils import upload_image
