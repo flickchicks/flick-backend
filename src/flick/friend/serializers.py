@@ -61,9 +61,9 @@ class FriendshipSerializer(serializers.ModelSerializer):
     Friend Serializer
     """
 
-    to_user = FriendUserSerializer(read_only=True)
+    from_user = FriendUserSerializer(read_only=True)
 
     class Meta:
         model = Friend
-        fields = ("to_user", "created")
+        fields = ("from_user", "created")
         read_only_fields = fields

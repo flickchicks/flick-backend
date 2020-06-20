@@ -79,11 +79,15 @@ class FriendAcceptListAndCreate(generics.ListCreateAPIView):
         data = json.loads(request.body)
         friends_accepted = []
         for username in data.get("usernames"):
-            friend = User.objects.get(username=username)
-            user_pk = request.user.pk
-            friend_request = FriendshipRequest.objects.get(from_user=friend.pk, to_user=user_pk)
-            friend_request.accept()
-            friends_accepted.append(friend_request)
+            try:
+                friend = User.objects.get(username=username)
+                user_pk = request.user.pk
+                friend_request = FriendshipRequest.objects.get(from_user=friend.pk, to_user=user_pk)
+                friend_request.accept()
+                friends_accepted.append(friend_request)
+            except Exception as e:
+                print(str(e))
+                continue
 
         serializer = FriendshipSerializer(friends_accepted, many=True)
 
