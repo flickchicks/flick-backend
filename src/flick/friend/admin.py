@@ -1,10 +1,13 @@
 from django.contrib import admin
-from friendship.models import FriendshipRequest, Friend
 
-# Register your models here.
+from friendship.models import FriendshipRequest, Friend
 
 
 class FriendRequestAdmin(admin.ModelAdmin):
+    """
+    override registered modal FriendRequest from django-friendship
+    """
+
     list_display = ("from_user", "to_user", "created", "rejected")
 
 
@@ -13,6 +16,10 @@ admin.site.register(FriendshipRequest, FriendRequestAdmin)
 
 
 class FriendAdmin(admin.ModelAdmin):
+    """
+    override registered modal Friend from django-friendship
+    """
+
     list_display = ("from_user", "to_user", "created")
 
 
