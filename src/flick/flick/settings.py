@@ -51,10 +51,12 @@ INSTALLED_APPS = [
     # own
     "api",
     "asset",
+    "cast",
     "flick_auth",
     "friend",
     "item",
     "lst",
+    "member",
     "pages",
     "show",
     "tag",
