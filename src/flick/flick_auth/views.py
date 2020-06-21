@@ -13,6 +13,7 @@ from api.utils import failure_response, success_response
 from user.models import Profile
 from user.serializers import UserSerializer, ProfileSerializer
 
+import json
 import re
 
 User = get_user_model()
@@ -28,15 +29,42 @@ class UserView(GenericAPIView):
         serializer = ProfileSerializer(profile)
         return success_response(serializer.data)
 
+    def post(self, request):
+        data = json.loads(request.body)
 
-class ProfileView(RetrieveUpdateAPIView):
+        profile = Profile.objects.get(user=self.request.user)
 
-    model = Profile
-    serializer_class = ProfileSerializer
-    permission_classes = api_settings.CONSUMER_PERMISSIONS
+        username = data.get("username")
+        first_name = data.get("first_name")
+        last_name = data.get("last_name")
+        profile_pic_url = data.get("profile_pic")
+        bio = data.get("bio")
+        phone_number = data.get("phone_number")
+        social_id_token_type = data.get("social_id_token_type")
+        social_id_token = data.get("social_id_token")
 
-    def get_object(self, *args, **kwargs):
-        return success_response(self.request.profile)
+        if username and self.request.user.username != username:
+            self.request.user.username = username
+        if first_name and self.request.user.first_name != first_name:
+            self.request.user.first_name = first_name
+        if last_name and self.request.user.last_name != last_name:
+            self.request.user.last_name = last_name
+        if profile_pic_url:
+            profile.profile_pic = profile_pic_url
+        if bio and profile.bio != bio:
+            profile.bio = bio
+        if phone_number and profile.phone_number != phone_number:
+            profile.phone_number = phone_number
+        if social_id_token_type and profile.social_id_token_type != social_id_token_type:
+            profile.social_id_token_type = social_id_token_type
+        if social_id_token and profile.social_id_token != social_id_token:
+            profile.social_id_token = social_id_token
+
+        self.request.user.save()
+        profile.save()
+
+        serializer = ProfileSerializer(profile)
+        return success_response(serializer.data)
 
 
 class LoginView(GenericAPIView):
