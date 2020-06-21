@@ -42,3 +42,7 @@ class Profile(models.Model):
     def save(self, *args, **kwargs):
         self.upload_profile_pic()
         super(Profile, self).save(*args, **kwargs)
+
+    @property
+    def owner_lsts(self):
+        return Lst.objects.filter(owner=self.user)
