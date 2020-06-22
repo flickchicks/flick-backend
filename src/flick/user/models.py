@@ -43,6 +43,10 @@ class Profile(models.Model):
         self.upload_profile_pic()
         super(Profile, self).save(*args, **kwargs)
 
-    @property
-    def owner_lsts(self):
-        return Lst.objects.filter(owner=self.user)
+    # @property
+    # def owner_lsts(self):
+    #     return Lst.objects.filter(owner=self.user)
+
+    # @property
+    # def collab_lsts(self):
+    #     return Lst.objects.filter(collaborators=self.user)
