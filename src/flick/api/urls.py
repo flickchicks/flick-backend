@@ -8,6 +8,7 @@ from upload.views import UploadImage
 from user.views import UserViewSet
 
 from friend.views import FriendList
+from lst.views import LstView
 from show.views import SearchShow, ShowViewSet
 from tag.views import TagList, TagDetail
 
@@ -30,6 +31,7 @@ urlpatterns = [
     path("items/", ItemList.as_view(), name="item-list"),
     path("items/<int:pk>/", ItemDetail.as_view(), name="item-detail"),
     path("like/", LikeItem.as_view(), name="like"),
+    path("lst/", LstView.as_view(), name="lst"),
     path("media/image/", UploadImage.as_view(), name="upload"),
     path("search/", SearchShow.as_view(), name="search-show"),
     path("tags/", TagList.as_view(), name="tag-list"),
