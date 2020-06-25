@@ -41,16 +41,23 @@ class UserListSerializer(UserSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    profile_asset_bundle = AssetBundleDetailSerializer(read_only=True)
-    user = UserSerializer(read_only=True)
+    profile_id = serializers.CharField(source="id")
+    user_id = serializers.CharField(source="user.id")
+    first_name = serializers.CharField(source="user.first_name")
+    last_name = serializers.CharField(source="user.last_name")
+    username = serializers.CharField(source="user.username")
+    profile_pic = AssetBundleDetailSerializer(source="profile_asset_bundle")
 
     class Meta:
         model = Profile
         fields = (
-            "id",
-            "user",
+            "user_id",
+            "username",
+            "first_name",
+            "last_name",
+            "profile_id",
+            "profile_pic",
             "bio",
-            "profile_asset_bundle",
             "phone_number",
             "social_id_token_type",
             "social_id_token",
