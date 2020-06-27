@@ -3,9 +3,9 @@ from django.contrib.auth.models import User
 
 from rest_framework import serializers
 
+from .serializers import UserSerializer
 from asset.serializers import AssetBundleDetailSerializer
 from user.models import Profile
-from .serializers import UserSerializer
 
 
 class ProfileSimpleSerializer(serializers.ModelSerializer):

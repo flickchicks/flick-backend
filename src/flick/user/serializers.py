@@ -49,7 +49,6 @@ class ProfileSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source="user.username")
     profile_pic = AssetBundleDetailSerializer(source="profile_asset_bundle")
     owner_lsts = LstSimpleSerializer(read_only=True, many=True)
-    print(f"owner_lsts: {owner_lsts}")
     collab_lsts = LstSimpleSerializer(read_only=True, many=True)
 
     class Meta:

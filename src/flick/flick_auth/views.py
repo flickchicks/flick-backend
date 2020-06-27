@@ -25,7 +25,6 @@ class UserView(GenericAPIView):
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
     def get(self, request):
-        print("this is the profile view")
         profile = Profile.objects.get(user=self.request.user)
         serializer = ProfileSerializer(profile)
         return success_response(serializer.data)
