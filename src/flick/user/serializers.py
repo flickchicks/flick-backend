@@ -5,7 +5,7 @@ from friendship.models import Friend, Follow, Block
 from rest_framework import serializers
 
 from asset.serializers import AssetBundleDetailSerializer
-from lst.serializers import LstSerializer
+from lst.simple_serializers import LstSimpleSerializer
 from user.models import Profile
 
 
@@ -48,8 +48,8 @@ class ProfileSerializer(serializers.ModelSerializer):
     last_name = serializers.CharField(source="user.last_name")
     username = serializers.CharField(source="user.username")
     profile_pic = AssetBundleDetailSerializer(source="profile_asset_bundle")
-    owner_lsts = LstSerializer(many=True)
-    collab_lsts = LstSerializer(many=True)
+    owner_lsts = LstSimpleSerializer(many=True)
+    collab_lsts = LstSimpleSerializer(many=True)
 
     class Meta:
         model = Profile

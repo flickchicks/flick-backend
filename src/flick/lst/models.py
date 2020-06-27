@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.db import models
 
 from show.models import Show
+from user.models import Profile
 
 
 class Lst(models.Model):
@@ -11,8 +12,8 @@ class Lst(models.Model):
     is_favorite = models.BooleanField(default=False)
     is_private = models.BooleanField(default=False)
     is_watched = models.BooleanField(default=False)
-    collaborator = models.ManyToManyField(User, related_name="collaborator", blank=True)
-    owner = models.ForeignKey(User, related_name="owner", on_delete=models.CASCADE)
+    collaborators = models.ManyToManyField(Profile, related_name="collaborator", blank=True)
+    owner = models.ForeignKey(Profile, related_name="owner", on_delete=models.CASCADE)
     shows = models.ManyToManyField(Show, blank=True)
 
     @property
