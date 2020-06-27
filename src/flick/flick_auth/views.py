@@ -37,7 +37,7 @@ class UserView(GenericAPIView):
         username = data.get("username")
         first_name = data.get("first_name")
         last_name = data.get("last_name")
-        profile_pic_url = data.get("profile_pic")
+        profile_pic_base64 = data.get("profile_pic")
         bio = data.get("bio")
         phone_number = data.get("phone_number")
         social_id_token_type = data.get("social_id_token_type")
@@ -49,8 +49,8 @@ class UserView(GenericAPIView):
             self.request.user.first_name = first_name
         if last_name and self.request.user.last_name != last_name:
             self.request.user.last_name = last_name
-        if profile_pic_url:
-            profile.profile_pic = profile_pic_url
+        if profile_pic_base64:
+            profile.profile_pic = profile_pic_base64
         if bio and profile.bio != bio:
             profile.bio = bio
         if phone_number and profile.phone_number != phone_number:
