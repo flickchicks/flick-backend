@@ -1,10 +1,5 @@
-import datetime
-import json
-import os
-import pprint as pp
-import sys
-
 from django.conf import settings
+from django.db import IntegrityError
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -15,8 +10,11 @@ from .models import Show
 from .serializers import ShowSerializer
 from tag.models import Tag
 
-from django.db import IntegrityError
-
+import datetime
+import json
+import os
+import pprint as pp
+import sys
 
 # create an instance of the Anime API
 jikan = Jikan()
