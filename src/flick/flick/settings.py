@@ -20,7 +20,7 @@ TMDB_API_KEY = config("TMDB_API_KEY")
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-TEMP_DIR = "tmp/"
+TEMP_DIR = "tmp"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
@@ -51,10 +51,12 @@ INSTALLED_APPS = [
     # own
     "api",
     "asset",
+    "cast",
     "flick_auth",
     "friend",
     "item",
     "lst",
+    "member",
     "pages",
     "show",
     "tag",
@@ -100,6 +102,16 @@ AUTHENTICATION_BACKENDS = (
 )
 
 WSGI_APPLICATION = "flick.wsgi.application"
+
+CACHES = {
+    "default": {},
+    "local": {
+        "BACKEND": "lrucache_backend.LRUObjectCache",
+        "TIMEOUT": 600,
+        "OPTIONS": {"MAX_ENTRIES": 100, "CULL_FREQUENCY": 100},
+        "NAME": "optional-name",
+    },
+}
 
 
 # Database

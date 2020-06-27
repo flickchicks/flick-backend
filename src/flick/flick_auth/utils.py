@@ -133,13 +133,16 @@ class AuthTools:
         """
         try:
             username_exists = User.objects.filter(username=user_data["username"])
+            print(f"{user_data['username']}")
             if username_exists:
                 return {"user": username_exists[0], "is_new": False}
 
             user = User.objects.create_user(**user_data)
 
             profile_data["user"] = user
+            # print(f"**profile_data: {profile_data}")
             profile = Profile(**profile_data)
+            print(f"user: {profile.user}")
             profile.save()
 
             group = Group.objects.get(name=group)
@@ -147,7 +150,7 @@ class AuthTools:
 
             return {"user": user, "is_new": True}
         except Exception as e:
-            print(str(e))
+            print(f"i'm over here! {str(e)}")
             raise Exception(e)
         return None
 
@@ -157,6 +160,7 @@ class AuthTools:
         Register user profile:
             profile_data = {'role', 'position'}
         """
+        print("PROFILE DATA HERE ")
         try:
             return Profile.objects.get(pk=user.id)
         except ObjectDoesNotExist:

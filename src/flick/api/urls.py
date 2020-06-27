@@ -15,6 +15,7 @@ from friend.views import (
     FriendRemoveListAndCreate,
 )
 from show.views import SearchShow, ShowViewSet
+from tag.views import TagList, TagDetail
 
 router = routers.DefaultRouter()
 router.register(r"users", UserViewSet)
@@ -41,4 +42,6 @@ urlpatterns = [
     path("like/", LikeItem.as_view(), name="like"),
     path("media/image/", UploadImage.as_view(), name="upload"),
     path("search/", SearchShow.as_view(), name="search-show"),
+    path("tags/", TagList.as_view(), name="tag-list"),
+    path("tags/<int:pk>/", TagDetail.as_view(), name="tag-detail"),
 ]

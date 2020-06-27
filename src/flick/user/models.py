@@ -24,18 +24,21 @@ class Profile(models.Model):
 
     # override what django admin displays
     def __str__(self):
-        return f"{self.user.username}, {self.user.name}"
+        return f"{self.user.username}, {self.user.first_name}"
 
-    def save(self, *args, **kwargs):
+    def upload_profile_pic(self):
         from upload.utils import upload_image
 
-        asset_bundle = upload_image(self.profile_pic, self.user)
-        if not asset_bundle:
-            print("Could not upload profile pic")
-        elif not isinstance(asset_bundle, AssetBundle):
-            print(asset_bundle)
+        if self.profile_pic:
+            asset_bundle = upload_image(self.profile_pic, self.user)
+            if not asset_bundle:
+                print("Could not upload profile pic")
+            elif not isinstance(asset_bundle, AssetBundle):
+                print(asset_bundle)
 
-        self.profile_asset_bundle = asset_bundle
-        self.profile_pic = None
-        print(f"asset_bundle: {asset_bundle}")
+            self.profile_asset_bundle = asset_bundle
+            self.profile_pic = None
+
+    def save(self, *args, **kwargs):
+        self.upload_profile_pic()
         super(Profile, self).save(*args, **kwargs)

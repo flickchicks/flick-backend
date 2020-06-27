@@ -8,31 +8,9 @@ from asset.serializers import AssetBundleDetailSerializer
 from user.models import Profile
 
 
-class ProfileSerializer(serializers.ModelSerializer):
-
-    profile_asset_bundle = AssetBundleDetailSerializer(read_only=True)
-
-    class Meta:
-        model = Profile
-        fields = (
-            "id",
-            "bio",
-            "profile_asset_bundle",
-            "phone_number",
-            "social_id_token_type",
-            "social_id_token",
-            "owner_lsts",
-            "collab_lsts",
-        )
-        read_only_fields = ("id",)
-
-
 class UserSerializer(serializers.ModelSerializer):
-    """
-    User Serializer
-    """
 
-    profile = ProfileSerializer(many=False)
+    # profile = ProfileSerializer(many=False)
 
     groups = serializers.SerializerMethodField("get_user_groups")
 
@@ -40,20 +18,15 @@ class UserSerializer(serializers.ModelSerializer):
         results = []
         for group in user.groups.all():
             results.append(group.name)
-
         return results
 
     class Meta:
         model = User
-        fields = ("id", User.USERNAME_FIELD, "first_name", "last_name", "profile", "groups")
-        read_only_fields = ("id", "groups", "profile")
+        fields = ("id", User.USERNAME_FIELD, "first_name", "last_name", "groups")
+        read_only_fields = fields
 
 
 class UserDetailSerializer(UserSerializer):
-    """
-    User Detail Serializer
-    """
-
     class Meta:
         model = User
         fields = ("id", User.USERNAME_FIELD, "first_name", "last_name", "email", "groups")
@@ -61,11 +34,34 @@ class UserDetailSerializer(UserSerializer):
 
 
 class UserListSerializer(UserSerializer):
-    """
-    User List Serializer
-    """
-
     class Meta:
         model = User
         fields = ("id", User.USERNAME_FIELD, "first_name", "last_name", "email")
+        read_only_fields = fields
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    profile_id = serializers.CharField(source="id")
+    user_id = serializers.CharField(source="user.id")
+    first_name = serializers.CharField(source="user.first_name")
+    last_name = serializers.CharField(source="user.last_name")
+    username = serializers.CharField(source="user.username")
+    profile_pic = AssetBundleDetailSerializer(source="profile_asset_bundle")
+
+    class Meta:
+        model = Profile
+        fields = (
+            "user_id",
+            "username",
+            "first_name",
+            "last_name",
+            "profile_id",
+            "profile_pic",
+            "bio",
+            "phone_number",
+            "social_id_token_type",
+            "social_id_token",
+            # "owner_lsts",
+            # "collab_lsts",
+        )
         read_only_fields = fields
