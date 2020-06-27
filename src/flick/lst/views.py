@@ -41,7 +41,8 @@ class LstList(generics.ListCreateAPIView):
         lst.is_favorite = is_favorite
         lst.is_private = is_private
         lst.is_watched = is_watched
-        lst.owner = request.user
+        profile = Profile.objects.get(user=request.user)
+        lst.owner = profile
         lst.save()
 
         for collaborator_id in collaborator_ids:
