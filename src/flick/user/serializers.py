@@ -48,8 +48,8 @@ class ProfileSerializer(serializers.ModelSerializer):
     last_name = serializers.CharField(source="user.last_name")
     username = serializers.CharField(source="user.username")
     profile_pic = AssetBundleDetailSerializer(source="profile_asset_bundle")
-    owner_lsts = LstSimpleSerializer(many=True)
-    collab_lsts = LstSimpleSerializer(many=True)
+    owner_lsts = LstSimpleSerializer(read_only=True, many=True)
+    collab_lsts = LstSimpleSerializer(read_only=True, many=True)
 
     class Meta:
         model = Profile
