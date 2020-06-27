@@ -19,7 +19,7 @@ configparser==4.0.2
 crayons==0.3.0
 defusedxml==0.6.0
 distlib==0.3.0
-Django==3.0.6
+Django==3.0.7
 django-allauth==0.41.0
 django-celery-beat==2.0.0
 django-celery-results==1.2.1
