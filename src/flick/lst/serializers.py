@@ -1,6 +1,6 @@
 from asset.serializers import AssetBundleDetailSerializer
 
-from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField
+from rest_framework import serializers
 
 from show.simple_serializers import ShowSimpleSerializer
 from show.serializers import ShowSerializer
@@ -11,15 +11,16 @@ from user.simple_serializers import UserSimpleSerializer
 from .models import Lst
 
 
-class LstSerializer(ModelSerializer):
+class LstSerializer(serializers.ModelSerializer):
     collaborators = UserSimpleSerializer(many=True)
     owner = UserSimpleSerializer(many=False)
     shows = ShowSerializer(many=True)
+    lst_id = serializers.CharField(source="id")
 
     class Meta:
         model = Lst
         fields = (
-            "id",
+            "lst_id",
             "lst_name",
             "lst_pic",
             "is_favorite",

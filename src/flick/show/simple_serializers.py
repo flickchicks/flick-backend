@@ -7,8 +7,6 @@ from asset.serializers import AssetBundleDetailSerializer
 
 
 class ShowSimpleSerializer(ModelSerializer):
-    # CurrentUserDefault is basically request.data (the authenticated user related to this request)
-
     class Meta:
         model = Show
         fields = ("id", "title", "poster_pic", "director", "is_tv")
