@@ -25,6 +25,7 @@ django-celery==3.3.1
 django-celery-beat==2.0.0
 django-celery-results==1.2.1
 django-friendship==1.9.1
+django-lrucache-backend==4.0.0
 django-rest-framework==0.1.0
 django-timezone-field==4.0
 djangorestframework==3.11.0
