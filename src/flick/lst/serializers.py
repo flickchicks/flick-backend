@@ -13,6 +13,7 @@ from .models import Lst
 
 class LstSerializer(ModelSerializer):
     collaborators = UserSimpleSerializer(many=True)
+    owner = UserSimpleSerializer(many=False)
     shows = ShowSerializer(many=True)
 
     class Meta:

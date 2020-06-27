@@ -1,4 +1,4 @@
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from django.conf import settings as dj_settings
 from django.shortcuts import render
 
@@ -9,25 +9,11 @@ from .models import Lst
 from .serializers import LstSerializer
 from api import settings as api_settings
 from api.utils import failure_response, success_response
+from show.models import Show
 from user.models import Profile
 
 import json
 import re
-
-
-class LstView(generics.GenericAPIView):
-    model = Lst
-    serializer_class = LstSerializer
-    permission_classes = api_settings.UNPROTECTED
-
-    def get(self, request):
-        profile = Profile.objects.get(user=self.request.user)
-        print("owner_lsts: ", profile.owner_lsts)
-        serializer = LstSerializer(profile.owner_lsts)
-        return success_response(serializer.data)
-
-    def post(self, request):
-        return success_response("lstview post")
 
 
 class LstList(generics.ListCreateAPIView):
@@ -35,22 +21,45 @@ class LstList(generics.ListCreateAPIView):
     queryset = Lst.objects.all()
     serializer_class = LstSerializer
 
-    # if api_settings.UNPROTECTED, then any user can see this
-    permission_classes = api_settings.UNPROTECTED
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
 
-    # don't need this, generics has this code, but this overrides
-    # gives option to add additional checks / customize
     def list(self, request):
-        # can access logged in user via request.user
         self.serializer_class = LstSerializer
         return super(LstList, self).list(request)
 
-    # for read-only fields you need to pass the value when calling save
-    # this is so that when an Lst is created, only the
-    # currently authenticated user is linked to the Lst and can
-    # be shown in the LstSerializer as "owner"
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+    def post(self, request):
+        data = json.loads(request.body)
+        lst_name = data.get("lst_name")
+        is_favorite = data.get("is_favorite", False)
+        is_private = data.get("is_private", False)
+        is_watched = data.get("is_watched", False)
+        collaborator_ids = data.get("collaborators", [])
+        show_ids = data.get("shows", [])
+
+        lst = Lst()
+        lst.lst_name = lst_name
+        lst.is_favorite = is_favorite
+        lst.is_private = is_private
+        lst.is_watched = is_watched
+        lst.owner = request.user
+        lst.save()
+
+        for collaborator_id in collaborator_ids:
+            if User.objects.filter(pk=collaborator_id):
+                collaborator = User.objects.get(pk=collaborator_id)
+                lst.collaborators.add(collaborator)
+                collaborator_profile = Profile.objects.get(user=collaborator)
+                collaborator_profile.collab_lsts.add(lst)
+        for show_id in show_ids:
+            if Show.objects.filter(pk=show_id):
+                show = Show.objects.get(pk=show_id)
+                lst.shows.add(show)
+        lst.save()
+        serializer = LstSerializer(lst)
+        profile = Profile.objects.get(user=request.user)
+        profile.owner_lsts.add(lst)
+        profile.save()
+        return success_response(serializer.data)
 
 
 class LstDetail(generics.RetrieveUpdateDestroyAPIView):

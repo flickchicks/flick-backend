@@ -22,7 +22,6 @@ class Profile(models.Model):
     owner_lsts = models.ManyToManyField(Lst, related_name="owner_lsts", blank=True)
     collab_lsts = models.ManyToManyField(Lst, related_name="collab_lsts", blank=True)
 
-    # override what django admin displays
     def __str__(self):
         return f"{self.user.username}, {self.user.first_name}"
 
