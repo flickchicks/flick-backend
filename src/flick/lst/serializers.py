@@ -5,15 +5,15 @@ from rest_framework import serializers
 from show.simple_serializers import ShowSimpleSerializer
 from show.serializers import ShowSerializer
 from tag.serializers import TagSerializer
-from user.simple_serializers import UserSimpleSerializer
+from user.simple_serializers import ProfileSimpleSerializer
 
 
 from .models import Lst
 
 
 class LstSerializer(serializers.ModelSerializer):
-    collaborators = UserSimpleSerializer(many=True)
-    owner = UserSimpleSerializer(many=False)
+    collaborators = ProfileSimpleSerializer(many=True)
+    owner = ProfileSimpleSerializer(many=False)
     shows = ShowSerializer(many=True)
     lst_id = serializers.CharField(source="id")
 

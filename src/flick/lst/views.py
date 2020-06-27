@@ -30,6 +30,7 @@ class LstList(generics.ListCreateAPIView):
     def post(self, request):
         data = json.loads(request.body)
         lst_name = data.get("lst_name")
+        lst_pic = data.get("lst_pic")
         is_favorite = data.get("is_favorite", False)
         is_private = data.get("is_private", False)
         is_watched = data.get("is_watched", False)
@@ -38,6 +39,7 @@ class LstList(generics.ListCreateAPIView):
 
         lst = Lst()
         lst.lst_name = lst_name
+        lst.lst_pic = lst_pic
         lst.is_favorite = is_favorite
         lst.is_private = is_private
         lst.is_watched = is_watched
@@ -45,12 +47,11 @@ class LstList(generics.ListCreateAPIView):
         lst.owner = profile
         lst.save()
 
-        for collaborator_id in collaborator_ids:
-            if User.objects.filter(pk=collaborator_id):
-                collaborator = User.objects.get(pk=collaborator_id)
-                lst.collaborators.add(collaborator)
-                # collaborator_profile = Profile.objects.get(user=collaborator)
-                # collaborator_profile.collab_lsts.add(lst)
+        for c_id in collaborator_ids:
+            collaborator = User.objects.get(pk=c_id)
+            if Profile.objects.filter(user=collaborator):
+                c = Profile.objects.get(user=collaborator)
+                lst.collaborators.add(c)
         for show_id in show_ids:
             if Show.objects.filter(pk=show_id):
                 show = Show.objects.get(pk=show_id)
@@ -71,69 +72,80 @@ class LstDetail(generics.GenericAPIView):
     permission_classes = api_settings.UNPROTECTED
 
     def get(self, request, pk):
-        print("ITS HERE AT GET")
         queryset = self.get_object()
         serializer = LstSerializer(queryset, many=False)
         return success_response(serializer.data)
 
     def delete(self, request, pk):
-        print("reached delete")
-        return success_response("hi")
+        if not Lst.objects.filter(pk=pk):
+            return success_response(f"List of id {pk} has already been deleted.")
+        lst = Lst.objects.get(pk=pk)
+        lst.delete()
+        return success_response(f"List of id {pk} has been deleted.")
 
-    # TODO: need to make the relationships such that
-    # the collab_lsts match to wherever Lst has the user as collaborators
-    # the owner_lsts match to wherever the Lst has the user as an owner
     def post(self, request, pk):
-        print("trying to update")
         data = json.loads(request.body)
         lst_name = data.get("lst_name")
+        lst_pic = data.get("lst_pic")
         is_favorite = data.get("is_favorite", False)
         is_private = data.get("is_private", False)
         is_watched = data.get("is_watched", False)
-        owner_id = data.get("owner")
         collaborator_ids = data.get("collaborators", [])
+        owner_id = data.get("owner", request.user.id)
         show_ids = data.get("shows", [])
 
         if not Lst.objects.filter(pk=pk):
-            return failure_response(f"No list found with id of {pk} for user {request.user}.")
-
-        lst = Lst.objects.get(id=pk)
+            return failure_response(f"No list to be found with id of {pk}.")
+        lst = Lst.objects.get(pk=pk)
 
         profile = Profile.objects.get(user=request.user)
+        if not profile:
+            return failure_response(f"No user to be found with id of {request.user.id}.")
 
-        test = Lst.objects.filter(collaborators=profile)
+        user_is_collaborator = profile in lst.collaborators.all()
+        user_is_owner = profile == lst.owner
 
-        # if lst.collaborators.filter()
-
-        if not (profile in lst.collaborators.all() or lst.owner == profile):
-            return failure_response(
-                f"User {request.user} is neither a collaborator nor owner, and cannot modify this list of id {pk}."
-            )
-        elif lst.owner == request.user:
-            # only the owner can set public/private settings and change ownership to someone else
+        if not (user_is_collaborator or user_is_owner):
+            return failure_response(f"User {request.user} does not have the credentials to list of id {pk}.")
+        if user_is_collaborator:
+            lst.lst_pic = lst_pic
+            lst.is_favorite = is_favorite
+            lst.is_watched = is_watched
+            lst.collaborators.clear()
+            for c_id in collaborator_ids:
+                if User.objects.filter(pk=c_id):
+                    collaborator = User.objects.get(pk=c_id)
+                    if Profile.objects.filter(user=collaborator):
+                        c = Profile.objects.get(user=collaborator)
+                        lst.collaborators.add(c)
+            lst.shows.clear()
+            for show_id in show_ids:
+                if Show.objects.filter(pk=show_id):
+                    show = Show.objects.get(pk=show_id)
+                    lst.shows.add(show)
+        elif user_is_owner:
+            lst.lst_name = lst_name
+            lst.lst_pic = lst_pic
+            lst.is_favorite = is_favorite
             lst.is_private = is_private
-            lst.owner = User.objects.get(pk=owner_id)
-            lst.save()
-            # profile = Profile.objects.get(user=request.user)
-            # profile.owner_lsts.add(lst)
-            # profile.save()
-        # both owner and collaborator have the following permissions:
-        lst.is_favorite = is_favorite
-        lst.is_watched = is_watched
-        lst.lst_name = lst_name
-        # clear the collaborators
-        lst.collaborators.clear()
-        for collaborator_id in collaborator_ids:
-            if User.objects.filter(pk=collaborator_id):
-                collaborator = User.objects.get(pk=collaborator_id)
-                lst.collaborators.add(collaborator)
-                # collaborator_profile = Profile.objects.get(user=collaborator)
-                # collaborator_profile.collab_lsts.add(lst)
-        for show_id in show_ids:
-            if Show.objects.filter(pk=show_id):
-                show = Show.objects.get(pk=show_id)
-                lst.shows.add(show)
+            lst.is_watched = is_watched
+            lst.collaborators.clear()
+            for c_id in collaborator_ids:
+                if User.objects.filter(pk=c_id):
+                    collaborator = User.objects.get(pk=c_id)
+                    if Profile.objects.filter(user=collaborator):
+                        c = Profile.objects.get(user=collaborator)
+                        lst.collaborators.add(c)
+            owner_user = User.objects.get(pk=owner_id)
+            owner_profile = Profile.objects.get(user=owner_user)
+            lst.owner = owner_profile
+            lst.shows.clear()
+            for show_id in show_ids:
+                if Show.objects.filter(pk=show_id):
+                    show = Show.objects.get(pk=show_id)
+                    lst.shows.add(show)
+
         lst.save()
+        profile.save()
         serializer = LstSerializer(lst)
         return success_response(serializer.data)
-        return success_response(test)

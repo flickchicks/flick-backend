@@ -8,12 +8,15 @@ from user.models import Profile
 from .serializers import UserSerializer
 
 
-class UserSimpleSerializer(serializers.ModelSerializer):
-    profile_id = serializers.CharField(source="profile.id")
-    user_id = serializers.CharField(source="id")
-    profile_pic = AssetBundleDetailSerializer(source="profile.profile_asset_bundle")
+class ProfileSimpleSerializer(serializers.ModelSerializer):
+    profile_id = serializers.CharField(source="id")
+    user_id = serializers.CharField(source="user.id")
+    profile_pic = AssetBundleDetailSerializer(source="profile_asset_bundle")
+    username = serializers.CharField(source="user.username")
+    first_name = serializers.CharField(source="user.first_name")
+    last_name = serializers.CharField(source="user.last_name")
 
     class Meta:
-        model = User
+        model = Profile
         fields = ("user_id", "username", "first_name", "last_name", "profile_id", "profile_pic")
         read_only_fields = fields
