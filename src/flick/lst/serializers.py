@@ -5,14 +5,14 @@ from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField
 from show.simple_serializers import ShowSimpleSerializer
 from show.serializers import ShowSerializer
 from tag.serializers import TagSerializer
-from user.simple_serializers import ProfileSimpleSerializer
+from user.simple_serializers import UserSimpleSerializer
 
 
 from .models import Lst
 
 
 class LstSerializer(ModelSerializer):
-    collaborators = ProfileSimpleSerializer(many=True)
+    collaborators = UserSimpleSerializer(many=True)
     shows = ShowSerializer(many=True)
 
     class Meta:
