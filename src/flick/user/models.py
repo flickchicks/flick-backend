@@ -2,7 +2,8 @@ from django.contrib.auth.models import User
 from django.db import models
 
 from asset.models import AssetBundle
-from lst.models import Lst
+
+# from lst.models import Lst
 
 
 class Profile(models.Model):
@@ -19,8 +20,8 @@ class Profile(models.Model):
     phone_number = models.TextField(blank=True, null=True)
     social_id_token_type = models.TextField(blank=True, null=True)
     social_id_token = models.TextField(blank=True, null=True)
-    owner_lsts = models.ManyToManyField(Lst, related_name="owner_lsts", blank=True)
-    collab_lsts = models.ManyToManyField(Lst, related_name="collab_lsts", blank=True)
+    # owner_lsts = models.ManyToManyField(Lst, related_name="owner_lsts", blank=True)
+    # collab_lsts = models.ManyToManyField(Lst, related_name="collab_lsts", blank=True)
 
     def __str__(self):
         return f"{self.user.username}, {self.user.first_name}"

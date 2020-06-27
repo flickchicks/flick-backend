@@ -48,8 +48,8 @@ class LstList(generics.ListCreateAPIView):
             if User.objects.filter(pk=collaborator_id):
                 collaborator = User.objects.get(pk=collaborator_id)
                 lst.collaborators.add(collaborator)
-                collaborator_profile = Profile.objects.get(user=collaborator)
-                collaborator_profile.collab_lsts.add(lst)
+                # collaborator_profile = Profile.objects.get(user=collaborator)
+                # collaborator_profile.collab_lsts.add(lst)
         for show_id in show_ids:
             if Show.objects.filter(pk=show_id):
                 show = Show.objects.get(pk=show_id)
@@ -96,9 +96,15 @@ class LstDetail(generics.GenericAPIView):
         if not Lst.objects.filter(pk=pk):
             return failure_response(f"No list found with id of {pk} for user {request.user}.")
 
-        lst = Lst.objects.get(pk=pk)
+        lst = Lst.objects.get(id=pk)
 
-        if not (request.user in lst.collaborators.all() or lst.owner == request.user):
+        profile = Profile.objects.get(user=request.user)
+
+        test = Lst.objects.filter(collaborators=profile)
+
+        # if lst.collaborators.filter()
+
+        if not (profile in lst.collaborators.all() or lst.owner == profile):
             return failure_response(
                 f"User {request.user} is neither a collaborator nor owner, and cannot modify this list of id {pk}."
             )
@@ -107,9 +113,9 @@ class LstDetail(generics.GenericAPIView):
             lst.is_private = is_private
             lst.owner = User.objects.get(pk=owner_id)
             lst.save()
-            profile = Profile.objects.get(user=request.user)
-            profile.owner_lsts.add(lst)
-            profile.save()
+            # profile = Profile.objects.get(user=request.user)
+            # profile.owner_lsts.add(lst)
+            # profile.save()
         # both owner and collaborator have the following permissions:
         lst.is_favorite = is_favorite
         lst.is_watched = is_watched
@@ -120,8 +126,8 @@ class LstDetail(generics.GenericAPIView):
             if User.objects.filter(pk=collaborator_id):
                 collaborator = User.objects.get(pk=collaborator_id)
                 lst.collaborators.add(collaborator)
-                collaborator_profile = Profile.objects.get(user=collaborator)
-                collaborator_profile.collab_lsts.add(lst)
+                # collaborator_profile = Profile.objects.get(user=collaborator)
+                # collaborator_profile.collab_lsts.add(lst)
         for show_id in show_ids:
             if Show.objects.filter(pk=show_id):
                 show = Show.objects.get(pk=show_id)
@@ -129,4 +135,4 @@ class LstDetail(generics.GenericAPIView):
         lst.save()
         serializer = LstSerializer(lst)
         return success_response(serializer.data)
-        # return success_response("Hi")
+        return success_response(test)
