@@ -5,7 +5,7 @@ from friendship.models import FriendshipRequest, Friend
 
 class FriendRequestAdmin(admin.ModelAdmin):
     """
-    override registered modal FriendRequest from django-friendship
+    override registered modal Friend Request from django-friendship
     """
 
     list_display = ("from_user", "to_user", "created", "rejected")

@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 
-from friendship.models import Friend, Follow, Block, FriendshipRequest
+from friendship.models import Block, Friend, FriendshipRequest, Follow
 from rest_framework import serializers
 
 from asset.serializers import AssetBundleDetailSerializer
@@ -31,9 +31,6 @@ class FriendUserSerializer(serializers.ModelSerializer):
 
 
 class FriendRequestSerializer(serializers.ModelSerializer):
-    """
-    Friend Request Serializer
-    """
 
     to_user = FriendUserSerializer(read_only=True)
 
@@ -44,9 +41,6 @@ class FriendRequestSerializer(serializers.ModelSerializer):
 
 
 class IncomingRequestSerializer(serializers.ModelSerializer):
-    """
-    Friend Request Serializer
-    """
 
     from_user = FriendUserSerializer(read_only=True)
 
@@ -57,9 +51,6 @@ class IncomingRequestSerializer(serializers.ModelSerializer):
 
 
 class FriendshipSerializer(serializers.ModelSerializer):
-    """
-    Friend Serializer
-    """
 
     from_user = FriendUserSerializer(read_only=True)
 

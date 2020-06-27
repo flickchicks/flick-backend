@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework.serializers import CurrentUserDefault, ModelSerializer, PrimaryKeyRelatedField
 from rest_framework.views import APIView
 
-from friendship.models import Follow, Friend, FriendshipRequest, Block
+from friendship.models import Block, Friend, FriendshipRequest, Follow
 
 from api.utils import failure_response, success_response
 from friend.serializers import (
