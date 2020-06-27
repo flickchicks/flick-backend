@@ -1,5 +1,10 @@
+import datetime
+import json
+import os
+import pprint as pp
+import sys
+
 from django.conf import settings
-from django.db import IntegrityError
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -10,11 +15,8 @@ from .models import Show
 from .serializers import ShowSerializer
 from tag.models import Tag
 
-import datetime
-import json
-import os
-import pprint as pp
-import sys
+from django.db import IntegrityError
+
 
 # create an instance of the Anime API
 jikan = Jikan()
@@ -158,7 +160,6 @@ class TMDB_API:
         return movie
 
     def get_tv_from_tmdb_info(self, info, credit):
-        # maybe need another separate json?? episodes/ last aired/ most recent episode etc
         genres = info.get("genres")
         crew = credit.get("crew")
         cast = credit.get("cast")
@@ -195,8 +196,8 @@ class TMDB_API:
         return [movie_info["id"] for movie_info in search.results]
 
     def get_movie_info_from_id(self, id):
-        movie = tmdb.Movies(id)
         try:
+            movie = tmdb.Movies(id)
             return self.get_movie_from_tmdb_info(movie.info(), movie.credits())
         except Exception as e:
             print(e)
@@ -214,14 +215,15 @@ class TMDB_API:
         try:
             tv = tmdb.TV(id)
             return self.get_tv_from_tmdb_info(tv.info(), tv.credits())
-        except:
+        except Exception as e:
+            print(e)
             return None
 
-    def get_movie_info_from_top_rated(self, info):
+    def get_movie_info_for_top_rated(self, info):
         credit = tmdb.Movies(info.get("id")).credits()
         return self.get_movie_from_tmdb_info(info, credit)
 
-    def get_tv_info_from_top_rated(self, info):
+    def get_tv_info_for_top_rated(self, info):
         credit = tmdb.TV(info.get("id")).credits()
         return self.get_movie_from_tmdb_info(info, credit)
 
@@ -274,7 +276,7 @@ class AnimeList_API:
             "ext_api_id": info.get("mal_id"),
             "ext_api_source": "animelist",
             "title": info.get("title"),
-            "poster_pic": settings.MOVIEDB_BASE_URL + info.get("image_url"),
+            "poster_pic": info.get("image_url"),
             "is_tv": True,  # assuming
             "date_released": info.get("start_date"),
             "plot": info.get("synopsis"),
