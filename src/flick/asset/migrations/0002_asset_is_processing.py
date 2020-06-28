@@ -9,9 +9,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name="asset",
-            name="is_processing",
-            field=models.BooleanField(default=False),
-            preserve_default=False,
+            model_name="asset", name="is_processing", field=models.BooleanField(default=False), preserve_default=False,
         )
     ]
