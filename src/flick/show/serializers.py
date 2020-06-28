@@ -18,7 +18,7 @@ class ShowSerializer(ModelSerializer):
             "id",
             "title",
             "poster_pic",
-            "director",
+            "directors",
             "is_tv",
             "date_released",
             "status",
@@ -33,5 +33,6 @@ class ShowSerializer(ModelSerializer):
             "friends_rating",
             "platforms",
             "keywords",
+            "cast",
         )
         read_only_fields = ("id",)
