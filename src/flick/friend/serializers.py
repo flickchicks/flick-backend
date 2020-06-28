@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 
-from friendship.models import Friend, Follow, Block
+from friendship.models import Block, Friend, FriendshipRequest, Follow
 from rest_framework import serializers
 
 from asset.serializers import AssetBundleDetailSerializer
@@ -27,4 +27,34 @@ class FriendUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("id", User.USERNAME_FIELD, "first_name", "last_name", "profile")
+        read_only_fields = fields
+
+
+class FriendRequestSerializer(serializers.ModelSerializer):
+
+    to_user = FriendUserSerializer(read_only=True)
+
+    class Meta:
+        model = FriendshipRequest
+        fields = ("to_user", "created", "rejected", "viewed")
+        read_only_fields = fields
+
+
+class IncomingRequestSerializer(serializers.ModelSerializer):
+
+    from_user = FriendUserSerializer(read_only=True)
+
+    class Meta:
+        model = FriendshipRequest
+        fields = ("from_user", "created", "rejected", "viewed")
+        read_only_fields = fields
+
+
+class FriendshipSerializer(serializers.ModelSerializer):
+
+    from_user = FriendUserSerializer(read_only=True)
+
+    class Meta:
+        model = Friend
+        fields = ("from_user", "created")
         read_only_fields = fields
