@@ -104,7 +104,12 @@ AUTHENTICATION_BACKENDS = (
 WSGI_APPLICATION = "flick.wsgi.application"
 
 CACHES = {
-    "default": {},
+    "default": {
+        "BACKEND": "lrucache_backend.LRUObjectCache",
+        "TIMEOUT": 600,
+        "OPTIONS": {"MAX_ENTRIES": 100, "CULL_FREQUENCY": 100},
+        "NAME": "optional-name",
+    },
     "local": {
         "BACKEND": "lrucache_backend.LRUObjectCache",
         "TIMEOUT": 600,
