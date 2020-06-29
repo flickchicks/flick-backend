@@ -20,3 +20,14 @@ class ProfileSimpleSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ("user_id", "username", "first_name", "last_name", "profile_id", "profile_pic")
         read_only_fields = fields
+
+
+class UserSimpleSerializer(serializers.ModelSerializer):
+    profile_id = serializers.CharField(source="profile.id")
+    user_id = serializers.CharField(source="id")
+    profile_pic = AssetBundleDetailSerializer(source="profile.profile_asset_bundle")
+
+    class Meta:
+        model = User
+        fields = ("user_id", "username", "first_name", "last_name", "profile_id", "profile_pic")
+        read_only_fields = fields

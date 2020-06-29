@@ -3,6 +3,7 @@ import json
 
 from api import settings as api_settings
 from api.utils import failure_response, success_response
+from django.contrib.auth.models import User
 from django.core.cache import caches
 from django.db import IntegrityError
 from django.http import HttpResponse, JsonResponse
@@ -17,6 +18,7 @@ from show.models import Show
 from show.serializers import ShowSerializer
 from show.utils import API
 from tag.models import Tag
+from user.simple_serializers import UserSimpleSerializer
 
 
 # cache to store get_top_movie and search_movie_by_name (and tv and anime)
@@ -68,9 +70,10 @@ class Search(APIView):
         if is_anime:
             self.get_top_shows_by_type("anime")
 
-    # def get_users_by_username(self, query):
-    #     users = User.objects.filter(username__icontains=username)
-    #     serializer = Profile
+    def get_users_by_username(self, query):
+        users = User.objects.filter(username__icontains=query)
+        serializer = UserSimpleSerializer(users, many=True)
+        return serializer.data
 
     def get(self, request, *args, **kwargs):
         query = request.query_params.get("query")
@@ -89,10 +92,9 @@ class Search(APIView):
         self.shows = []
         self.known_shows = []
 
-        # if is_user:
-        #     self.get_users_by_username(query)
-        # elif is_top:
-        if is_top:
+        if is_user:
+            return success_response(self.get_users_by_username(query))
+        elif is_top:
             self.get_top_shows(is_movie, is_tv, is_anime)
         else:
             self.get_shows_by_query(query, is_movie, is_tv, is_anime)
