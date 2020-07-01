@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.conf import settings as dj_settings
+from django.db.models import Q
 from django.shortcuts import render
 
 from rest_framework import generics, mixins, status, viewsets
@@ -16,18 +17,21 @@ import json
 import re
 
 
-class LstList(generics.ListCreateAPIView):
+class LstList(generics.GenericAPIView):
 
     queryset = Lst.objects.all()
     serializer_class = LstSerializer
 
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
-    def list(self, request):
+    def get(self, request):
         """See all possible lists."""
-        # TODO: only allow users who are owners / collaborators see lists
-        self.serializer_class = LstSerializer
-        return super(LstList, self).list(request)
+        if not Profile.objects.filter(user=request.user):
+            return failure_response(f"No user to be found with id of {request.user.id}.")
+        profile = Profile.objects.get(user=request.user)
+        lsts = Lst.objects.filter(Q(owner=profile) | Q(collaborators=profile) | Q(is_private=False))
+        serializer = LstSerializer(lsts, many=True)
+        return success_response(serializer.data)
 
     def post(self, request):
         """Create a list."""
@@ -72,18 +76,38 @@ class LstDetail(generics.GenericAPIView):
     permission_classes = api_settings.UNPROTECTED
 
     def get(self, request, pk):
-        """Get a specific list by id."""
-        # TODO: only allow users who are owners / collaborators see lists
-        queryset = self.get_object()
-        serializer = LstSerializer(queryset, many=False)
-        return success_response(serializer.data)
+        """
+        Get a specific list by id.
+        If the request user is a collaborator or an owner or is looking at a list that is public,
+        then the list will be returned.
+        """
+        if not Lst.objects.filter(pk=pk):
+            return failure_response(f"List of id {pk} does not exist.")
+        lst = Lst.objects.get(pk=pk)
+        profile = Profile.objects.get(user=request.user)
+        if not profile:
+            return failure_response(f"No user to be found with id of {request.user.id}.")
+        user_is_collaborator = profile in lst.collaborators.all()
+        user_is_owner = profile == lst.owner
+        if not lst.is_private or user_is_collaborator or user_is_owner:
+            serializer = LstSerializer(lst, many=False)
+            return success_response(serializer.data)
+        else:
+            return failure_response(
+                f"User of id {request.user.id} does not have the right permissions to view list of id {pk}."
+            )
 
     def delete(self, request, pk):
-        """Delete a list by id."""
-        # TODO: only allow users who are owners delete a list
+        """
+        Delete a list by id.
+        Only owners of lists can delete their lists.
+        """
         if not Lst.objects.filter(pk=pk):
-            return success_response(f"List of id {pk} has already been deleted.")
+            return failure_response(f"List of id {pk} does not exist.")
         lst = Lst.objects.get(pk=pk)
+        profile = Profile.objects.get(user=request.user)
+        if not profile == lst.owner:
+            return failure_response(f"User of id {request.user.id} is not the owner of list of id {pk}.")
         lst.delete()
         return success_response(f"List of id {pk} has been deleted.")
 
