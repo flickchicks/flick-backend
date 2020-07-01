@@ -14,8 +14,9 @@ from friend.views import (
     FriendRejectListAndCreate,
     FriendRemoveListAndCreate,
 )
+from search.views import Search
 from lst.views import LstList, LstDetail
-from show.views import SearchShow, ShowViewSet
+from show.views import ShowViewSet
 from tag.views import TagList, TagDetail
 
 router = routers.DefaultRouter()
@@ -44,7 +45,7 @@ urlpatterns = [
     path("lsts/", LstList.as_view(), name="item-list"),
     path("lsts/<int:pk>/", LstDetail.as_view(), name="item-detail"),
     path("media/image/", UploadImage.as_view(), name="upload"),
-    path("search/", SearchShow.as_view(), name="search-show"),
+    path("search/", Search.as_view(), name="search-show"),
     path("tags/", TagList.as_view(), name="tag-list"),
     path("tags/<int:pk>/", TagDetail.as_view(), name="tag-detail"),
 ]
