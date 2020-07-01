@@ -14,6 +14,7 @@ from friend.views import (
     FriendRejectListAndCreate,
     FriendRemoveListAndCreate,
 )
+from lst.views import LstList, LstDetail
 from show.views import SearchShow, ShowViewSet
 from tag.views import TagList, TagDetail
 
@@ -40,6 +41,8 @@ urlpatterns = [
     path("items/", ItemList.as_view(), name="item-list"),
     path("items/<int:pk>/", ItemDetail.as_view(), name="item-detail"),
     path("like/", LikeItem.as_view(), name="like"),
+    path("lsts/", LstList.as_view(), name="item-list"),
+    path("lsts/<int:pk>/", LstDetail.as_view(), name="item-detail"),
     path("media/image/", UploadImage.as_view(), name="upload"),
     path("search/", SearchShow.as_view(), name="search-show"),
     path("tags/", TagList.as_view(), name="tag-list"),

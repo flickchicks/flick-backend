@@ -5,7 +5,6 @@ from rest_framework.serializers import CurrentUserDefault, ModelSerializer, Prim
 from .models import Show
 from asset.serializers import AssetBundleDetailSerializer
 from tag.serializers import TagSerializer
-from user.serializers import UserSerializer
 
 
 class ShowSerializer(ModelSerializer):
