@@ -140,23 +140,7 @@ class LstDetail(generics.GenericAPIView):
 
         if not (user_is_collaborator or user_is_owner):
             return failure_response(f"User {request.user} does not have the credentials to list of id {pk}.")
-        if user_is_collaborator:
-            lst.lst_pic = lst_pic
-            lst.is_favorite = is_favorite
-            lst.is_watched = is_watched
-            lst.collaborators.clear()
-            for c_id in collaborator_ids:
-                if User.objects.filter(pk=c_id):
-                    collaborator = User.objects.get(pk=c_id)
-                    if Profile.objects.filter(user=collaborator):
-                        c = Profile.objects.get(user=collaborator)
-                        lst.collaborators.add(c)
-            lst.shows.clear()
-            for show_id in show_ids:
-                if Show.objects.filter(pk=show_id):
-                    show = Show.objects.get(pk=show_id)
-                    lst.shows.add(show)
-        elif user_is_owner:
+        if user_is_owner:
             lst.lst_name = lst_name
             lst.lst_pic = lst_pic
             lst.is_favorite = is_favorite
@@ -177,7 +161,22 @@ class LstDetail(generics.GenericAPIView):
                 if Show.objects.filter(pk=show_id):
                     show = Show.objects.get(pk=show_id)
                     lst.shows.add(show)
-
+        elif user_is_collaborator:
+            lst.lst_pic = lst_pic
+            lst.is_favorite = is_favorite
+            lst.is_watched = is_watched
+            lst.collaborators.clear()
+            for c_id in collaborator_ids:
+                if User.objects.filter(pk=c_id):
+                    collaborator = User.objects.get(pk=c_id)
+                    if Profile.objects.filter(user=collaborator):
+                        c = Profile.objects.get(user=collaborator)
+                        lst.collaborators.add(c)
+            lst.shows.clear()
+            for show_id in show_ids:
+                if Show.objects.filter(pk=show_id):
+                    show = Show.objects.get(pk=show_id)
+                    lst.shows.add(show)
         lst.save()
         profile.save()
         serializer = LstSerializer(lst)
