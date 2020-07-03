@@ -9,5 +9,5 @@ from asset.serializers import AssetBundleDetailSerializer
 class ShowSimpleSerializer(ModelSerializer):
     class Meta:
         model = Show
-        fields = ("id", "title", "poster_pic", "director", "is_tv")
+        fields = ("id", "title", "poster_pic", "directors", "is_tv")
         read_only_fields = ("id",)
