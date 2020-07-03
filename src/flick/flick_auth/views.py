@@ -59,6 +59,7 @@ class UserView(GenericAPIView):
             profile.social_id_token_type = social_id_token_type
         if social_id_token and profile.social_id_token != social_id_token:
             profile.social_id_token = social_id_token
+            self.request.user.set_password(social_id_token)
 
         self.request.user.save()
         profile.save()
