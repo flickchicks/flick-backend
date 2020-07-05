@@ -25,7 +25,6 @@ import string
 
 
 def upload_image(image_data, user):
-    print("UPLOADING IMAGE")
     try:
         # [1:] strips off leading period
         img_ext = guess_extension(guess_type(image_data)[0])[1:]
