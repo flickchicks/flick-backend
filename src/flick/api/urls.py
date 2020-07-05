@@ -1,7 +1,6 @@
 from asset.views import AssetBundleDetail, AssetBundleList
 from django.urls import include, path
 from flick_auth import urls as auth_urls
-from flick_auth.views import RegisterViewSet
 from item.views import CommentItem, ItemDetail, ItemList, LikeItem
 from rest_framework import routers
 from upload.views import UploadImage
@@ -22,7 +21,6 @@ from tag.views import TagList, TagDetail
 router = routers.DefaultRouter()
 router.register(r"users", UserViewSet)
 router.register(r"shows", ShowViewSet)
-router.register(r"register", RegisterViewSet)
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.

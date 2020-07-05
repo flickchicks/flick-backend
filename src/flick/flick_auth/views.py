@@ -4,9 +4,10 @@ from django.shortcuts import render
 from rest_framework import generics, status, viewsets
 
 from .utils import AuthTools
-from .serializers import LoginSerializer, LoginCompleteSerializer, LogoutSerializer, UserRegisterSerializer
+from .serializers import LoginSerializer, LogoutSerializer, RegisterSerializer
 from api import settings as api_settings
 from api.utils import failure_response, success_response
+from .controllers.login_controller import LoginController
 from .controllers.register_controller import RegisterController
 from user.models import Profile
 from user.serializers import UserSerializer, ProfileSerializer
@@ -65,9 +66,8 @@ class UserView(generics.GenericAPIView):
 
 
 class LoginView(generics.GenericAPIView):
-
-    permission_classes = api_settings.UNPROTECTED
     serializer_class = LoginSerializer
+    permission_classes = api_settings.UNPROTECTED
 
     def get(self, request):
         if request.user.is_anonymous:
@@ -76,24 +76,16 @@ class LoginView(generics.GenericAPIView):
         return success_response(serializer.data)
 
     def post(self, request):
-        if "username" in request.data and "social_id_token" in request.data:
-            username = request.data["username"]
-            social_id_token = request.data["social_id_token"]
-
-            user = AuthTools.authenticate_social_id_token(username, social_id_token)
-
-            if user is not None:  # and AuthTools.login(request, user):
-                token = AuthTools.issue_user_token(user, "login")
-                serializer = LoginCompleteSerializer(token)
-                return success_response(serializer.data)
-
-        message = {"Unable to login with the credentials provided."}
-        return failure_response(message)
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            data = request.data
+        return LoginController(request, data, self.serializer_class).process()
 
 
 class LogoutView(generics.GenericAPIView):
-    permission_classes = api_settings.CONSUMER_PERMISSIONS
     serializer_class = LogoutSerializer
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
 
     def post(self, request):
         if AuthTools.logout(request):
@@ -102,18 +94,12 @@ class LogoutView(generics.GenericAPIView):
 
 
 class RegisterView(generics.GenericAPIView):
-    serializer_class = UserRegisterSerializer
+    serializer_class = RegisterSerializer
     permission_classes = api_settings.UNPROTECTED
 
     def post(self, request):
         try:
             data = json.loads(request.body)
         except json.JSONDecodeError:
-            data = request.POST.copy()
+            data = request.data
         return RegisterController(request, data, self.serializer_class).process()
-
-
-class RegisterViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserRegisterSerializer
-    permission_classes = api_settings.UNPROTECTED
