@@ -1,16 +1,13 @@
 from django.contrib.auth.models import User
-from django.conf import settings as dj_settings
 from django.shortcuts import render
 
 from rest_framework import generics, status, viewsets
-from rest_framework.response import Response
 
 from .utils import AuthTools
-from .register_controller import RegisterController
-from .serializers import LoginSerializer, UserRegisterSerializer, LoginCompleteSerializer, LogoutSerializer
+from .serializers import LoginSerializer, LoginCompleteSerializer, LogoutSerializer, UserRegisterSerializer
 from api import settings as api_settings
-from api.generics import CreateAPIView, RetrieveUpdateAPIView
 from api.utils import failure_response, success_response
+from controllers.register_controller import RegisterController
 from user.models import Profile
 from user.serializers import UserSerializer, ProfileSerializer
 
