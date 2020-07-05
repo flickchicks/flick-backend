@@ -68,6 +68,7 @@ class RegisterController:
             "first_name": first_name,
             "last_name": last_name,
             "password": social_id_token,
+            "email": "",
         }
         user = self._create_user(user_data)
         profile_data = {

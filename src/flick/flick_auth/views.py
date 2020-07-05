@@ -109,7 +109,10 @@ class RegisterView(generics.GenericAPIView):
     permission_classes = api_settings.UNPROTECTED
 
     def post(self, request):
-        data = json.loads(request.body)
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            data = request.POST.copy()
         return RegisterController(request, data, self.serializer_class).process()
 
 
