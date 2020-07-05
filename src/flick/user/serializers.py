@@ -6,6 +6,7 @@ from rest_framework import serializers
 
 from asset.serializers import AssetBundleDetailSerializer
 from lst.simple_serializers import LstSimpleSerializer
+from lst.serializers import LstSerializer
 from user.models import Profile
 
 
@@ -48,8 +49,8 @@ class ProfileSerializer(serializers.ModelSerializer):
     last_name = serializers.CharField(source="user.last_name")
     username = serializers.CharField(source="user.username")
     profile_pic = AssetBundleDetailSerializer(source="profile_asset_bundle")
-    owner_lsts = LstSimpleSerializer(read_only=True, many=True)
-    collab_lsts = LstSimpleSerializer(read_only=True, many=True)
+    owner_lsts = LstSerializer(read_only=True, many=True)
+    collab_lsts = LstSerializer(read_only=True, many=True)
 
     class Meta:
         model = Profile

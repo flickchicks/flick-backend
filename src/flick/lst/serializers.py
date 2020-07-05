@@ -5,7 +5,7 @@ from asset.serializers import AssetBundleDetailSerializer
 from show.simple_serializers import ShowSimpleSerializer
 from show.serializers import ShowSerializer
 from tag.serializers import TagSerializer
-from user.simple_serializers import ProfileSimpleSerializer
+from user.profile_simple_serializers import ProfileSimpleSerializer
 
 
 class LstSerializer(serializers.ModelSerializer):

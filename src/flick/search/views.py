@@ -18,7 +18,7 @@ from show.models import Show
 from show.serializers import ShowSerializer
 from show.utils import API
 from tag.models import Tag
-from user.simple_serializers import UserSimpleSerializer
+from user.user_simple_serializers import UserSimpleSerializer
 
 
 # cache to store get_top_movie and search_movie_by_name (and tv and anime)
