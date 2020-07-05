@@ -1,14 +1,15 @@
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from django.conf import settings as dj_settings
 from django.shortcuts import render
 
-from rest_framework import status, viewsets
+from rest_framework import generics, status, viewsets
 from rest_framework.response import Response
 
 from .utils import AuthTools
+from .register_controller import RegisterController
 from .serializers import LoginSerializer, UserRegisterSerializer, LoginCompleteSerializer, LogoutSerializer
 from api import settings as api_settings
-from api.generics import CreateAPIView, GenericAPIView, RetrieveUpdateAPIView
+from api.generics import CreateAPIView, RetrieveUpdateAPIView
 from api.utils import failure_response, success_response
 from user.models import Profile
 from user.serializers import UserSerializer, ProfileSerializer
@@ -16,10 +17,8 @@ from user.serializers import UserSerializer, ProfileSerializer
 import json
 import re
 
-User = get_user_model()
 
-
-class UserView(GenericAPIView):
+class UserView(generics.GenericAPIView):
     model = Profile
     serializer_class = ProfileSerializer
     permission_classes = api_settings.CONSUMER_PERMISSIONS
@@ -68,7 +67,7 @@ class UserView(GenericAPIView):
         return success_response(serializer.data)
 
 
-class LoginView(GenericAPIView):
+class LoginView(generics.GenericAPIView):
 
     permission_classes = api_settings.UNPROTECTED
     serializer_class = LoginSerializer
@@ -95,23 +94,23 @@ class LoginView(GenericAPIView):
         return failure_response(message)
 
 
-class LogoutView(GenericAPIView):
+class LogoutView(generics.GenericAPIView):
     permission_classes = api_settings.CONSUMER_PERMISSIONS
     serializer_class = LogoutSerializer
 
     def post(self, request):
         if AuthTools.logout(request):
             return success_response(None)
-
         return failure_response(None)
 
 
-class RegisterView(CreateAPIView):
+class RegisterView(generics.GenericAPIView):
     serializer_class = UserRegisterSerializer
     permission_classes = api_settings.UNPROTECTED
 
-    def perform_create(self, serializer):
-        serializer.save()
+    def post(self, request):
+        data = json.loads(request.body)
+        return RegisterController(request, data, self.serializer_class).process()
 
 
 class RegisterViewSet(viewsets.ModelViewSet):

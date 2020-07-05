@@ -3,8 +3,6 @@ from django.db import models
 
 from asset.models import AssetBundle
 
-# from lst.models import Lst
-
 
 class Profile(models.Model):
     """
