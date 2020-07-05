@@ -7,7 +7,7 @@ from .utils import AuthTools
 from .serializers import LoginSerializer, LoginCompleteSerializer, LogoutSerializer, UserRegisterSerializer
 from api import settings as api_settings
 from api.utils import failure_response, success_response
-from controllers.register_controller import RegisterController
+from .controllers.register_controller import RegisterController
 from user.models import Profile
 from user.serializers import UserSerializer, ProfileSerializer
 
