@@ -14,6 +14,8 @@ from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from lst.models import Lst
+from lst.serializers import LstSerializer
 from show.models import Show
 from show.serializers import ShowSerializer
 from show.utils import API
@@ -75,6 +77,12 @@ class Search(APIView):
         serializer = UserSimpleSerializer(users, many=True)
         return serializer.data
 
+    def get_lists_by_name(self, query):
+        # get lists
+        lists = Lst.objects.filter(lst_name__icontains=query)
+        serializer = LstSerializer(lists, many=True)
+        return serializer.data
+
     def get(self, request, *args, **kwargs):
         query = request.query_params.get("query")
         print(f"query: {query}")
@@ -88,12 +96,16 @@ class Search(APIView):
         print(f"is_top: {is_top}")
         is_user = bool(request.query_params.get("is_user", False))
         print(f"is_user: {is_user}")
+        is_list = bool(request.query_params.get("is_list", False))
+        print(f"is_: {is_list}")
 
         self.shows = []
         self.known_shows = []
 
         if is_user:
             return success_response(self.get_users_by_username(query))
+        elif is_list:
+            return success_response(self.get_lists_by_name(query))
         elif is_top:
             self.get_top_shows(is_movie, is_tv, is_anime)
         else:
