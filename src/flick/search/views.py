@@ -78,7 +78,6 @@ class Search(APIView):
         return serializer.data
 
     def get_lists_by_name(self, query):
-        # get lists
         lists = Lst.objects.filter(lst_name__icontains=query)
         serializer = LstSerializer(lists, many=True)
         return serializer.data
