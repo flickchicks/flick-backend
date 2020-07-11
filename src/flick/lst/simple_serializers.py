@@ -13,5 +13,5 @@ class LstSimpleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Lst
-        fields = ("lst_id", "lst_name", "lst_pic", "is_favorite", "is_private", "is_watched", "shows")
+        fields = ("lst_id", "lst_name", "lst_pic", "is_saved", "is_private", "is_watch_later", "shows")
         read_only_fields = fields
