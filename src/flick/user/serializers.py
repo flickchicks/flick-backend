@@ -1,19 +1,12 @@
-from django.contrib.auth import get_user_model
-from django.contrib.auth.models import User
-
-from friendship.models import Friend, Follow, Block
-from rest_framework import serializers
+from user.models import Profile
 
 from asset.serializers import AssetBundleDetailSerializer
-from lst.simple_serializers import LstSimpleSerializer
+from django.contrib.auth.models import User
 from lst.serializers import LstSerializer
-from user.models import Profile
+from rest_framework import serializers
 
 
 class UserSerializer(serializers.ModelSerializer):
-
-    # profile = ProfileSerializer(many=False)
-
     groups = serializers.SerializerMethodField("get_user_groups")
 
     def get_user_groups(self, user):

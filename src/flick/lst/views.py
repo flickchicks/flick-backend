@@ -34,18 +34,18 @@ class LstList(generics.GenericAPIView):
         data = json.loads(request.body)
         lst_name = data.get("lst_name")
         lst_pic = data.get("lst_pic")
-        is_favorite = data.get("is_favorite", False)
+        is_saved = data.get("is_saved", False)
         is_private = data.get("is_private", False)
-        is_watched = data.get("is_watched", False)
+        is_watch_later = data.get("is_watch_later", False)
         collaborator_ids = data.get("collaborators", [])
         show_ids = data.get("shows", [])
 
         lst = Lst()
         lst.lst_name = lst_name
         lst.lst_pic = lst_pic
-        lst.is_favorite = is_favorite
+        lst.is_saved = is_saved
         lst.is_private = is_private
-        lst.is_watched = is_watched
+        lst.is_watch_later = is_watch_later
         profile = Profile.objects.get(user=request.user)
         lst.owner = profile
         lst.save()
@@ -110,15 +110,15 @@ class LstDetail(generics.GenericAPIView):
     def post(self, request, pk):
         """
         Update a list by id.
-        Collaborators can update lst_pic, is_favorite, is_watched, collaborators, and shows.
-        An owner can update lst_name, lst_pic, is_favorite, is_private, is_watched, collaborators, the owner (can cede ownership completely to another user), and shows.
+        Collaborators can update lst_pic, is_saved, is_watch_later, collaborators, and shows.
+        An owner can update lst_name, lst_pic, is_saved, is_private, is_watch_later, collaborators, the owner (can cede ownership completely to another user), and shows.
         """
         data = json.loads(request.body)
         lst_name = data.get("lst_name")
         lst_pic = data.get("lst_pic")
-        is_favorite = data.get("is_favorite", False)
+        is_saved = data.get("is_saved", False)
         is_private = data.get("is_private", False)
-        is_watched = data.get("is_watched", False)
+        is_watch_later = data.get("is_watch_later", False)
         collaborator_ids = data.get("collaborators", [])
         owner_id = data.get("owner", request.user.id)
         show_ids = data.get("shows", [])
@@ -139,9 +139,9 @@ class LstDetail(generics.GenericAPIView):
         if user_is_owner:
             lst.lst_name = lst_name
             lst.lst_pic = lst_pic
-            lst.is_favorite = is_favorite
+            lst.is_saved = is_saved
             lst.is_private = is_private
-            lst.is_watched = is_watched
+            lst.is_watch_later = is_watch_later
             lst.collaborators.clear()
             for c_id in collaborator_ids:
                 if User.objects.filter(pk=c_id):
@@ -159,8 +159,8 @@ class LstDetail(generics.GenericAPIView):
                     lst.shows.add(show)
         elif user_is_collaborator:
             lst.lst_pic = lst_pic
-            lst.is_favorite = is_favorite
-            lst.is_watched = is_watched
+            lst.is_saved = is_saved
+            lst.is_watch_later = is_watch_later
             lst.collaborators.clear()
             for c_id in collaborator_ids:
                 if User.objects.filter(pk=c_id):
