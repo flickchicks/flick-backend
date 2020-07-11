@@ -1,19 +1,20 @@
-from django.contrib.auth.models import User
-from django.shortcuts import render
+import json
+from user.models import Profile
+from user.serializers import ProfileSerializer
+from user.serializers import UserSerializer
 
-from rest_framework import generics, status, viewsets
-
-from .utils import AuthTools
-from .serializers import LoginSerializer, LogoutSerializer, RegisterSerializer
 from api import settings as api_settings
-from api.utils import failure_response, success_response
+from api.utils import failure_response
+from api.utils import success_response
+from rest_framework import generics
+
 from .controllers.login_controller import LoginController
 from .controllers.register_controller import RegisterController
-from user.models import Profile
-from user.serializers import UserSerializer, ProfileSerializer
-
-import json
-import re
+from .controllers.update_profile_controller import UpdateProfileController
+from .serializers import LoginSerializer
+from .serializers import LogoutSerializer
+from .serializers import RegisterSerializer
+from .utils import AuthTools
 
 
 class UserView(generics.GenericAPIView):
@@ -27,42 +28,11 @@ class UserView(generics.GenericAPIView):
         return success_response(serializer.data)
 
     def post(self, request):
-        data = json.loads(request.body)
-
-        profile = Profile.objects.get(user=self.request.user)
-
-        username = data.get("username")
-        first_name = data.get("first_name")
-        last_name = data.get("last_name")
-        profile_pic_base64 = data.get("profile_pic")
-        bio = data.get("bio")
-        phone_number = data.get("phone_number")
-        social_id_token_type = data.get("social_id_token_type")
-        social_id_token = data.get("social_id_token")
-
-        if username and self.request.user.username != username:
-            self.request.user.username = username
-        if first_name and self.request.user.first_name != first_name:
-            self.request.user.first_name = first_name
-        if last_name and self.request.user.last_name != last_name:
-            self.request.user.last_name = last_name
-        if profile_pic_base64:
-            profile.profile_pic = profile_pic_base64
-        if bio and profile.bio != bio:
-            profile.bio = bio
-        if phone_number and profile.phone_number != phone_number:
-            profile.phone_number = phone_number
-        if social_id_token_type and profile.social_id_token_type != social_id_token_type:
-            profile.social_id_token_type = social_id_token_type
-        if social_id_token and profile.social_id_token != social_id_token:
-            profile.social_id_token = social_id_token
-            self.request.user.set_password(social_id_token)
-
-        self.request.user.save()
-        profile.save()
-
-        serializer = ProfileSerializer(profile)
-        return success_response(serializer.data)
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            data = request.data
+        return UpdateProfileController(request, data, self.serializer_class).process()
 
 
 class LoginView(generics.GenericAPIView):
