@@ -3,8 +3,6 @@ from django.db import models
 
 from asset.models import AssetBundle
 
-# from lst.models import Lst
-
 
 class Profile(models.Model):
     """
@@ -29,11 +27,8 @@ class Profile(models.Model):
 
         if self.profile_pic:
             asset_bundle = upload_image(self.profile_pic, self.user)
-            if not asset_bundle:
+            if not asset_bundle or not isinstance(asset_bundle, AssetBundle):
                 print("Could not upload profile pic")
-            elif not isinstance(asset_bundle, AssetBundle):
-                print(asset_bundle)
-
             self.profile_asset_bundle = asset_bundle
             self.profile_pic = None
 
