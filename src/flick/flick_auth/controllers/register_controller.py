@@ -1,9 +1,10 @@
-from django.contrib.auth.models import Group, User
-
-from api.utils import failure_response, success_response
 from user.models import Profile
 
-import json
+from api.utils import failure_response
+from api.utils import success_response
+from django.contrib.auth.models import Group
+from django.contrib.auth.models import User
+from lst.models import Lst
 
 
 class RegisterController:
@@ -33,6 +34,8 @@ class RegisterController:
             group.name = "consumer_basic"
             group.save()
         profile.group = Group.objects.get(name="consumer_basic")
+        Lst.objects.create(owner=profile, is_saved=True)
+        Lst.objects.create(owner=profile, is_watch_later=True)
         profile.save()
         return profile
 
