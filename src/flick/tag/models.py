@@ -14,4 +14,4 @@ class Tag(models.Model):
     def lsts(self):
         from lst.models import Lst
 
-        return Lst.objects.filter(shows__in=self.shows.all())
+        return Lst.objects.filter(shows__in=self.shows.all(), is_private=False)

@@ -6,11 +6,11 @@ from .models import Tag
 
 
 class TagSerializer(serializers.ModelSerializer):
-    tag_id = serializers.CharField(source="id")
+    tag_id = serializers.CharField(source="id", read_only=True)
     shows = ShowSimpleSerializer(many=True, read_only=True)
     lsts = LstSimpleSerializer(many=True, read_only=True)
 
     class Meta:
         model = Tag
         fields = ("tag_id", "tag", "shows", "lsts")
-        read_only_fields = fields
+        read_only_fields = ("tag_id", "shows", "lsts")

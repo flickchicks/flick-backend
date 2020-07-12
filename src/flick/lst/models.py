@@ -15,10 +15,12 @@ class Lst(models.Model):
     collaborators = models.ManyToManyField(Profile, related_name="collab_lsts", blank=True)
     owner = models.ForeignKey(Profile, related_name="owner_lsts", on_delete=models.CASCADE)
     shows = models.ManyToManyField(Show, blank=True)
+    custom_tags = models.ManyToManyField(Tag, related_name="lsts", blank=True)
 
     @property
     def tags(self):
-        return Tag.objects.filter(shows__in=self.shows.all())
+        show_tags = Tag.objects.filter(shows__in=self.shows.all())
+        return show_tags.union(self.custom_tags.all())
 
     @property
     def show_titles(self):
