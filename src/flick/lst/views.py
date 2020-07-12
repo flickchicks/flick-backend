@@ -8,6 +8,7 @@ from django.db.models import Q
 from rest_framework import generics
 
 from .controllers.create_lst_controller import CreateLstController
+from .controllers.delete_lst_controller import DeleteLstController
 from .controllers.update_lst_controller import UpdateLstController
 from .models import Lst
 from .serializers import LstSerializer
@@ -69,14 +70,7 @@ class LstDetail(generics.GenericAPIView):
         Delete a list by id.
         Only owners of lists can delete their lists.
         """
-        if not Lst.objects.filter(pk=pk):
-            return failure_response(f"List of id {pk} does not exist.")
-        lst = Lst.objects.get(pk=pk)
-        profile = Profile.objects.get(user=request.user)
-        if not profile == lst.owner:
-            return failure_response(f"User of id {request.user.id} is not the owner of list of id {pk}.")
-        lst.delete()
-        return success_response(f"List of id {pk} has been deleted.")
+        return DeleteLstController(request, pk).process()
 
     def post(self, request, pk):
         """
