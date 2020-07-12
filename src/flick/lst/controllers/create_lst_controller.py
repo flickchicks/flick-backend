@@ -4,6 +4,7 @@ from api.utils import success_response
 from django.contrib.auth.models import User
 from lst.models import Lst
 from show.models import Show
+from tag.models import Tag
 
 
 class CreateLstController:
@@ -18,6 +19,7 @@ class CreateLstController:
         is_private = self._data.get("is_private", False)
         collaborator_ids = self._data.get("collaborators", [])
         show_ids = self._data.get("shows", [])
+        tag_ids = self._data.get("tags", [])
 
         lst = Lst()
         lst.lst_name = lst_name
@@ -38,5 +40,10 @@ class CreateLstController:
             if Show.objects.filter(pk=show_id):
                 show = Show.objects.get(pk=show_id)
                 lst.shows.add(show)
+        for tag_id in tag_ids:
+            if Tag.objects.filter(pk=tag_id):
+                tag = Tag.objects.get(pk=tag_id)
+                if tag not in lst.tags.all():
+                    lst.custom_tags.add(tag)
         lst.save()
         return success_response(self._serializer(lst).data)

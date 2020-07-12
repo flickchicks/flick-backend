@@ -66,11 +66,11 @@ class UpdateLstController:
         if user_is_owner:
             self._lst.is_private = is_private
             self._add_shows(show_ids)
+            self._add_tags(tag_ids)
             if not (self._lst.is_saved or self._lst.is_watch_later):
                 self._lst.lst_name = lst_name
                 self._lst.lst_pic = lst_pic
                 self._add_collaborators(collaborator_ids)
-                self._add_tags(tag_ids)
                 owner_user = User.objects.get(pk=owner_id)
                 owner_profile = Profile.objects.get(user=owner_user)
                 self._lst.owner = owner_profile
