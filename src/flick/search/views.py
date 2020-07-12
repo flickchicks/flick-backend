@@ -77,9 +77,9 @@ class Search(APIView):
         serializer = UserSimpleSerializer(users, many=True)
         return serializer.data
 
-    def get_lists_by_name(self, query):
-        lists = Lst.objects.filter(lst_name__icontains=query)
-        serializer = LstSerializer(lists, many=True)
+    def get_lsts_by_name(self, query):
+        lsts = Lst.objects.filter(lst_name__icontains=query)
+        serializer = LstSerializer(lsts, many=True)
         return serializer.data
 
     def get(self, request, *args, **kwargs):
@@ -95,16 +95,16 @@ class Search(APIView):
         print(f"is_top: {is_top}")
         is_user = bool(request.query_params.get("is_user", False))
         print(f"is_user: {is_user}")
-        is_list = bool(request.query_params.get("is_list", False))
-        print(f"is_: {is_list}")
+        is_lst = bool(request.query_params.get("is_lst", False))
+        print(f"is_: {is_lst}")
 
         self.shows = []
         self.known_shows = []
 
         if is_user:
             return success_response(self.get_users_by_username(query))
-        elif is_list:
-            return success_response(self.get_lists_by_name(query))
+        elif is_lst:
+            return success_response(self.get_lsts_by_name(query))
         elif is_top:
             self.get_top_shows(is_movie, is_tv, is_anime)
         else:
