@@ -1,11 +1,10 @@
+from user.profile_simple_serializers import ProfileSimpleSerializer
+
 from rest_framework import serializers
+from show.serializers import ShowSerializer
+from tag.simple_serializers import TagSimpleSerializer
 
 from .models import Lst
-from asset.serializers import AssetBundleDetailSerializer
-from show.simple_serializers import ShowSimpleSerializer
-from show.serializers import ShowSerializer
-from tag.serializers import TagSerializer
-from user.profile_simple_serializers import ProfileSimpleSerializer
 
 
 class LstSerializer(serializers.ModelSerializer):
@@ -13,6 +12,7 @@ class LstSerializer(serializers.ModelSerializer):
     owner = ProfileSimpleSerializer(many=False)
     shows = ShowSerializer(many=True)
     lst_id = serializers.CharField(source="id")
+    tags = TagSimpleSerializer(many=True)
 
     class Meta:
         model = Lst
@@ -26,5 +26,6 @@ class LstSerializer(serializers.ModelSerializer):
             "collaborators",
             "owner",
             "shows",
+            "tags",
         )
         read_only_fields = fields

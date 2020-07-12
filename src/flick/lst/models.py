@@ -1,9 +1,8 @@
-from asset.models import AssetBundle
-from django.contrib.auth.models import User
-from django.db import models
-
-from show.models import Show
 from user.models import Profile
+
+from django.db import models
+from show.models import Show
+from tag.models import Tag
 
 
 class Lst(models.Model):
@@ -18,8 +17,8 @@ class Lst(models.Model):
     shows = models.ManyToManyField(Show, blank=True)
 
     @property
-    def show_tags(self):
-        pass
+    def tags(self):
+        return Tag.objects.filter(shows__in=self.shows.all())
 
     @property
     def show_titles(self):

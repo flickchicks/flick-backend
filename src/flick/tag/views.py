@@ -1,18 +1,9 @@
-from django.db import IntegrityError
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
-from django.views.decorators.csrf import csrf_exempt
-
-from rest_framework import generics, mixins, status, viewsets
-from rest_framework.parsers import JSONParser
-from rest_framework.response import Response
+from api import settings as api_settings
+from api.utils import success_response
+from rest_framework import generics
 
 from .models import Tag
-from .serializers import TagDetailSerializer, TagSerializer
-from api import settings as api_settings
-from api.utils import failure_response, success_response
-
-import json
+from .serializers import TagSerializer
 
 
 class TagList(generics.ListCreateAPIView):
@@ -21,7 +12,7 @@ class TagList(generics.ListCreateAPIView):
     """
 
     queryset = Tag.objects.all()
-    serializer_class = TagDetailSerializer
+    serializer_class = TagSerializer
 
     # if api_settings.UNPROTECTED, then any user can see this
     permission_classes = api_settings.UNPROTECTED
@@ -47,11 +38,11 @@ class TagDetail(generics.RetrieveUpdateDestroyAPIView):
     """
 
     queryset = Tag.objects.all()
-    serializer_class = TagDetailSerializer
+    serializer_class = TagSerializer
 
     permission_classes = api_settings.UNPROTECTED
 
     def retrieve(self, request, pk):
         queryset = self.get_object()
-        serializer = TagDetailSerializer(queryset, many=False)
+        serializer = TagSerializer(queryset, many=False)
         return success_response(serializer.data)

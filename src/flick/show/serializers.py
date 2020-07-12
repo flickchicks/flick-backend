@@ -1,15 +1,12 @@
-from django.contrib.auth.models import User
-
-from rest_framework.serializers import CurrentUserDefault, ModelSerializer, PrimaryKeyRelatedField
+from rest_framework.serializers import ModelSerializer
+from tag.simple_serializers import TagSimpleSerializer
 
 from .models import Show
-from asset.serializers import AssetBundleDetailSerializer
-from tag.serializers import TagSerializer
 
 
 class ShowSerializer(ModelSerializer):
     # CurrentUserDefault is basically request.data (the authenticated user related to this request)
-    tags = TagSerializer(read_only=True, many=True)
+    tags = TagSimpleSerializer(read_only=True, many=True)
 
     class Meta:
         model = Show
