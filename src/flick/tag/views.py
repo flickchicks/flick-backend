@@ -1,3 +1,5 @@
+import json
+
 from api import settings as api_settings
 from api.utils import success_response
 from rest_framework import generics
@@ -6,43 +8,26 @@ from .models import Tag
 from .serializers import TagSerializer
 
 
-class TagList(generics.ListCreateAPIView):
-    """
-    Tag: Create, List
-    """
-
+class TagList(generics.GenericAPIView):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-
-    # if api_settings.UNPROTECTED, then any user can see this
     permission_classes = api_settings.UNPROTECTED
 
-    # don't need this, generics has this code, but this overrides
-    # gives option to add additional checks / customize
-    def list(self, request):
-        # can access logged in user via request.user
-        self.serializer_class = TagSerializer
-        return super(TagList, self).list(request)
+    def get(self, request):
+        return success_response(self.serializer_class(self.get_queryset(), many=True).data)
 
-    # for read-only fields you need to pass the value when calling save
-    # this is so that when an Tag is created, only the
-    # currently authenticated user is linked to the Tag and can
-    # be shown in the TagSerializer as "owner"
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+    def post(self, request):
+        data = json.loads(request.body)
+        tag_name = data.get("tag")
+        if Tag.objects.filter(tag__iexact=tag_name):
+            return success_response(self.serializer_class(Tag.objects.get(tag__iexact=tag_name)).data)
+        tag = Tag()
+        tag.tag = tag_name
+        tag.save()
+        return success_response(self.serializer_class(tag).data)
 
 
-class TagDetail(generics.RetrieveUpdateDestroyAPIView):
-    """
-    Location: Read, Write, Delete
-    """
-
+class TagDetail(generics.RetrieveAPIView):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-
     permission_classes = api_settings.UNPROTECTED
-
-    def retrieve(self, request, pk):
-        queryset = self.get_object()
-        serializer = TagSerializer(queryset, many=False)
-        return success_response(serializer.data)

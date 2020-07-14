@@ -5,6 +5,7 @@ from api.utils import success_response
 from django.contrib.auth.models import User
 from lst.models import Lst
 from show.models import Show
+from tag.models import Tag
 
 
 class UpdateLstController:
@@ -15,6 +16,14 @@ class UpdateLstController:
         self._serializer = serializer
         self._user = request.user
         self._lst = None
+
+    def _add_tags(self, tag_ids):
+        self._lst.custom_tags.clear()
+        for tag_id in tag_ids:
+            if Tag.objects.filter(pk=tag_id):
+                tag = Tag.objects.get(pk=tag_id)
+                if tag not in self._lst.tags.all():
+                    self._lst.custom_tags.add(tag)
 
     def _add_shows(self, show_ids):
         self._lst.shows.clear()
@@ -39,6 +48,7 @@ class UpdateLstController:
         collaborator_ids = self._data.get("collaborators", [])
         owner_id = self._data.get("owner", self._user.id)
         show_ids = self._data.get("shows", [])
+        tag_ids = self._data.get("tags", [])
 
         if not Lst.objects.filter(pk=self._pk):
             return failure_response(f"No list to be found with id of {self._pk}.")
@@ -56,6 +66,7 @@ class UpdateLstController:
         if user_is_owner:
             self._lst.is_private = is_private
             self._add_shows(show_ids)
+            self._add_tags(tag_ids)
             if not (self._lst.is_saved or self._lst.is_watch_later):
                 self._lst.lst_name = lst_name
                 self._lst.lst_pic = lst_pic
@@ -68,6 +79,7 @@ class UpdateLstController:
             self._lst.lst_pic = lst_pic
             self._add_collaborators(collaborator_ids)
             self._add_shows(show_ids)
+            self._add_tags(tag_ids)
 
         self._lst.save()
         return success_response(self._serializer(self._lst).data)
