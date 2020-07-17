@@ -1,25 +1,23 @@
-from django.contrib.auth import get_user_model
-from django.conf import settings as dj_settings
-from django.shortcuts import render
-
-from rest_framework import status, viewsets
-from rest_framework.response import Response
-
-from .utils import AuthTools
-from .serializers import LoginSerializer, UserRegisterSerializer, LoginCompleteSerializer, LogoutSerializer
-from api import settings as api_settings
-from api.generics import CreateAPIView, GenericAPIView, RetrieveUpdateAPIView
-from api.utils import failure_response, success_response
-from user.models import Profile
-from user.serializers import UserSerializer, ProfileSerializer
-
 import json
-import re
+from user.models import Profile
+from user.serializers import ProfileSerializer
+from user.serializers import UserSerializer
 
-User = get_user_model()
+from api import settings as api_settings
+from api.utils import failure_response
+from api.utils import success_response
+from rest_framework import generics
+
+from .controllers.login_controller import LoginController
+from .controllers.register_controller import RegisterController
+from .controllers.update_profile_controller import UpdateProfileController
+from .serializers import LoginSerializer
+from .serializers import LogoutSerializer
+from .serializers import RegisterSerializer
+from .utils import AuthTools
 
 
-class UserView(GenericAPIView):
+class UserView(generics.GenericAPIView):
     model = Profile
     serializer_class = ProfileSerializer
     permission_classes = api_settings.CONSUMER_PERMISSIONS
@@ -30,47 +28,16 @@ class UserView(GenericAPIView):
         return success_response(serializer.data)
 
     def post(self, request):
-        data = json.loads(request.body)
-
-        profile = Profile.objects.get(user=self.request.user)
-
-        username = data.get("username")
-        first_name = data.get("first_name")
-        last_name = data.get("last_name")
-        profile_pic_base64 = data.get("profile_pic")
-        bio = data.get("bio")
-        phone_number = data.get("phone_number")
-        social_id_token_type = data.get("social_id_token_type")
-        social_id_token = data.get("social_id_token")
-
-        if username and self.request.user.username != username:
-            self.request.user.username = username
-        if first_name and self.request.user.first_name != first_name:
-            self.request.user.first_name = first_name
-        if last_name and self.request.user.last_name != last_name:
-            self.request.user.last_name = last_name
-        if profile_pic_base64:
-            profile.profile_pic = profile_pic_base64
-        if bio and profile.bio != bio:
-            profile.bio = bio
-        if phone_number and profile.phone_number != phone_number:
-            profile.phone_number = phone_number
-        if social_id_token_type and profile.social_id_token_type != social_id_token_type:
-            profile.social_id_token_type = social_id_token_type
-        if social_id_token and profile.social_id_token != social_id_token:
-            profile.social_id_token = social_id_token
-
-        self.request.user.save()
-        profile.save()
-
-        serializer = ProfileSerializer(profile)
-        return success_response(serializer.data)
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            data = request.data
+        return UpdateProfileController(request, data, self.serializer_class).process()
 
 
-class LoginView(GenericAPIView):
-
-    permission_classes = api_settings.UNPROTECTED
+class LoginView(generics.GenericAPIView):
     serializer_class = LoginSerializer
+    permission_classes = api_settings.UNPROTECTED
 
     def get(self, request):
         if request.user.is_anonymous:
@@ -79,41 +46,30 @@ class LoginView(GenericAPIView):
         return success_response(serializer.data)
 
     def post(self, request):
-        if "username" in request.data and "social_id_token" in request.data:
-            username = request.data["username"]
-            social_id_token = request.data["social_id_token"]
-
-            user = AuthTools.authenticate_social_id_token(username, social_id_token)
-
-            if user is not None:  # and AuthTools.login(request, user):
-                token = AuthTools.issue_user_token(user, "login")
-                serializer = LoginCompleteSerializer(token)
-                return success_response(serializer.data)
-
-        message = {"Unable to login with the credentials provided."}
-        return failure_response(message)
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            data = request.data
+        return LoginController(request, data, self.serializer_class).process()
 
 
-class LogoutView(GenericAPIView):
-    permission_classes = api_settings.CONSUMER_PERMISSIONS
+class LogoutView(generics.GenericAPIView):
     serializer_class = LogoutSerializer
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
 
     def post(self, request):
         if AuthTools.logout(request):
             return success_response(None)
-
         return failure_response(None)
 
 
-class RegisterView(CreateAPIView):
-    serializer_class = UserRegisterSerializer
+class RegisterView(generics.GenericAPIView):
+    serializer_class = RegisterSerializer
     permission_classes = api_settings.UNPROTECTED
 
-    def perform_create(self, serializer):
-        serializer.save()
-
-
-class RegisterViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserRegisterSerializer
-    permission_classes = api_settings.UNPROTECTED
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            data = request.data
+        return RegisterController(request, data, self.serializer_class).process()

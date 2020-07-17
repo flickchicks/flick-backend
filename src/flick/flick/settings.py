@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     "lst",
     "member",
     "pages",
+    "search",
     "show",
     "tag",
     "user",
@@ -104,7 +105,12 @@ AUTHENTICATION_BACKENDS = (
 WSGI_APPLICATION = "flick.wsgi.application"
 
 CACHES = {
-    "default": {},
+    "default": {
+        "BACKEND": "lrucache_backend.LRUObjectCache",
+        "TIMEOUT": 600,
+        "OPTIONS": {"MAX_ENTRIES": 100, "CULL_FREQUENCY": 100},
+        "NAME": "optional-name",
+    },
     "local": {
         "BACKEND": "lrucache_backend.LRUObjectCache",
         "TIMEOUT": 600,
@@ -165,6 +171,9 @@ STATIC_URL = "/static/"
 # S3 (for images)
 S3_BUCKET = "flick"
 S3_BASE_URL = f"https://{S3_BUCKET}.s3-us-west-1.amazonaws.com/"
+
+# MovieDB setup
+MOVIEDB_BASE_URL = "http://image.tmdb.org/t/p/w185"
 
 # Celery
 CELERY_BROKER_URL = "redis://localhost:6379"

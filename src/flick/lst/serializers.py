@@ -1,39 +1,31 @@
-from asset.serializers import AssetBundleDetailSerializer
-from django.contrib.auth.models import User
+from user.profile_simple_serializers import ProfileSimpleSerializer
 
-# from rest_framework.fields import CurrentUserDefault
-from rest_framework.serializers import CurrentUserDefault, ModelSerializer, PrimaryKeyRelatedField
-from user.serializers import UserSerializer
-
-from tag.serializers import TagSerializer
+from rest_framework import serializers
+from show.serializers import ShowSerializer
+from tag.simple_serializers import TagSimpleSerializer
 
 from .models import Lst
 
 
-class LstSerializer(ModelSerializer):
-    # CurrentUserDefault is basically request.data (the authenticated user related to this request)
-    collaborators = TagSerializer(read_only=True, many=True)
+class LstSerializer(serializers.ModelSerializer):
+    collaborators = ProfileSimpleSerializer(many=True)
+    owner = ProfileSimpleSerializer(many=False)
+    shows = ShowSerializer(many=True)
+    lst_id = serializers.CharField(source="id")
+    tags = TagSimpleSerializer(many=True)
 
     class Meta:
         model = Lst
         fields = (
-            "id",
-            "title",
-            "poster_pic",
-            "director",
-            "is_tv",
-            "date_released",
-            "status",
-            "language",
-            "duration",
-            "plot",
+            "lst_id",
+            "lst_name",
+            "lst_pic",
+            "is_saved",
+            "is_private",
+            "is_watch_later",
+            "collaborators",
+            "owner",
+            "shows",
             "tags",
-            "seasons",
-            "audience_level",
-            "imdb_rating",
-            "tomato_rating",
-            "friends_rating",
-            "platforms",
-            "keywords",
         )
-        read_only_fields = ("id",)
+        read_only_fields = fields

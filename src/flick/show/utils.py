@@ -61,6 +61,8 @@ class API:
                 show.duration = show_info.get("duration")
                 show.plot = show_info.get("plot")
                 show.seasons = show_info.get("seasons")
+                show.directors = show_info.get("directors")
+                show.cast = show_info.get("cast")
                 show.save()
                 if show_info.get("show_tags"):
                     for tag_name in show_info.get("show_tags"):
@@ -128,40 +130,59 @@ class API:
 
 
 class TMDB_API:
-    def get_movie_from_tmdb_info(self, info):
+    def get_movie_from_tmdb_info(self, info, credit):
         """
         get a flick movie object similar by parsing the
         information returned by movieDB
         """
         genres = info.get("genres")
-        tags = [genre.get("name") for genre in genres] if genres else []
+        crew = credit.get("crew")
+        cast = credit.get("cast")
+
+        tags = [g.get("name") for g in genres] if genres else []
+        cast_info = [p.get("name") for p in cast] if cast else []
+        directors = [c.get("name") for c in crew if c.get("job") == "Director"]
+
+        directors = ", ".join(directors)
+        cast_info = ", ".join(cast_info)
 
         movie = {
             "ext_api_id": info.get("id"),
             "ext_api_source": "tmdb",
             "title": info.get("original_title"),
-            "poster_pic": info.get("poster_path"),
+            "poster_pic": settings.MOVIEDB_BASE_URL + info.get("poster_path"),
             "show_tags": tags,
             "is_tv": False,
             "date_released": info.get("release_date"),
             "duration": datetime.timedelta(minutes=info.get("runtime", 0)),
             "language": info.get("original_language"),
             "plot": info.get("overview"),
+            "directors": directors,
+            "cast": cast_info,
         }
 
         return movie
 
-    def get_tv_from_tmdb_info(self, info):
+    def get_tv_from_tmdb_info(self, info, credit):
         # maybe need another separate json?? episodes/ last aired/ most recent episode etc
         genres = info.get("genres")
+        crew = credit.get("crew")
+        cast = credit.get("cast")
+
         tags = [genre.get("name") for genre in genres] if genres else []
         duration = info.get("episode_run_time")[0] if info.get("episode_run_time") else 0
+
+        cast_info = [p.get("name") for p in cast] if cast else []
+        directors = [c.get("name") for c in crew if c.get("job") == "Producer"]
+
+        directors = ", ".join(directors)
+        cast_info = ", ".join(cast_info)
 
         tv = {
             "ext_api_id": info.get("id"),
             "ext_api_source": "tmdb",
             "title": info.get("original_name"),
-            "poster_pic": info.get("poster_path"),
+            "poster_pic": settings.MOVIEDB_BASE_URL + info.get("poster_path"),
             "show_tags": tags,
             "is_tv": True,
             "date_released": info.get("first_air_date"),
@@ -170,6 +191,8 @@ class TMDB_API:
             "plot": info.get("overview"),
             "status": info.get("status"),
             "seasons": info.get("number_of_seasons"),
+            "directors": directors,
+            "cast": cast_info,
         }
         return tv
 
@@ -182,7 +205,7 @@ class TMDB_API:
     def get_movie_info_from_id(self, id):
         try:
             movie = tmdb.Movies(id)
-            return self.get_movie_from_tmdb_info(movie.info())
+            return self.get_movie_from_tmdb_info(movie.info(), movie.credits())
         except:
             return None
 
@@ -197,9 +220,17 @@ class TMDB_API:
     def get_tv_info_from_id(self, id):
         try:
             tv = tmdb.TV(id)
-            return self.get_tv_from_tmdb_info(tv.info())
+            return self.get_tv_from_tmdb_info(tv.info(), tv.credits())
         except:
             return None
+
+    def get_movie_info_for_top_rated(self, info):
+        credit = tmdb.Movies(info.get("id")).credits()
+        return self.get_movie_from_tmdb_info(info, credit)
+
+    def get_tv_info_for_top_rated(self, info):
+        credit = tmdb.TV(info.get("id")).credits()
+        return self.get_tv_from_tmdb_info(info, credit)
 
     def get_top_movie(self, page=1):
         """
@@ -207,7 +238,7 @@ class TMDB_API:
         """
         movie = tmdb.Movies()
         movie_info_lst = movie.top_rated(page=page).get("results")
-        return [self.get_movie_from_tmdb_info(movie_info) for movie_info in movie_info_lst if movie_info]
+        return [self.get_movie_info_for_top_rated(movie_info) for movie_info in movie_info_lst if movie_info]
 
     def get_top_tv(self, page=1):
         """
@@ -215,7 +246,7 @@ class TMDB_API:
         """
         tv = tmdb.TV()
         tv_info_lst = tv.top_rated(page=page).get("results")
-        return [self.get_tv_from_tmdb_info(tv_info) for tv_info in tv_info_lst if tv_info]
+        return [self.get_tv_info_for_top_rated(tv_info) for tv_info in tv_info_lst if tv_info]
 
     def search_tv_by_name(self, name):
         """
