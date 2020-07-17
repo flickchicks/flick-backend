@@ -3,6 +3,7 @@ from user.models import Profile
 from api.utils import failure_response
 from api.utils import success_response
 from django.contrib.auth.models import User
+from friend.models import Friend
 from lst.models import Lst
 from show.models import Show
 from tag.models import Tag
@@ -32,11 +33,14 @@ class UpdateLstController:
                 show = Show.objects.get(pk=show_id)
                 self._lst.shows.add(show)
 
-    def _add_collaborators(self, collaborator_ids):
+    def _add_collaborators(self, collaborator_ids, request_user):
+        friends = [User.objects.get(id=friend.id) for friend in Friend.objects.friends(request_user=request_user)]
         self._lst.collaborators.clear()
         for c_id in collaborator_ids:
             if User.objects.filter(pk=c_id):
                 collaborator = User.objects.get(pk=c_id)
+                if c_id not in friends:
+                    continue
                 if Profile.objects.filter(user=collaborator):
                     c = Profile.objects.get(user=collaborator)
                     self._lst.collaborators.add(c)
@@ -70,14 +74,14 @@ class UpdateLstController:
             if not (self._lst.is_saved or self._lst.is_watch_later):
                 self._lst.lst_name = lst_name
                 self._lst.lst_pic = lst_pic
-                self._add_collaborators(collaborator_ids)
+                self._add_collaborators(collaborator_ids, self._user)
                 owner_user = User.objects.get(pk=owner_id)
                 owner_profile = Profile.objects.get(user=owner_user)
                 self._lst.owner = owner_profile
 
         elif user_is_collaborator:
             self._lst.lst_pic = lst_pic
-            self._add_collaborators(collaborator_ids)
+            self._add_collaborators(collaborator_ids, self._user)
             self._add_shows(show_ids)
             self._add_tags(tag_ids)
 
