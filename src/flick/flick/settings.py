@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
-from pathlib import Path
 
 from decouple import config
 
@@ -30,6 +29,9 @@ SECRET_KEY = "(zyxj=nc#b&m-q@#u@8vs2&dy0icfxoyt=jtg*x9&-c09(g+kt"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
+# turning running with VALIDATE_SOCIAL_TOKEN will check social tokens before registering a user
+VALIDATE_SOCIAL_TOKEN = False
 
 ALLOWED_HOSTS = []
 
