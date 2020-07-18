@@ -1,31 +1,19 @@
-import datetime
-import json
+from user.user_simple_serializers import UserSimpleSerializer
 
-from api import settings as api_settings
-from api.utils import failure_response, success_response
+from api.utils import success_response
 from django.contrib.auth.models import User
 from django.core.cache import caches
-from django.db import IntegrityError
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework import generics, mixins, status, viewsets
-from rest_framework.parsers import JSONParser
-from rest_framework.response import Response
-from rest_framework.views import APIView
-
 from lst.models import Lst
 from lst.serializers import LstSerializer
+from rest_framework.views import APIView
 from show.models import Show
 from show.serializers import ShowSerializer
 from show.utils import API
 from tag.models import Tag
 from tag.serializers import TagSerializer
-from user.user_simple_serializers import UserSimpleSerializer
 
 
-# cache to store get_top_movie and search_movie_by_name (and tv and anime)
-# get_top_movie example: ("top", "movie"), movie_id
+# cache to store search_movie_by_name (and tv and anime)
 # search_movie_by_name example: ("query", "movie"), movie_id
 local_cache = caches["local"]
 
@@ -66,21 +54,6 @@ class Search(APIView):
         if is_anime:
             self.get_shows_by_type_and_query(query, "anime", "animelist")
 
-    def get_top_shows_by_type(self, show_type):
-        top_shows = local_cache.get(("top", show_type))
-        if not top_shows:
-            top_shows = API.get_top_show_info(show_type)
-            local_cache.set(("top", show_type), top_shows)
-        self.shows.extend(top_shows)
-
-    def get_top_shows(self, is_movie, is_tv, is_anime):
-        if is_movie:
-            self.get_top_shows_by_type("movie")
-        if is_tv:
-            self.get_top_shows_by_type("tv")
-        if is_anime:
-            self.get_top_shows_by_type("anime")
-
     def get_users_by_username(self, query):
         users = User.objects.filter(username__icontains=query)
         serializer = UserSimpleSerializer(users, many=True)
@@ -102,8 +75,6 @@ class Search(APIView):
         print(f"is_movie: {is_movie}")
         is_tv = bool(request.query_params.get("is_tv", False))
         print(f"is_tv: {is_tv}")
-        is_top = bool(request.query_params.get("is_top", False))
-        print(f"is_top: {is_top}")
         is_user = bool(request.query_params.get("is_user", False))
         print(f"is_user: {is_user}")
         is_lst = bool(request.query_params.get("is_lst", False))
@@ -116,8 +87,6 @@ class Search(APIView):
             return success_response(self.get_users_by_username(query))
         elif is_lst:
             return success_response(self.get_lsts_by_name(query))
-        elif is_top:
-            self.get_top_shows(is_movie, is_tv, is_anime)
         else:
             self.get_shows_by_query(query, is_movie, is_tv, is_anime, tag_lst)
 
