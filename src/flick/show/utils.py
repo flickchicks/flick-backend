@@ -65,11 +65,15 @@ class API:
                 show.cast = show_info.get("cast")
                 show.save()
                 if show_info.get("show_tags"):
-                    for tag_name in show_info.get("show_tags"):
+                    for genre in show_info.get("show_tags"):
                         try:
-                            show.tags.create(tag=tag_name)
+                            show.tags.create(
+                                tag=genre.get("name"),
+                                ext_api_id=genre.get("id"),
+                                ext_api_source=show_info.get("ext_api_source"),
+                            )
                         except:
-                            show.tags.add(Tag.objects.get(tag=tag_name))
+                            show.tags.add(Tag.objects.get(tag=genre.get("name")))
                     show.save()
                 serializer = ShowSerializer(show)
                 serializer_data.append(serializer.data)
@@ -99,16 +103,16 @@ class API:
         return None
 
     @staticmethod
-    def search_show_ids_by_name(show_type, name):
+    def search_show_ids_by_name(show_type, name, tags=[]):
         """
         show_type can be 'movie', 'tv', or 'anime'
         """
         if show_type == "movie":
             api = TMDB_API()
-            return api.search_movie_by_name(name)
+            return api.search_movie_by_name(name, tags)
         elif show_type == "tv":
             api = TMDB_API()
-            return api.search_tv_by_name(name)
+            return api.search_tv_by_name(name, tags)
         elif show_type == "anime":
             api = AnimeList_API()
             return api.search_anime_by_name(name)
@@ -135,11 +139,9 @@ class TMDB_API:
         get a flick movie object similar by parsing the
         information returned by movieDB
         """
-        genres = info.get("genres")
         crew = credit.get("crew")
         cast = credit.get("cast")
 
-        tags = [g.get("name") for g in genres] if genres else []
         cast_info = [p.get("name") for p in cast] if cast else []
         directors = [c.get("name") for c in crew if c.get("job") == "Director"]
 
@@ -151,7 +153,7 @@ class TMDB_API:
             "ext_api_source": "tmdb",
             "title": info.get("original_title"),
             "poster_pic": settings.MOVIEDB_BASE_URL + info.get("poster_path"),
-            "show_tags": tags,
+            "show_tags": info.get("genres"),
             "is_tv": False,
             "date_released": info.get("release_date"),
             "duration": datetime.timedelta(minutes=info.get("runtime", 0)),
@@ -165,11 +167,9 @@ class TMDB_API:
 
     def get_tv_from_tmdb_info(self, info, credit):
         # maybe need another separate json?? episodes/ last aired/ most recent episode etc
-        genres = info.get("genres")
         crew = credit.get("crew")
         cast = credit.get("cast")
 
-        tags = [genre.get("name") for genre in genres] if genres else []
         duration = info.get("episode_run_time")[0] if info.get("episode_run_time") else 0
 
         cast_info = [p.get("name") for p in cast] if cast else []
@@ -183,7 +183,7 @@ class TMDB_API:
             "ext_api_source": "tmdb",
             "title": info.get("original_name"),
             "poster_pic": settings.MOVIEDB_BASE_URL + info.get("poster_path"),
-            "show_tags": tags,
+            "show_tags": info.get("genres"),
             "is_tv": True,
             "date_released": info.get("first_air_date"),
             "duration": datetime.timedelta(minutes=duration),
@@ -196,11 +196,15 @@ class TMDB_API:
         }
         return tv
 
-    def get_show_ids_from_tmdb_search(self, search):
+    def get_show_ids_from_tmdb_search(self, search, tags):
         """
         Given the most recent search, return the show ids.
         """
-        return [movie_info["id"] for movie_info in search.results]
+        show_ids = []
+        for show_info in search.results:
+            if set(tags).issubset(set(show_info.get("genre_ids"))):
+                show_ids.append(show_info.get("id"))
+        return show_ids
 
     def get_movie_info_from_id(self, id):
         try:
@@ -209,13 +213,13 @@ class TMDB_API:
         except:
             return None
 
-    def search_movie_by_name(self, name):
+    def search_movie_by_name(self, name, tags):
         """
         Search a movie by name, return a list of show ids.
         """
         search = tmdb.Search()
         search.movie(query=name)
-        return self.get_show_ids_from_tmdb_search(search)
+        return self.get_show_ids_from_tmdb_search(search, tags)
 
     def get_tv_info_from_id(self, id):
         try:
@@ -248,13 +252,14 @@ class TMDB_API:
         tv_info_lst = tv.top_rated(page=page).get("results")
         return [self.get_tv_info_for_top_rated(tv_info) for tv_info in tv_info_lst if tv_info]
 
-    def search_tv_by_name(self, name):
+    def search_tv_by_name(self, name, tags):
         """
         Search a TV by name, return a list of ext_api_ids.
         """
         search = tmdb.Search()
         search.tv(query=name)
-        return self.get_show_ids_from_tmdb_search(search)
+        # return []
+        return self.get_show_ids_from_tmdb_search(search, tags)
 
 
 class AnimeList_API:
