@@ -12,5 +12,5 @@ class TagSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tag
-        fields = ("tag_id", "tag", "shows", "lsts")
+        fields = ("tag_id", "ext_api_id", "tag", "shows", "lsts")
         read_only_fields = ("tag_id", "shows", "lsts")
