@@ -1,17 +1,12 @@
-from django.contrib.auth import get_user_model
-from django.contrib.auth.models import User
-
-from friendship.models import Friend, Follow, Block
-from rest_framework import serializers
+from user.models import Profile
 
 from asset.serializers import AssetBundleDetailSerializer
-from user.models import Profile
+from django.contrib.auth.models import User
+from lst.serializers import LstSerializer
+from rest_framework import serializers
 
 
 class UserSerializer(serializers.ModelSerializer):
-
-    # profile = ProfileSerializer(many=False)
-
     groups = serializers.SerializerMethodField("get_user_groups")
 
     def get_user_groups(self, user):
@@ -47,6 +42,8 @@ class ProfileSerializer(serializers.ModelSerializer):
     last_name = serializers.CharField(source="user.last_name")
     username = serializers.CharField(source="user.username")
     profile_pic = AssetBundleDetailSerializer(source="profile_asset_bundle")
+    owner_lsts = LstSerializer(read_only=True, many=True)
+    collab_lsts = LstSerializer(read_only=True, many=True)
 
     class Meta:
         model = Profile
@@ -61,7 +58,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             "phone_number",
             "social_id_token_type",
             "social_id_token",
-            # "owner_lsts",
-            # "collab_lsts",
+            "owner_lsts",
+            "collab_lsts",
         )
         read_only_fields = fields

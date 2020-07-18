@@ -6,6 +6,11 @@ __pycache__
 db.sqlite3
 media
 
+# tmp dir for images #
+tmp/*
+# allow git to add empty folder
+!tmp/.gitkeep 
+
 # Backup files # 
 *.bak 
 

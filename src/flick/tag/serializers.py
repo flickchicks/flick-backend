@@ -1,21 +1,16 @@
-from rest_framework.serializers import CurrentUserDefault, ModelSerializer, PrimaryKeyRelatedField
+from lst.simple_serializers import LstSimpleSerializer
+from rest_framework import serializers
+from show.simple_serializers import ShowSimpleSerializer
 
 from .models import Tag
 
-from show.simple_serializers import ShowSimpleSerializer
 
-
-class TagSerializer(ModelSerializer):
-    class Meta:
-        model = Tag
-        fields = ("id", "tag")
-        read_only_fields = fields
-
-
-class TagDetailSerializer(ModelSerializer):
+class TagSerializer(serializers.ModelSerializer):
+    tag_id = serializers.CharField(source="id", read_only=True)
     shows = ShowSimpleSerializer(many=True, read_only=True)
+    lsts = LstSimpleSerializer(many=True, read_only=True)
 
     class Meta:
         model = Tag
-        fields = ("id", "tag", "shows")
-        read_only_fields = fields
+        fields = ("tag_id", "tag", "shows", "lsts")
+        read_only_fields = ("tag_id", "shows", "lsts")

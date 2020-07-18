@@ -24,5 +24,4 @@ urlpatterns = [
     path("home/", home_view, name="home"),
     path("admin/", admin.site.urls),
     url(r"^api/", include("api.urls")),
-    # path("accounts/", include(auth_urls)),
 ]
