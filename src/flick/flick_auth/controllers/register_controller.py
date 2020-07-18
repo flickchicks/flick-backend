@@ -47,14 +47,13 @@ class RegisterController:
         """
         if not token:
             return False
-        # only validate if it is turned on from settings, helps with easier development
+        # only validate if VALIDATE_SOCIAL_TOKEN is turned on from settings, helps with easier development
         if settings.VALIDATE_SOCIAL_TOKEN:
-            URL = "https://graph.facebook.com/me"
+            URL = settings.VALIDATE_FACEBOOK_TOKEN_URL
             PARAMS = {"access_token": token}
             response = requests.get(url=URL, params=PARAMS)
             data = response.json()
-            if data.get("error"):
-                return False
+            return not data.get("error")
         return True
 
     def process(self):
@@ -66,7 +65,7 @@ class RegisterController:
         social_id_token_type = self._data.get("social_id_token_type")
         # check first that we have a valid token:
         if not self._check_token(social_id_token):
-            return failure_response("social id token is invalid")
+            return failure_response("social_id_token is invalid")
         if not username:
             # verify that social_id_token is unique
             profile_exists = Profile.objects.filter(social_id_token=social_id_token)

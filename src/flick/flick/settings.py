@@ -32,6 +32,8 @@ DEBUG = True
 
 # turning running with VALIDATE_SOCIAL_TOKEN will check social tokens before registering a user
 VALIDATE_SOCIAL_TOKEN = False
+# URL for validate Facebook Token
+VALIDATE_FACEBOOK_TOKEN_URL = "https://graph.facebook.com/me"
 
 ALLOWED_HOSTS = []
 
