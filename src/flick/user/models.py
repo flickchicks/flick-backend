@@ -2,7 +2,6 @@ from django.contrib.auth.models import User
 from django.db import models
 
 from asset.models import AssetBundle
-from lst.models import Lst
 
 
 class Profile(models.Model):
@@ -19,10 +18,7 @@ class Profile(models.Model):
     phone_number = models.TextField(blank=True, null=True)
     social_id_token_type = models.TextField(blank=True, null=True)
     social_id_token = models.TextField(blank=True, null=True)
-    owner_lsts = models.ManyToManyField(Lst, related_name="owner_lsts", blank=True)
-    collab_lsts = models.ManyToManyField(Lst, related_name="collab_lsts", blank=True)
 
-    # override what django admin displays
     def __str__(self):
         return f"{self.user.username}, {self.user.first_name}"
 
@@ -31,11 +27,8 @@ class Profile(models.Model):
 
         if self.profile_pic:
             asset_bundle = upload_image(self.profile_pic, self.user)
-            if not asset_bundle:
+            if not asset_bundle or not isinstance(asset_bundle, AssetBundle):
                 print("Could not upload profile pic")
-            elif not isinstance(asset_bundle, AssetBundle):
-                print(asset_bundle)
-
             self.profile_asset_bundle = asset_bundle
             self.profile_pic = None
 

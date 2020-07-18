@@ -1,20 +1,26 @@
 from asset.views import AssetBundleDetail, AssetBundleList
 from django.urls import include, path
 from flick_auth import urls as auth_urls
-from flick_auth.views import RegisterViewSet
 from item.views import CommentItem, ItemDetail, ItemList, LikeItem
 from rest_framework import routers
 from upload.views import UploadImage
 from user.views import UserViewSet
 
-from friend.views import FriendList
-from show.views import SearchShow, ShowViewSet
+from friend.views import (
+    FriendList,
+    FriendRequestListAndCreate,
+    FriendAcceptListAndCreate,
+    FriendRejectListAndCreate,
+    FriendRemoveListAndCreate,
+)
+from search.views import Search
+from lst.views import LstList, LstDetail
+from show.views import ShowViewSet
 from tag.views import TagList, TagDetail
 
 router = routers.DefaultRouter()
 router.register(r"users", UserViewSet)
 router.register(r"shows", ShowViewSet)
-router.register(r"register", RegisterViewSet)
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
@@ -27,11 +33,17 @@ urlpatterns = [
     path("comment/", CommentItem.as_view(), name="comment"),
     path("friendship/", include("friendship.urls")),
     path("friends/", FriendList.as_view(), name="friend-list"),
+    path("friends/request/", FriendRequestListAndCreate.as_view(), name="friend-request"),
+    path("friends/accept/", FriendAcceptListAndCreate.as_view(), name="friend-accept"),
+    path("friends/reject/", FriendRejectListAndCreate.as_view(), name="friend-reject"),
+    path("friends/remove/", FriendRemoveListAndCreate.as_view(), name="friend-remove"),
     path("items/", ItemList.as_view(), name="item-list"),
     path("items/<int:pk>/", ItemDetail.as_view(), name="item-detail"),
     path("like/", LikeItem.as_view(), name="like"),
+    path("lsts/", LstList.as_view(), name="item-list"),
+    path("lsts/<int:pk>/", LstDetail.as_view(), name="item-detail"),
     path("media/image/", UploadImage.as_view(), name="upload"),
-    path("search/", SearchShow.as_view(), name="search-show"),
+    path("search/", Search.as_view(), name="search-show"),
     path("tags/", TagList.as_view(), name="tag-list"),
     path("tags/<int:pk>/", TagDetail.as_view(), name="tag-detail"),
 ]
