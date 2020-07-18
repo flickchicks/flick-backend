@@ -196,6 +196,11 @@ class TMDB_API:
         }
         return tv
 
+    def discover_movies_by_genre(self, genre, page = 1):
+        discover = tmdb.Discover()
+        movie_info_lst = discover.movie(page = page, with_genres = genre)
+        return [self.get_movie_info_for_top_rated(movie_info) for movie_info in movie_info_lst if movie_info]
+        
     def get_show_ids_from_tmdb_search(self, search):
         """
         Given the most recent search, return the show ids.
