@@ -1,27 +1,9 @@
-import datetime
-import json
-
-from api import settings as api_settings
-from api.utils import failure_response, success_response
-from django.contrib.auth.models import User
+from api.utils import success_response
 from django.core.cache import caches
-from django.db import IntegrityError
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework import generics, mixins, status, viewsets
-from rest_framework.parsers import JSONParser
-from rest_framework.response import Response
 from rest_framework.views import APIView
-
-from lst.models import Lst
-from lst.serializers import LstSerializer
-from show.models import Show
-from show.serializers import ShowSerializer
 from show.utils import API
 from tag.models import Tag
 from tag.serializers import TagSerializer
-from user.user_simple_serializers import UserSimpleSerializer
 
 
 local_cache = caches["local"]
@@ -52,6 +34,7 @@ class DiscoverShow(APIView):
             ext_api_tag = tag_data.get("ext_api_id")
             top_shows = API.get_top_show_info_by_genre(show_type, ext_api_tag)
             local_cache.set(("top", show_type, tag_id), top_shows)
+
         self.shows.extend(top_shows)
 
     def get_top_shows_by_genre(self, is_movie, is_tv, is_anime, tag_id):
