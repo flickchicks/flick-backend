@@ -1,21 +1,14 @@
 import datetime
-import json
-import os
 import pprint as pp
-import sys
 
 from django.conf import settings
-from rest_framework import status
-from rest_framework.response import Response
-
-import tmdbsimple as tmdb
+from django.db import IntegrityError
 from jikanpy import Jikan
+from tag.models import Tag
+import tmdbsimple as tmdb
 
 from .models import Show
 from .serializers import ShowSerializer
-from tag.models import Tag
-
-from django.db import IntegrityError
 
 
 # create an instance of the Anime API
@@ -211,6 +204,7 @@ class TMDB_API:
             movie = tmdb.Movies(id)
             return self.get_movie_from_tmdb_info(movie.info(), movie.credits())
         except:
+
             return None
 
     def search_movie_by_name(self, name, tags):
