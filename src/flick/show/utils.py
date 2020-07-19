@@ -68,6 +68,13 @@ class API:
                         except:
                             show.tags.add(Tag.objects.get(tag=genre.get("name")))
                     show.save()
+                elif show_info.get("ext_api_tags"):
+                    for tag_id in show_info.get("ext_api_tags"):
+                        show.tags.add(
+                            Tag.objects.get(ext_api_id=tag_id, ext_api_source=show_info.get("ext_api_source"),)
+                        )
+                    show.save()
+
                 serializer = ShowSerializer(show)
                 serializer_data.append(serializer.data)
             except IntegrityError:
@@ -125,6 +132,19 @@ class API:
         print("only movie, tv, and anime show types are supported!")
         return None
 
+    @staticmethod
+    def get_top_show_info_by_genre(show_type, tag_id):
+        if show_type == "movie":
+            api = TMDB_API()
+            return api.discover_movies_by_genre(tag_id)
+        elif show_type == "tv":
+            api = TMDB_API()
+            return api.discover_tvs_by_genre(tag_id)
+        elif show_type == "anime":
+            api = AnimeList_API()
+            return api.get_top_anime()
+        return None
+
 
 class TMDB_API:
     def get_movie_from_tmdb_info(self, info, credit):
@@ -141,12 +161,15 @@ class TMDB_API:
         directors = ", ".join(directors)
         cast_info = ", ".join(cast_info)
 
+        poster_path = info.get("poster_path")
+
         movie = {
             "ext_api_id": info.get("id"),
             "ext_api_source": "tmdb",
             "title": info.get("original_title"),
-            "poster_pic": settings.MOVIEDB_BASE_URL + info.get("poster_path"),
+            "poster_pic": settings.TMDB_BASE_URL + poster_path if poster_path else None,
             "show_tags": info.get("genres"),
+            "ext_api_tags": info.get("genre_ids"),
             "is_tv": False,
             "date_released": info.get("release_date"),
             "duration": datetime.timedelta(minutes=info.get("runtime", 0)),
@@ -155,7 +178,6 @@ class TMDB_API:
             "directors": directors,
             "cast": cast_info,
         }
-
         return movie
 
     def get_tv_from_tmdb_info(self, info, credit):
@@ -171,12 +193,15 @@ class TMDB_API:
         directors = ", ".join(directors)
         cast_info = ", ".join(cast_info)
 
+        poster_path = info.get("poster_path")
+
         tv = {
             "ext_api_id": info.get("id"),
             "ext_api_source": "tmdb",
             "title": info.get("original_name"),
-            "poster_pic": settings.MOVIEDB_BASE_URL + info.get("poster_path"),
+            "poster_pic": settings.TMDB_BASE_URL + poster_path if poster_path else None,
             "show_tags": info.get("genres"),
+            "ext_api_tags": info.get("genre_ids"),
             "is_tv": True,
             "date_released": info.get("first_air_date"),
             "duration": datetime.timedelta(minutes=duration),
@@ -188,6 +213,19 @@ class TMDB_API:
             "cast": cast_info,
         }
         return tv
+
+    def discover_movies_by_genre(self, genre, page=1):
+        discover = tmdb.Discover()
+        movie_info_lst = discover.movie(page=page, with_genres=genre)
+        # print(movie_info_lst)
+        return [
+            self.get_movie_info_for_top_rated(movie_info) for movie_info in movie_info_lst.get("results") if movie_info
+        ]
+
+    def discover_tvs_by_genre(self, genre, page=1):
+        discover = tmdb.Discover()
+        tv_info_lst = discover.tv(page=page, with_genres=genre)
+        return [self.get_tv_info_for_top_rated(tv_info) for tv_info in tv_info_lst.get("results") if tv_info]
 
     def get_show_ids_from_tmdb_search(self, search, tags):
         """
