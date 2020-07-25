@@ -30,12 +30,11 @@ class CreateLstController:
         lst.save()
 
         for c_id in collaborator_ids:
-            collaborator = User.objects.filter(pk=c_id)
-            if not collaborator:
-                continue
-            if Profile.objects.filter(user=collaborator):
-                c = Profile.objects.get(user=collaborator)
-                lst.collaborators.add(c)
+            if User.objects.filter(pk=c_id):
+                collaborator = User.objects.get(pk=c_id)
+                if Profile.objects.filter(user=collaborator):
+                    c = Profile.objects.get(user=collaborator)
+                    lst.collaborators.add(c)
         for show_id in show_ids:
             if Show.objects.filter(pk=show_id):
                 show = Show.objects.get(pk=show_id)

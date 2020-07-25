@@ -13,6 +13,7 @@ from friend.views import (
     FriendRejectListAndCreate,
     FriendRemoveListAndCreate,
 )
+from discover.views import DiscoverShow
 from search.views import Search
 from lst.views import LstList, LstDetail
 from show.views import ShowViewSet
@@ -31,6 +32,7 @@ urlpatterns = [
     path("asset-bundles/<int:pk>/", AssetBundleDetail.as_view(), name="asset-bundles-detail"),
     path("auth/", include(auth_urls)),
     path("comment/", CommentItem.as_view(), name="comment"),
+    path("discover/show/", DiscoverShow.as_view(), name="discover-show"),
     path("friendship/", include("friendship.urls")),
     path("friends/", FriendList.as_view(), name="friend-list"),
     path("friends/request/", FriendRequestListAndCreate.as_view(), name="friend-request"),
