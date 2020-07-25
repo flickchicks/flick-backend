@@ -1,7 +1,6 @@
+from asset.models import AssetBundle
 from django.contrib.auth.models import User
 from django.db import models
-
-from asset.models import AssetBundle
 
 
 class Profile(models.Model):
@@ -20,7 +19,7 @@ class Profile(models.Model):
     social_id_token = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.user.username}, {self.user.first_name}"
+        return "{self.user.username}, {self.user.first_name}"
 
     def upload_profile_pic(self):
         from upload.utils import upload_image

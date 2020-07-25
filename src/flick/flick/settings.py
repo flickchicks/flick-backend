@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     "lst",
     "member",
     "pages",
+    "rating",
     "search",
     "show",
     "tag",
