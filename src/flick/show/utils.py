@@ -103,6 +103,32 @@ class API:
         return None
 
     @staticmethod
+    def get_popular_show_info(show_type):
+        if show_type == "movie":
+            api = TMDB_API()
+            return api.get_popular_movie()
+        elif show_type == "tv":
+            api = TMDB_API()
+            return api.get_popular_tv()
+        elif show_type == "anime":
+            api = AnimeList_API()
+            return api.get_top_anime()
+        return None
+
+    @staticmethod
+    def get_now_playing_show_info(show_type):
+        if show_type == "movie":
+            api = TMDB_API()
+            return api.get_now_playing_movie()
+        elif show_type == "tv":
+            api = TMDB_API()
+            return api.get_now_playing_tv()
+        elif show_type == "anime":
+            api = AnimeList_API()
+            return api.get_top_anime()
+        return None
+
+    @staticmethod
     def search_show_ids_by_name(show_type, name, tags=[]):
         """
         show_type can be 'movie', 'tv', or 'anime'
@@ -276,6 +302,22 @@ class TMDB_API:
         movie_info_lst = movie.top_rated(page=page).get("results")
         return [self.get_movie_info_for_top_rated(movie_info) for movie_info in movie_info_lst if movie_info]
 
+    def get_popular_movie(self, page=1):
+        """
+        Get a list of top rated movie detailed info.
+        """
+        movie = tmdb.Movies()
+        movie_info_lst = movie.popular(page=page).get("results")
+        return [self.get_movie_info_for_top_rated(movie_info) for movie_info in movie_info_lst if movie_info]
+
+    def get_now_playing_movie(self, page=1):
+        """
+        Get a list of top rated movie detailed info.
+        """
+        movie = tmdb.Movies()
+        movie_info_lst = movie.now_playing(page=page).get("results")
+        return [self.get_movie_info_for_top_rated(movie_info) for movie_info in movie_info_lst if movie_info]
+
     def get_top_tv(self, page=1):
         """
         Get a list of top rated TV detailed info.
@@ -284,13 +326,28 @@ class TMDB_API:
         tv_info_lst = tv.top_rated(page=page).get("results")
         return [self.get_tv_info_for_top_rated(tv_info) for tv_info in tv_info_lst if tv_info]
 
+    def get_popular_tv(self, page=1):
+        """
+        Get a list of top rated TV detailed info.
+        """
+        tv = tmdb.TV()
+        tv_info_lst = tv.popular(page=page).get("results")
+        return [self.get_tv_info_for_top_rated(tv_info) for tv_info in tv_info_lst if tv_info]
+
+    def get_now_playing_tv(self, page=1):
+        """
+        Get a list of top rated TV detailed info.
+        """
+        tv = tmdb.TV()
+        tv_info_lst = tv.airing_today(page=page).get("results")
+        return [self.get_tv_info_for_top_rated(tv_info) for tv_info in tv_info_lst if tv_info]
+
     def search_tv_by_name(self, name, tags):
         """
         Search a TV by name, return a list of ext_api_ids.
         """
         search = tmdb.Search()
         search.tv(query=name)
-        # return []
         return self.get_show_ids_from_tmdb_search(search, tags)
 
 
