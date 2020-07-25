@@ -58,7 +58,7 @@ class DiscoverShow(APIView):
         if is_tv:
             self.get_top_shows_by_type_and_genre("tv", tag_id)
         if is_anime:
-            self.get_top_shows("anime")  # genre does not seem to be fully integrated in the anime api
+            self.get_shows_by_type("anime", "top", API.get_top_show_info)  # genre does not seem to be fully integrated in the anime api
 
     def get(self, request, *args, **kwargs):
         tag_id = request.query_params.get("tag_id", "")
