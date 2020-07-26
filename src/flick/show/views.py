@@ -1,3 +1,5 @@
+import json
+
 from api import settings as api_settings
 from api.utils import failure_response
 from api.utils import success_response
@@ -32,8 +34,20 @@ class ShowDetail(generics.GenericAPIView):
         if not Show.objects.filter(pk=pk):
             return failure_response(f"Show of id {pk} does not exist.")
         show = Show.objects.get(pk=pk)
-        return success_response(ShowSerializer(show).data)
+        return success_response(self.serializer_class(show).data)
 
     def post(self, request, pk):
         """Allows users to write a rating and/or comment."""
-        return success_response("show list post")
+        if not Show.objects.filter(pk=pk):
+            return failure_response(f"Show of id {pk} does not exist.")
+        show = Show.objects.get(pk=pk)
+
+        user = request.user
+        data = json.loads(request.body)
+        score = data.get("user_rating")
+
+        if score:
+            show.ratings.create(score=score, rater=user)
+            show.save()
+
+        return success_response(self.serializer_class(show).data)
