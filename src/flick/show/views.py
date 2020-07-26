@@ -34,7 +34,7 @@ class ShowDetail(generics.GenericAPIView):
         if not Show.objects.filter(pk=pk):
             return failure_response(f"Show of id {pk} does not exist.")
         show = Show.objects.get(pk=pk)
-        return success_response(self.serializer_class(show).data)
+        return success_response(self.serializer_class(show, context={"request": request}).data)
 
     def post(self, request, pk):
         """Allows users to write a rating and/or comment."""
@@ -50,4 +50,4 @@ class ShowDetail(generics.GenericAPIView):
             show.ratings.create(score=score, rater=user)
             show.save()
 
-        return success_response(self.serializer_class(show).data)
+        return success_response(self.serializer_class(show, context={"request": request}).data)

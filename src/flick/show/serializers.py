@@ -9,6 +9,7 @@ from .models import Show
 class ShowSerializer(serializers.ModelSerializer):
     tags = TagSimpleSerializer(read_only=True, many=True)
     friends_rating = serializers.SerializerMethodField(method_name="calculate_friends_rating")
+    user_rating = serializers.SerializerMethodField(method_name="get_user_rating")
 
     class Meta:
         model = Show
@@ -49,4 +50,4 @@ class ShowSerializer(serializers.ModelSerializer):
         user = request.user
         if not instance.ratings.filter(rater=user):
             return None
-        return instance.ratings.get(rater=user)
+        return instance.ratings.get(rater=user).score
