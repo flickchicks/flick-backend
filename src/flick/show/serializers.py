@@ -40,7 +40,6 @@ class ShowSerializer(serializers.ModelSerializer):
     def calculate_friends_rating(self, instance):
         request = self.context.get("request")
         user = request.user
-        # TODO: check if user is authenticated
         friends = Friend.objects.friends(user=user)
         ratings = instance.ratings.filter(rater__in=friends).aggregate(Avg("score")).get("score__avg")
         return ratings
