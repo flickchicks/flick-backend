@@ -12,6 +12,8 @@ from show.models import Show
 class ShowRatingsTests(TestCase):
     REGISTER_URL = reverse("register")
     LOGIN_URL = reverse("login")
+    FRIEND_REQUEST_URL = reverse("friend-request")
+    FRIEND_ACCEPT_URL = reverse("friend-accept")
 
     USERNAME = "alanna"
     SOCIAL_ID_TOKEN = "test"
@@ -68,9 +70,48 @@ class ShowRatingsTests(TestCase):
         return token
 
     def test_user_can_rate_show(self):
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
-        rating_data = {"user_rating": 5}
-        response = self.client.post(self.SHOW_DETAIL_URL, rating_data)
+        self._rate_show(self.user_token, 5)
+
+    def _rate_show(self, token, rating):
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
+        rating_data = {"user_rating": rating}
+        response = self.client.post(self.SHOW_DETAIL_URL, rating_data, format="json")
         content = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(content["data"]["user_rating"], 5)
+        self.assertEqual(content["data"]["user_rating"], rating)
+
+    def _send_friend_requests(self):
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
+        request_data = {"user_ids": [2, 3]}
+        response = self.client.post(self.FRIEND_REQUEST_URL, request_data, format="json")
+        data = json.loads(response.content)["data"]
+        self.assertEqual(len(data), 2)
+        self.assertEqual(data[0]["to_user"]["user_id"], "2")
+        self.assertEqual(data[1]["to_user"]["user_id"], "3")
+
+    def _accept_user_friend_requests(self, token):
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
+        request_data = {"user_ids": [1]}
+        response = self.client.post(self.FRIEND_ACCEPT_URL, request_data, format="json")
+        data = json.loads(response.content)["data"]
+        self.assertEqual(data[0]["from_user"]["user_id"], "1")
+
+    def _add_friends(self):
+        self._send_friend_requests()
+        self._accept_user_friend_requests(self.friend1_token)
+        self._accept_user_friend_requests(self.friend2_token)
+
+    def _check_friends_rating(self, rating):
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
+        response = self.client.get(self.SHOW_DETAIL_URL)
+        content = json.loads(response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(content["data"]["friends_rating"], rating)
+
+    def test_friends_rating(self):
+        self._add_friends()
+        friend1_rating, friend2_rating = 8, 4
+        avg_rating = (friend1_rating + friend2_rating) / 2
+        self._rate_show(self.friend1_token, friend1_rating)
+        self._rate_show(self.friend2_token, friend2_rating)
+        self._check_friends_rating(avg_rating)
