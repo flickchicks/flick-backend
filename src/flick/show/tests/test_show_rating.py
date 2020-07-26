@@ -15,9 +15,6 @@ class ShowRatingsTests(TestCase):
     FRIEND_REQUEST_URL = reverse("friend-request")
     FRIEND_ACCEPT_URL = reverse("friend-accept")
 
-    USERNAME = "alanna"
-    SOCIAL_ID_TOKEN = "test"
-
     def setUp(self):
         self.client = APIClient()
         self.show = self._create_show()
