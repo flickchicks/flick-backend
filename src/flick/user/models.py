@@ -32,5 +32,9 @@ class Profile(models.Model):
             self.profile_pic = None
 
     def save(self, *args, **kwargs):
-        self.upload_profile_pic()
+        try:
+            self.upload_profile_pic()
+        except Exception as e:
+            # catch the error so we prevent it from blocking registration
+            print(f"Error creating profile: {e}")
         super(Profile, self).save(*args, **kwargs)
