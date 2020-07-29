@@ -1,5 +1,5 @@
 from django.db import models
-
+from rating.models import Rating
 from tag.models import Tag
 
 
@@ -27,10 +27,7 @@ class Show(models.Model):
     keywords = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    ratings = models.ManyToManyField(Rating, blank=True)
 
     class Meta:
         unique_together = ("title", "ext_api_id", "ext_api_source", "poster_pic", "date_released")
-
-    @property
-    def friends_rating(self):
-        return 0
