@@ -36,7 +36,7 @@ Movie object format
 
 class API:
     @staticmethod
-    def create_show_objects(show_info_lst):
+    def create_show_objects(request, show_info_lst):
         serializer_data = []
         for show_info in show_info_lst:
             if not show_info:
@@ -71,11 +71,11 @@ class API:
                 elif show_info.get("ext_api_tags"):
                     for tag_id in show_info.get("ext_api_tags"):
                         show.tags.add(
-                            Tag.objects.get(ext_api_id=tag_id, ext_api_source=show_info.get("ext_api_source"),)
+                            Tag.objects.get(ext_api_id=tag_id, ext_api_source=show_info.get("ext_api_source"))
                         )
                     show.save()
 
-                serializer = ShowSerializer(show)
+                serializer = ShowSerializer(show, context={"request": request})
                 serializer_data.append(serializer.data)
             except IntegrityError:
                 show = Show.objects.get(
@@ -217,7 +217,6 @@ class TMDB_API:
     def discover_movies_by_genre(self, genre, page=1):
         discover = tmdb.Discover()
         movie_info_lst = discover.movie(page=page, with_genres=genre)
-        # print(movie_info_lst)
         return [
             self.get_movie_info_for_top_rated(movie_info) for movie_info in movie_info_lst.get("results") if movie_info
         ]

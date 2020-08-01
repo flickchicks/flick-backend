@@ -1,5 +1,6 @@
 from user.user_simple_serializers import UserSimpleSerializer
 
+from api import settings as api_settings
 from api.utils import success_response
 from django.contrib.auth.models import User
 from django.core.cache import caches
@@ -19,8 +20,10 @@ local_cache = caches["local"]
 
 
 class Search(APIView):
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
     shows = []
     known_shows = []
+    request = None
 
     def get_ext_api_tags_by_tag_ids(self, tag_lst):
         ext_api_tags = []
@@ -40,7 +43,7 @@ class Search(APIView):
             known_show = Show.objects.filter(ext_api_id=show_id, ext_api_source=source)
             if known_show.exists():
                 known_show = Show.objects.get(ext_api_id=show_id, ext_api_source=source)
-                self.known_shows.append(ShowSerializer(known_show).data)
+                self.known_shows.append(ShowSerializer(known_show, context={"request": self.request}).data)
             else:
                 show = API.get_show_info_from_id(show_type, show_id)
                 if show:
@@ -65,6 +68,7 @@ class Search(APIView):
         return serializer.data
 
     def get(self, request, *args, **kwargs):
+        self.request = request
         query = request.query_params.get("query")
         print(f"query: {query}")
         tags = request.query_params.getlist("tags", [])
@@ -91,7 +95,7 @@ class Search(APIView):
             self.get_shows_by_query(query, is_movie, is_tv, is_anime, tags)
 
         serializer_data = []
-        serializer_data.extend(API.create_show_objects(self.shows))
+        serializer_data.extend(API.create_show_objects(self.request, self.shows))
         serializer_data.extend(self.known_shows)
 
         return success_response(serializer_data)

@@ -32,6 +32,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+TEST_RUNNER = "django_slowtests.testrunner.DiscoverSlowestTestsRunner"
+NUM_SLOW_TESTS = 10
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",

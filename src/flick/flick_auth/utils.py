@@ -1,18 +1,17 @@
-from django.conf import settings as django_settings
-from django.contrib.auth import login, logout, authenticate
-from django.contrib.auth.models import User, Group
-from django.core import signing
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.core.validators import validate_email
-from django.urls import reverse
+import re
+from user.models import Profile
 
+from django.contrib.auth import authenticate
+from django.contrib.auth import login
+from django.contrib.auth import logout
+from django.contrib.auth.models import Group
+from django.contrib.auth.models import User
+from django.core import signing
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.validators import validate_email
 from rest_framework.authtoken.models import Token
 
 from . import settings as auth_settings
-from asset.models import AssetBundle
-from user.models import Profile
-
-import re
 
 
 class AuthTools:
@@ -140,9 +139,7 @@ class AuthTools:
             user = User.objects.create_user(**user_data)
 
             profile_data["user"] = user
-            # print(f"**profile_data: {profile_data}")
             profile = Profile(**profile_data)
-            print(f"user: {profile.user}")
             profile.save()
 
             group = Group.objects.get(name=group)
@@ -150,7 +147,6 @@ class AuthTools:
 
             return {"user": user, "is_new": True}
         except Exception as e:
-            print(f"i'm over here! {str(e)}")
             raise Exception(e)
         return None
 
