@@ -1,3 +1,4 @@
+from multiprocessing import Pool
 from user.user_simple_serializers import UserSimpleSerializer
 
 from api import settings as api_settings
@@ -24,6 +25,9 @@ class Search(APIView):
     shows = []
     known_shows = []
     request = None
+    pool = None
+    source = None
+    show_type = None
 
     def get_ext_api_tags_by_tag_ids(self, tag_lst):
         ext_api_tags = []
@@ -32,22 +36,26 @@ class Search(APIView):
             ext_api_tags.append(tag_data.get("ext_api_id"))
         return ext_api_tags
 
+    def get_show_info(self, show_id, source):
+        known_show = Show.objects.filter(ext_api_id=show_id, ext_api_source=self.source)
+        if known_show.exists():
+            known_show = Show.objects.get(ext_api_id=show_id, ext_api_source=self.source)
+            self.known_shows.append(ShowSerializer(known_show, context={"request": self.request}).data)
+        else:
+            show = API.get_show_info_from_id(self.show_type, show_id)
+            if show:
+                self.shows.append(show)
+
     # show_type can be "movie", "tv", "anime"
     def get_shows_by_type_and_query(self, query, show_type, source, tags=[]):
+        self.source = source
+        self.show_type = show_type
         show_ids = local_cache.get((query, show_type, tags))
         if not show_ids:
             ext_api_tags = self.get_ext_api_tags_by_tag_ids(tags)
             show_ids = API.search_show_ids_by_name(show_type, query, ext_api_tags)
             local_cache.set((query, show_type, tags), show_ids)
-        for show_id in show_ids:
-            known_show = Show.objects.filter(ext_api_id=show_id, ext_api_source=source)
-            if known_show.exists():
-                known_show = Show.objects.get(ext_api_id=show_id, ext_api_source=source)
-                self.known_shows.append(ShowSerializer(known_show, context={"request": self.request}).data)
-            else:
-                show = API.get_show_info_from_id(show_type, show_id)
-                if show:
-                    self.shows.append(show)
+        self.pool.map_async(self.get_show_info, show_ids)
 
     def get_shows_by_query(self, query, is_movie, is_tv, is_anime, tags):
         if is_movie:
@@ -69,6 +77,7 @@ class Search(APIView):
 
     def get(self, request, *args, **kwargs):
         self.request = request
+        self.pool = Pool(processes=4)
         query = request.query_params.get("query")
         print(f"query: {query}")
         tags = request.query_params.getlist("tags", [])
