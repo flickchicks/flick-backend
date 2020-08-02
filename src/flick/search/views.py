@@ -54,7 +54,7 @@ class Search(APIView):
             ext_api_tags = self.get_ext_api_tags_by_tag_ids(tags)
             show_ids = API.search_show_ids_by_name(show_type, query, ext_api_tags)
             local_cache.set((query, show_type, tags), show_ids)
-        self.pool.map(self.get_show_info, [i for i in show_ids if i is not None])
+            self.shows.extend(show_ids)
 
     def get_shows_by_query(self, query, is_movie, is_tv, is_anime, tags):
         if is_movie:

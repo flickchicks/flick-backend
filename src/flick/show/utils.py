@@ -2,7 +2,6 @@ import datetime
 import pprint as pp
 
 from django.conf import settings
-from django.db import IntegrityError
 from jikanpy import Jikan
 from tag.models import Tag
 import tmdbsimple as tmdb
@@ -41,52 +40,63 @@ class API:
         for show_info in show_info_lst:
             if not show_info:
                 continue
-            try:
-                show = Show()
-                show.title = show_info.get("title")
-                show.ext_api_id = show_info.get("ext_api_id")
-                show.ext_api_source = show_info.get("ext_api_source")
-                show.poster_pic = show_info.get("poster_pic")
-                show.is_tv = show_info.get("is_tv")
-                show.date_released = show_info.get("date_released")
-                show.status = show_info.get("status")
-                show.language = show_info.get("language")
-                show.duration = show_info.get("duration")
-                show.plot = show_info.get("plot")
-                show.seasons = show_info.get("seasons")
-                show.directors = show_info.get("directors")
-                show.cast = show_info.get("cast")
-                show.save()
-                if show_info.get("show_tags"):
-                    for genre in show_info.get("show_tags"):
-                        try:
-                            show.tags.create(
-                                tag=genre.get("name"),
-                                ext_api_id=genre.get("id"),
-                                ext_api_source=show_info.get("ext_api_source"),
-                            )
-                        except:
-                            show.tags.add(Tag.objects.get(tag=genre.get("name")))
-                    show.save()
-                elif show_info.get("ext_api_tags"):
-                    for tag_id in show_info.get("ext_api_tags"):
-                        show.tags.add(
-                            Tag.objects.get(ext_api_id=tag_id, ext_api_source=show_info.get("ext_api_source"))
-                        )
-                    show.save()
-
-                serializer = ShowSerializer(show, context={"request": request})
-                serializer_data.append(serializer.data)
-            except IntegrityError:
+            if Show.objects.filter(
+                title=show_info.get("title"),
+                ext_api_id=show_info.get("ext_api_id"),
+                ext_api_source=show_info.get("ext_api_source"),
+            ):
                 show = Show.objects.get(
                     title=show_info.get("title"),
                     ext_api_id=show_info.get("ext_api_id"),
                     ext_api_source=show_info.get("ext_api_source"),
                 )
-                serializer = ShowSerializer(show)
+                serializer = ShowSerializer(show, context={"request": request})
                 serializer_data.append(serializer.data)
-            except Exception as e:
-                print(e)
+            else:
+                try:
+                    show = Show()
+                    show.title = show_info.get("title")
+                    show.ext_api_id = show_info.get("ext_api_id")
+                    show.ext_api_source = show_info.get("ext_api_source")
+                    show.poster_pic = show_info.get("poster_pic")
+                    show.is_tv = show_info.get("is_tv")
+                    show.date_released = show_info.get("date_released")
+                    show.status = show_info.get("status")
+                    show.language = show_info.get("language")
+                    show.duration = show_info.get("duration")
+                    show.plot = show_info.get("plot")
+                    show.seasons = show_info.get("seasons")
+                    show.directors = show_info.get("directors")
+                    show.cast = show_info.get("cast")
+                    show.save()
+                    if show_info.get("show_tags"):
+                        for genre in show_info.get("show_tags"):
+                            try:
+                                show.tags.create(
+                                    tag=genre.get("name"),
+                                    ext_api_id=genre.get("id"),
+                                    ext_api_source=show_info.get("ext_api_source"),
+                                )
+                            except:
+                                show.tags.add(Tag.objects.get(tag=genre.get("name")))
+                        show.save()
+                    # elif show_info.get("ext_api_tags"):
+                    #     for tag_id in show_info.get("ext_api_tags"):
+                    #         tag = Tag.objects.filter(ext_api_id=tag_id, ext_api_source=show_info.get("ext_api_source"))
+                    #         if tag:
+                    #             show.tags.add(tag)
+                    #         else:
+                    #             print("oh no tag doesn't exist")
+                    #             show.tags.create(
+                    #                 tag=genre.get("name"),
+                    #                 ext_api_id=genre.get("id"),
+                    #                 ext_api_source=show_info.get("ext_api_source"),
+                    #             )
+                    # show.save()
+                    serializer = ShowSerializer(show, context={"request": request})
+                    serializer_data.append(serializer.data)
+                except Exception as e:
+                    print("here", e)
         return serializer_data
 
     @staticmethod
@@ -147,6 +157,26 @@ class API:
 
 
 class TMDB_API:
+    def get_movie_from_tmdb_search(self, info):
+        poster_path = info.get("poster_path")
+
+        movie = {
+            "ext_api_id": info.get("id"),
+            "ext_api_source": "tmdb",
+            "title": info.get("original_title"),
+            "poster_pic": settings.TMDB_BASE_URL + poster_path if poster_path else None,
+            "show_tags": info.get("genres"),
+            "ext_api_tags": info.get("genre_ids"),
+            "is_tv": False,
+            "date_released": info.get("release_date"),
+            "duration": datetime.timedelta(minutes=info.get("runtime", 0)),
+            "language": info.get("original_language"),
+            "plot": info.get("overview"),
+            # "directors": directors,
+            # "cast": cast_info,
+        }
+        return movie
+
     def get_movie_from_tmdb_info(self, info, credit):
         """
         get a flick movie object similar by parsing the
@@ -179,6 +209,25 @@ class TMDB_API:
             "cast": cast_info,
         }
         return movie
+
+    def get_show_from_tmdb_info(self, info):
+        poster_path = info.get("poster_path")
+
+        show = {
+            "ext_api_id": info.get("id"),
+            "ext_api_source": "tmdb",
+            "title": info.get("original_title"),
+            "poster_pic": settings.TMDB_BASE_URL + poster_path if poster_path else None,
+            "show_tags": info.get("genres"),
+            "ext_api_tags": info.get("genre_ids"),
+            "is_tv": False,
+            "date_released": info.get("release_date"),
+            "duration": datetime.timedelta(minutes=info.get("runtime", 0)),
+            "language": info.get("original_language"),
+            "plot": info.get("overview"),
+            "seasons": info.get("number_of_seasons"),
+        }
+        return show
 
     def get_tv_from_tmdb_info(self, info, credit):
         # maybe need another separate json?? episodes/ last aired/ most recent episode etc
@@ -236,12 +285,18 @@ class TMDB_API:
                 show_ids.append(show_info.get("id"))
         return show_ids
 
+    def get_shows_from_tmdb_search(self, search, tags):
+        shows = []
+        for show_info in search.results:
+            if set(tags).issubset(set(show_info.get("genre_ids"))):
+                shows.append(self.get_show_from_tmdb_info(show_info))
+        return shows
+
     def get_movie_info_from_id(self, id):
         try:
             movie = tmdb.Movies(id)
             return self.get_movie_from_tmdb_info(movie.info(), movie.credits())
         except:
-
             return None
 
     def search_movie_by_name(self, name, tags):
@@ -250,7 +305,8 @@ class TMDB_API:
         """
         search = tmdb.Search()
         search.movie(query=name)
-        return self.get_show_ids_from_tmdb_search(search, tags)
+        # return self.get_show_ids_from_tmdb_search(search, tags)
+        return self.get_shows_from_tmdb_search(search, tags)
 
     def get_tv_info_from_id(self, id):
         try:
@@ -290,7 +346,8 @@ class TMDB_API:
         search = tmdb.Search()
         search.tv(query=name)
         # return []
-        return self.get_show_ids_from_tmdb_search(search, tags)
+        # return self.get_show_ids_from_tmdb_search(search, tags)
+        return self.get_shows_from_tmdb_search(search, tags)
 
 
 class AnimeList_API:
@@ -341,7 +398,8 @@ class AnimeList_API:
         Search anime by the mal_id from animelist API, returns a list of anime ids.
         """
         anime_info_lst = jikan.search("anime", name, page=1).get("results")
-        return [anime_info.get("mal_id") for anime_info in anime_info_lst]
+        return [self.get_anime_from_animelist_info(anime) for anime in anime_info_lst]
+        # return [anime_info.get("mal_id") for anime_info in anime_info_lst]
 
     def search_anime_by_year(self, year, season):
         """
