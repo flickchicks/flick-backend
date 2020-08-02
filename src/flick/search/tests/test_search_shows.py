@@ -40,7 +40,7 @@ class SearchShowsTests(TransactionTestCase):
 
     def test_search_show(self):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
-        data = {"is_movie": True, "query": "Maleficent"}
+        data = {"is_movie": True, "query": "a"}
         response = self.client.get(self.SEARCH_URL, data, format="json")
         content = json.loads(response.content)
         self.assertEqual(response.status_code, 200)

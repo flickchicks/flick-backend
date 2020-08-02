@@ -43,12 +43,10 @@ class Search(APIView):
         known_show = Show.objects.filter(ext_api_id=show_id, ext_api_source=self.source)
         if known_show.exists():
             known_show = Show.objects.get(ext_api_id=show_id, ext_api_source=self.source)
-            print("known", known_show.id)
             self.known_shows.append(ShowSerializer(known_show, context={"request": self.request}).data)
         else:
             show = API.get_show_info_from_id(self.show_type, show_id)
             if show:
-                print("unknown", show.get("ext_api_id"))
                 self.shows.append(show)
 
     # show_type can be "movie", "tv", "anime"

@@ -30,4 +30,4 @@ class Show(models.Model):
     ratings = models.ManyToManyField(Rating, blank=True)
 
     class Meta:
-        unique_together = ("title", "ext_api_id", "ext_api_source", "poster_pic", "date_released")
+        unique_together = ("title", "ext_api_id", "ext_api_source")
