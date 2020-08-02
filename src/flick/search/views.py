@@ -1,4 +1,3 @@
-from multiprocessing.pool import ThreadPool as Pool
 from user.user_simple_serializers import UserSimpleSerializer
 
 from api import settings as api_settings
@@ -8,9 +7,9 @@ from django.core.cache import caches
 from lst.models import Lst
 from lst.serializers import LstSerializer
 from rest_framework.views import APIView
+from show.api_utils import API
 from show.models import Show
 from show.serializers import ShowSerializer
-from show.utils import API
 from tag.models import Tag
 from tag.serializers import TagSerializer
 
@@ -24,7 +23,6 @@ class Search(APIView):
     shows = []
     known_shows = []
     request = None
-    pool = None
     source = None
     show_type = None
 
@@ -49,12 +47,12 @@ class Search(APIView):
     def get_shows_by_type_and_query(self, query, show_type, source, tags=[]):
         self.source = source
         self.show_type = show_type
-        show_ids = local_cache.get((query, show_type, tags))
-        if not show_ids:
+        shows = local_cache.get((query, show_type, tags))
+        if not shows:
             ext_api_tags = self.get_ext_api_tags_by_tag_ids(tags)
-            show_ids = API.search_show_ids_by_name(show_type, query, ext_api_tags)
-            local_cache.set((query, show_type, tags), show_ids)
-            self.shows.extend(show_ids)
+            shows = API.search_shows_by_name(show_type, query, ext_api_tags)
+            local_cache.set((query, show_type, tags), shows)
+        self.shows.extend(shows)
 
     def get_shows_by_query(self, query, is_movie, is_tv, is_anime, tags):
         if is_movie:
@@ -76,7 +74,6 @@ class Search(APIView):
 
     def get(self, request, *args, **kwargs):
         self.request = request
-        self.pool = Pool(processes=4)
         query = request.query_params.get("query")
         tags = request.query_params.getlist("tags", [])
         is_anime = bool(request.query_params.get("is_anime", False))
@@ -98,5 +95,9 @@ class Search(APIView):
         serializer_data = []
         serializer_data.extend(API.create_show_objects(self.request, self.shows))
         serializer_data.extend(self.known_shows)
+
+        # TODO: set up celery task for directors and cast
+        # TODO: search results don't give genres, have you hit separate endpoint for that
+        # TODO: refactor name from show_ids to shows
 
         return success_response(serializer_data)

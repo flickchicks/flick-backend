@@ -1,7 +1,7 @@
 from api.utils import success_response
 from django.core.cache import caches
 from rest_framework.views import APIView
-from show.utils import API
+from show.api_utils import API
 from tag.models import Tag
 from tag.serializers import TagSerializer
 

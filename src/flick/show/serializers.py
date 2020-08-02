@@ -50,3 +50,22 @@ class ShowSerializer(serializers.ModelSerializer):
         if not instance.ratings.filter(rater=user):
             return None
         return instance.ratings.get(rater=user).score
+
+
+class ShowSearchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Show
+        fields = (
+            "id",
+            "title",
+            "poster_pic",
+            "is_tv",
+            "date_released",
+            "status",
+            "language",
+            "duration",
+            "seasons",
+            "audience_level",
+            "keywords",
+        )
+        read_only_fields = fields
