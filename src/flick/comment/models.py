@@ -14,7 +14,7 @@ class Comment(models.Model):
 
     class Meta:
         ordering = ["created_at"]
-        unique_together = ["owner", "message", "is_spoiler"]
+        unique_together = ["owner", "message", "is_spoiler", "show"]
 
     def __str__(self):
         return self.message
