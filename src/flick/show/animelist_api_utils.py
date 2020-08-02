@@ -43,7 +43,6 @@ class AnimeList_API:
         """
         anime_info_lst = jikan.search("anime", name, page=1).get("results")
         return [self.get_anime_from_animelist_info(anime) for anime in anime_info_lst]
-        # return [anime_info.get("mal_id") for anime_info in anime_info_lst]
 
     def search_anime_by_year(self, year, season):
         """
