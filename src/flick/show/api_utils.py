@@ -11,7 +11,7 @@ from .tmdb_api_utils import TMDB_API
 
 class API:
     @staticmethod
-    def create_show_objects(request, show_info_lst):
+    def create_show_objects(show_info_lst):
         serializer_data = []
         for show_info in show_info_lst:
             if not show_info:
@@ -47,7 +47,7 @@ class API:
                     serializer = ShowSearchSerializer(show)
                     serializer_data.append(serializer.data)
                 except Exception as e:
-                    print("here", e)
+                    print("create_show_objects:", e)
         return serializer_data
 
     @staticmethod

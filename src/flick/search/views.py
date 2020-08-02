@@ -93,11 +93,7 @@ class Search(APIView):
             self.get_shows_by_query(query, is_movie, is_tv, is_anime, tags)
 
         serializer_data = []
-        serializer_data.extend(API.create_show_objects(self.request, self.shows))
+        serializer_data.extend(API.create_show_objects(self.shows))
         serializer_data.extend(self.known_shows)
-
-        # TODO: set up celery task for directors and cast
-        # TODO: search results don't give genres, have you hit separate endpoint for that
-        # TODO: refactor name from show_ids to shows
 
         return success_response(serializer_data)

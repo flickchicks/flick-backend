@@ -40,8 +40,21 @@ class SearchShowsTests(TransactionTestCase):
 
     def test_search_show(self):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
-        data = {"is_movie": True, "query": "a"}
+        data = {"is_movie": True, "query": "Maleficent"}
         response = self.client.get(self.SEARCH_URL, data, format="json")
         content = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(content.get("success"))
+        data = content.get("data")[0]
+        self.assertIn("id", data)
+        self.assertIn("title", data)
+        self.assertIn("poster_pic", data)
+        self.assertIn("is_tv", data)
+        self.assertIn("plot", data)
+        self.assertIn("date_released", data)
+        self.assertIn("status", data)
+        self.assertIn("language", data)
+        self.assertIn("duration", data)
+        self.assertIn("seasons", data)
+        self.assertIn("audience_level", data)
+        self.assertIn("keywords", data)
