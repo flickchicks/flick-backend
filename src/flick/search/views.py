@@ -7,11 +7,10 @@ from django.core.cache import caches
 from lst.models import Lst
 from lst.serializers import LstSerializer
 from rest_framework.views import APIView
-from show.api_utils import API
 from show.models import Show
 from show.serializers import ShowSerializer
+from show.show_api_utils import ShowAPI
 from tag.models import Tag
-from tag.serializers import TagSerializer
 
 # cache to store search_movie_by_name (and tv and anime)
 # search_movie_by_name example: ("query", "movie"), movie_id
@@ -27,11 +26,7 @@ class Search(APIView):
     show_type = None
 
     def get_ext_api_tags_by_tag_ids(self, tag_lst):
-        ext_api_tags = []
-        for tag_id in tag_lst:
-            tag_data = TagSerializer(Tag.objects.get(id=tag_id)).data
-            ext_api_tags.append(tag_data.get("ext_api_id"))
-        return ext_api_tags
+        return list(Tag.objects.filter(id__in=tag_lst).values_list("ext_api_genre_id", flat=True))
 
     def get_show_info(self, show_id):
         known_show = Show.objects.filter(ext_api_id=show_id, ext_api_source=self.source)
@@ -39,7 +34,7 @@ class Search(APIView):
             known_show = Show.objects.get(ext_api_id=show_id, ext_api_source=self.source)
             self.known_shows.append(ShowSerializer(known_show, context={"request": self.request}).data)
         else:
-            show = API.get_show_info_from_id(self.show_type, show_id)
+            show = ShowAPI.get_show_info_from_id(self.show_type, show_id)
             if show:
                 self.shows.append(show)
 
@@ -50,7 +45,7 @@ class Search(APIView):
         shows = local_cache.get((query, show_type, tags))
         if not shows:
             ext_api_tags = self.get_ext_api_tags_by_tag_ids(tags)
-            shows = API.search_shows_by_name(show_type, query, ext_api_tags)
+            shows = ShowAPI.search_shows_by_name(show_type, query, ext_api_tags)
             local_cache.set((query, show_type, tags), shows)
         self.shows.extend(shows)
 
@@ -93,7 +88,7 @@ class Search(APIView):
             self.get_shows_by_query(query, is_movie, is_tv, is_anime, tags)
 
         serializer_data = []
-        serializer_data.extend(API.create_show_objects(self.shows))
+        serializer_data.extend(ShowAPI.create_show_objects(self.shows))
         serializer_data.extend(self.known_shows)
 
         return success_response(serializer_data)

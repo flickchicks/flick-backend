@@ -8,15 +8,12 @@ import os
 from asset.models import Asset
 import boto3
 from celery import shared_task
-from celery.utils.log import get_task_logger
 from django.conf import settings
 from PIL import Image
 from show.models import Show
 from show.tmdb_api_utils import TMDB_API
 from tag.models import Tag
 import tmdbsimple as tmdb
-
-logger = get_task_logger(__name__)
 
 
 def upload_image(asset_id, salt, img, kind, img_ext, width, height):
@@ -76,31 +73,25 @@ def resize_and_upload(asset_id, salt, img_str, kind, img_ext):
 
 @shared_task
 def populate_show_details(show_id):
-    logger.info("reaching add tags and cast")
     show = Show.objects.filter(id=show_id)
     if not show:
         return
     show = Show.objects.get(id=show_id)
     if show.ext_api_source == "animelist":
-        logger.info("animelist not supported yet to add tags and cast")
         return
     api = TMDB_API()
     if show.is_tv:
-        logger.info("show is tv")
         info = api.get_tv_info_from_id(show.ext_api_id)
-        logger.info("show is tv", info)
     else:
         info = api.get_movie_info_from_id(show.ext_api_id)
-        logger.info("show is movie", info)
     show.directors = info.get("directors")
-    logger.info(info)
     show.cast = info.get("cast")
-    if info.get("show_tags"):
-        for genre in info.get("show_tags"):
+    if info.get("ext_api_genres"):
+        for tag in info.get("ext_api_genres"):
             try:
                 show.tags.create(
-                    tag=genre.get("name"), ext_api_id=genre.get("id"), ext_api_source=info.get("ext_api_source")
+                    name=tag.get("name"), ext_api_genre_id=tag.get("id"), ext_api_source=info.get("ext_api_source")
                 )
             except:
-                show.tags.add(Tag.objects.get(tag=genre.get("name")))
+                show.tags.add(Tag.objects.get(name=tag.get("name")))
     show.save()

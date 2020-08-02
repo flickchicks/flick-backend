@@ -9,50 +9,45 @@ tmdb.API_KEY = settings.TMDB_API_KEY
 
 
 class TMDB_API:
-    def get_movie_from_tmdb_search(self, info):
+    def get_show_from_tmdb_info(self, info):
         poster_path = info.get("poster_path")
 
-        movie = {
+        show = {
             "ext_api_id": info.get("id"),
             "ext_api_source": "tmdb",
             "title": info.get("original_title"),
             "poster_pic": settings.TMDB_BASE_URL + poster_path if poster_path else None,
-            "show_tags": info.get("genres"),
-            "ext_api_tags": info.get("genre_ids"),
+            "ext_api_genres": info.get("genres"),
             "is_tv": False,
             "date_released": info.get("release_date"),
             "duration": datetime.timedelta(minutes=info.get("runtime", 0)),
             "language": info.get("original_language"),
             "plot": info.get("overview"),
-            # "directors": directors,
-            # "cast": cast_info,
+            "seasons": info.get("number_of_seasons"),
         }
-        return movie
+        return show
 
-    def get_movie_from_tmdb_info(self, info, credit):
+    def get_detailed_movie_from_tmdb_info(self, info, credits):
         """
         get a flick movie object similar by parsing the
         information returned by movieDB
         """
-        crew = credit.get("crew")
-        cast = credit.get("cast")
-
-        cast_info = [p.get("name") for p in cast] if cast else []
+        crew = credits.get("crew")
         directors = [c.get("name") for c in crew if c.get("job") == "Director"]
-
         directors = ", ".join(directors)
+
+        cast = credits.get("cast")
+        cast_info = [p.get("name") for p in cast] if cast else []
         cast_info = ", ".join(cast_info)
 
         poster_path = info.get("poster_path")
-        print("here it is", info.get("overview"))
 
         movie = {
             "ext_api_id": info.get("id"),
             "ext_api_source": "tmdb",
             "title": info.get("original_title"),
             "poster_pic": settings.TMDB_BASE_URL + poster_path if poster_path else None,
-            "show_tags": info.get("genres"),
-            "ext_api_tags": info.get("genre_ids"),
+            "ext_api_genres": info.get("genres"),
             "is_tv": False,
             "date_released": info.get("release_date"),
             "duration": datetime.timedelta(minutes=info.get("runtime", 0)),
@@ -63,51 +58,25 @@ class TMDB_API:
         }
         return movie
 
-    def get_show_from_tmdb_info(self, info):
-        poster_path = info.get("poster_path")
-        # print("genres", info.get("genres"))
-        # print("genre_ids", info.get("genre_ids"))
-
-        show = {
-            "ext_api_id": info.get("id"),
-            "ext_api_source": "tmdb",
-            "title": info.get("original_title"),
-            "poster_pic": settings.TMDB_BASE_URL + poster_path if poster_path else None,
-            "show_tags": info.get("genres"),
-            "ext_api_tags": info.get("genre_ids"),
-            "is_tv": False,
-            "date_released": info.get("release_date"),
-            "duration": datetime.timedelta(minutes=info.get("runtime", 0)),
-            "language": info.get("original_language"),
-            "plot": info.get("overview"),
-            "seasons": info.get("number_of_seasons"),
-        }
-        return show
-
-    def get_tv_from_tmdb_info(self, info, credit):
+    def get_detailed_tv_from_tmdb_info(self, info, credits):
         # maybe need another separate json?? episodes/ last aired/ most recent episode etc
-        crew = credit.get("crew")
-        cast = credit.get("cast")
-
-        duration = info.get("episode_run_time")[0] if info.get("episode_run_time") else 0
-
-        cast_info = [p.get("name") for p in cast] if cast else []
+        crew = credits.get("crew")
         directors = [c.get("name") for c in crew if c.get("job") == "Producer"]
-
         directors = ", ".join(directors)
+
+        cast = credits.get("cast")
+        cast_info = [p.get("name") for p in cast] if cast else []
         cast_info = ", ".join(cast_info)
 
+        duration = info.get("episode_run_time")[0] if info.get("episode_run_time") else 0
         poster_path = info.get("poster_path")
-
-        print("here it is", info.get("overview"))
 
         tv = {
             "ext_api_id": info.get("id"),
             "ext_api_source": "tmdb",
             "title": info.get("original_name"),
             "poster_pic": settings.TMDB_BASE_URL + poster_path if poster_path else None,
-            "show_tags": info.get("genres"),
-            "ext_api_tags": info.get("genre_ids"),
+            "ext_api_genres": info.get("genres"),
             "is_tv": True,
             "date_released": info.get("first_air_date"),
             "duration": datetime.timedelta(minutes=duration),
@@ -152,7 +121,7 @@ class TMDB_API:
     def get_movie_info_from_id(self, id):
         try:
             movie = tmdb.Movies(id)
-            return self.get_movie_from_tmdb_info(movie.info(), movie.credits())
+            return self.get_detailed_movie_from_tmdb_info(movie.info(), movie.creditss())
         except:
             return None
 
@@ -167,17 +136,17 @@ class TMDB_API:
     def get_tv_info_from_id(self, id):
         try:
             tv = tmdb.TV(id)
-            return self.get_tv_from_tmdb_info(tv.info(), tv.credits())
+            return self.get_detailed_tv_from_tmdb_info(tv.info(), tv.creditss())
         except:
             return None
 
     def get_movie_info_for_top_rated(self, info):
-        credit = tmdb.Movies(info.get("id")).credits()
-        return self.get_movie_from_tmdb_info(info, credit)
+        credits = tmdb.Movies(info.get("id")).creditss()
+        return self.get_detailed_movie_from_tmdb_info(info, credits)
 
     def get_tv_info_for_top_rated(self, info):
-        credit = tmdb.TV(info.get("id")).credits()
-        return self.get_tv_from_tmdb_info(info, credit)
+        credits = tmdb.TV(info.get("id")).creditss()
+        return self.get_detailed_tv_from_tmdb_info(info, credits)
 
     def get_top_movie(self, page=1):
         """

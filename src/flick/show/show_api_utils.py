@@ -9,7 +9,7 @@ from .serializers import ShowSearchSerializer
 from .tmdb_api_utils import TMDB_API
 
 
-class API:
+class ShowAPI:
     @staticmethod
     def create_show_objects(show_info_lst):
         serializer_data = []
@@ -69,14 +69,11 @@ class API:
         show_type can be 'movie', 'tv', or 'anime'
         """
         if show_type == "movie":
-            api = TMDB_API()
-            return api.search_movie_by_name(name, tags)
+            return TMDB_API().search_movie_by_name(name, tags)
         elif show_type == "tv":
-            api = TMDB_API()
-            return api.search_tv_by_name(name, tags)
+            return TMDB_API().search_tv_by_name(name, tags)
         elif show_type == "anime":
-            api = AnimeList_API()
-            return api.search_anime_by_name(name)
+            return AnimeList_API().search_anime_by_name(name)
         return None
 
     @staticmethod
