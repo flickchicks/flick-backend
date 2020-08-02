@@ -17,6 +17,6 @@ class CommentSerializer(serializers.ModelSerializer):
             "is_spoiler",
             "num_likes",
             "owner",
-            "text",
+            "message",
         )
         read_only_fields = fields

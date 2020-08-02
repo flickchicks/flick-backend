@@ -45,6 +45,7 @@ class ShowDetail(generics.GenericAPIView):
 
         user = request.user
         profile = Profile.objects.get(user=user)
+        # print("here")
         data = json.loads(request.body)
         score = data.get("user_rating")
         comment_info = data.get("comment_info")
