@@ -1,4 +1,5 @@
 import json
+from user.models import Profile
 
 from api import settings as api_settings
 from api.utils import failure_response
@@ -43,11 +44,19 @@ class ShowDetail(generics.GenericAPIView):
         show = Show.objects.get(pk=pk)
 
         user = request.user
+        profile = Profile.objects.get(user=user)
         data = json.loads(request.body)
         score = data.get("user_rating")
+        comment_info = data.get("comment_info")
 
         if score:
             show.ratings.create(score=score, rater=user)
+            show.save()
+
+        if comment_info:
+            message = comment_info.get("message")
+            is_spoiler = comment_info.get("is_spoiler")
+            show.comments.create(message=message, is_spoiler=is_spoiler, owner=profile)
             show.save()
 
         return success_response(self.serializer_class(show, context={"request": request}).data)
