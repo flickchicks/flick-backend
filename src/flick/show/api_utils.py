@@ -42,7 +42,9 @@ class API:
                     show.duration = show_info.get("duration")
                     show.seasons = show_info.get("seasons")
                     show.save()
-                    add_tags_and_cast.delay(show.id)
+                    print("about to add tags")
+                    res = add_tags_and_cast.delay(show.id)
+                    print("res", res)
                     serializer = ShowSearchSerializer(show)
                     serializer_data.append(serializer.data)
                 except Exception as e:

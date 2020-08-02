@@ -8,12 +8,15 @@ import os
 from asset.models import Asset
 import boto3
 from celery import shared_task
+from celery.utils.log import get_task_logger
 from django.conf import settings
 from PIL import Image
 from show.models import Show
 from show.tmdb_api_utils import TMDB_API
 from tag.models import Tag
 import tmdbsimple as tmdb
+
+logger = get_task_logger(__name__)
 
 
 def upload_image(asset_id, salt, img, kind, img_ext, width, height):
@@ -73,22 +76,23 @@ def resize_and_upload(asset_id, salt, img_str, kind, img_ext):
 
 @shared_task
 def add_tags_and_cast(show_id):
-    print("reaching add tags and cast")
+    logger.info("reaching add tags and cast")
     show = Show.objects.filter(id=show_id)
     if not show:
         return
     show = Show.objects.get(id=show_id)
     if show.ext_api_source == "animelist":
-        print("animelist not supported yet to add tags and cast")
+        logger.info("animelist not supported yet to add tags and cast")
         return
     api = TMDB_API()
     if show.is_tv:
-        print("show is tv")
-        info = api.get_tv_info_from_id(show.ext_api)
+        logger.info("show is tv")
+        info = api.get_tv_info_from_id(show.ext_api_id)
     else:
-        info = api.get_movie_info_from_id(show.ext_api)
-        print("show is movie", info)
+        info = api.get_movie_info_from_id(show.ext_api_id)
+        logger.info("show is movie", info)
     show.directors = info.get("directors")
+    logger.info("directors", show.directors)
     show.cast = info.get("cast")
     if info.get("show_tags"):
         for genre in info.get("show_tags"):
