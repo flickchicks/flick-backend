@@ -75,7 +75,7 @@ def resize_and_upload(asset_id, salt, img_str, kind, img_ext):
 
 
 @shared_task
-def add_tags_and_cast(show_id):
+def populate_show_details(show_id):
     logger.info("reaching add tags and cast")
     show = Show.objects.filter(id=show_id)
     if not show:
@@ -88,11 +88,12 @@ def add_tags_and_cast(show_id):
     if show.is_tv:
         logger.info("show is tv")
         info = api.get_tv_info_from_id(show.ext_api_id)
+        logger.info("show is tv", info)
     else:
         info = api.get_movie_info_from_id(show.ext_api_id)
         logger.info("show is movie", info)
     show.directors = info.get("directors")
-    logger.info("directors", show.directors)
+    logger.info(info)
     show.cast = info.get("cast")
     if info.get("show_tags"):
         for genre in info.get("show_tags"):

@@ -35,7 +35,7 @@ class ShowSerializer(serializers.ModelSerializer):
             "keywords",
             "cast",
         )
-        read_only_fields = ("id",)
+        read_only_fields = fields
 
     def calculate_friends_rating(self, instance):
         request = self.context.get("request")
@@ -60,6 +60,7 @@ class ShowSearchSerializer(serializers.ModelSerializer):
             "title",
             "poster_pic",
             "is_tv",
+            "plot",
             "date_released",
             "status",
             "language",

@@ -44,6 +44,7 @@ class TMDB_API:
         cast_info = ", ".join(cast_info)
 
         poster_path = info.get("poster_path")
+        print("here it is", info.get("overview"))
 
         movie = {
             "ext_api_id": info.get("id"),
@@ -97,6 +98,8 @@ class TMDB_API:
         cast_info = ", ".join(cast_info)
 
         poster_path = info.get("poster_path")
+
+        print("here it is", info.get("overview"))
 
         tv = {
             "ext_api_id": info.get("id"),

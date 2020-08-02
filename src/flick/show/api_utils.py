@@ -1,6 +1,6 @@
 import pprint as pp
 
-from flick.tasks import add_tags_and_cast
+from flick.tasks import populate_show_details
 import tmdbsimple as tmdb
 
 from .animelist_api_utils import AnimeList_API
@@ -36,15 +36,14 @@ class API:
                     show.ext_api_source = show_info.get("ext_api_source")
                     show.poster_pic = show_info.get("poster_pic")
                     show.is_tv = show_info.get("is_tv")
+                    show.plot = show_info.get("plot")
                     show.date_released = show_info.get("date_released")
                     show.status = show_info.get("status")
                     show.language = show_info.get("language")
                     show.duration = show_info.get("duration")
                     show.seasons = show_info.get("seasons")
                     show.save()
-                    print("about to add tags")
-                    res = add_tags_and_cast.delay(show.id)
-                    print("res", res)
+                    populate_show_details.delay(show.id)
                     serializer = ShowSearchSerializer(show)
                     serializer_data.append(serializer.data)
                 except Exception as e:
