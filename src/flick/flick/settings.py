@@ -192,8 +192,13 @@ S3_BASE_URL = f"https://{S3_BUCKET}.s3-us-west-1.amazonaws.com/"
 TMDB_BASE_URL = "http://image.tmdb.org/t/p/w185"
 
 # Celery
-CELERY_BROKER_URL = "redis://redis:6379"
-CELERY_RESULT_BACKEND = "redis://redis:6379/0"  # "redis://localhost:6379"
+"""
+Common Docker image issues:
+1. use redis address in the comments below when if using `docker-compose build`
+2. your local redis port is already running, use `npx kill-port 6379` to kill it
+"""
+CELERY_BROKER_URL = "redis://localhost:6379"  # "redis://redis:6379"
+CELERY_RESULT_BACKEND = "redis://localhost:6379"  # "redis://redis:6379/0"
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
