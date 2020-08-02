@@ -1,4 +1,5 @@
-from multiprocessing import Pool
+# from multiprocessing import Pool
+from multiprocessing.pool import ThreadPool as Pool
 from user.user_simple_serializers import UserSimpleSerializer
 
 from api import settings as api_settings
@@ -13,6 +14,8 @@ from show.serializers import ShowSerializer
 from show.utils import API
 from tag.models import Tag
 from tag.serializers import TagSerializer
+
+# from pathos.multiprocessing import ProcessingPool as Pool
 
 
 # cache to store search_movie_by_name (and tv and anime)
@@ -36,14 +39,16 @@ class Search(APIView):
             ext_api_tags.append(tag_data.get("ext_api_id"))
         return ext_api_tags
 
-    def get_show_info(self, show_id, source):
+    def get_show_info(self, show_id):
         known_show = Show.objects.filter(ext_api_id=show_id, ext_api_source=self.source)
         if known_show.exists():
             known_show = Show.objects.get(ext_api_id=show_id, ext_api_source=self.source)
+            print("known", known_show.id)
             self.known_shows.append(ShowSerializer(known_show, context={"request": self.request}).data)
         else:
             show = API.get_show_info_from_id(self.show_type, show_id)
             if show:
+                print("unknown", show.get("ext_api_id"))
                 self.shows.append(show)
 
     # show_type can be "movie", "tv", "anime"
@@ -55,7 +60,9 @@ class Search(APIView):
             ext_api_tags = self.get_ext_api_tags_by_tag_ids(tags)
             show_ids = API.search_show_ids_by_name(show_type, query, ext_api_tags)
             local_cache.set((query, show_type, tags), show_ids)
-        self.pool.map_async(self.get_show_info, show_ids)
+        # for show_id in show_ids:
+        #     self.get_show_info(show_id)
+        self.pool.map(self.get_show_info, [i for i in show_ids if i is not None])
 
     def get_shows_by_query(self, query, is_movie, is_tv, is_anime, tags):
         if is_movie:
