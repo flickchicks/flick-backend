@@ -1,4 +1,3 @@
-# from multiprocessing import Pool
 from multiprocessing.pool import ThreadPool as Pool
 from user.user_simple_serializers import UserSimpleSerializer
 
@@ -14,9 +13,6 @@ from show.serializers import ShowSerializer
 from show.utils import API
 from tag.models import Tag
 from tag.serializers import TagSerializer
-
-# from pathos.multiprocessing import ProcessingPool as Pool
-
 
 # cache to store search_movie_by_name (and tv and anime)
 # search_movie_by_name example: ("query", "movie"), movie_id
@@ -58,8 +54,6 @@ class Search(APIView):
             ext_api_tags = self.get_ext_api_tags_by_tag_ids(tags)
             show_ids = API.search_show_ids_by_name(show_type, query, ext_api_tags)
             local_cache.set((query, show_type, tags), show_ids)
-        # for show_id in show_ids:
-        #     self.get_show_info(show_id)
         self.pool.map(self.get_show_info, [i for i in show_ids if i is not None])
 
     def get_shows_by_query(self, query, is_movie, is_tv, is_anime, tags):
@@ -84,19 +78,12 @@ class Search(APIView):
         self.request = request
         self.pool = Pool(processes=4)
         query = request.query_params.get("query")
-        print(f"query: {query}")
         tags = request.query_params.getlist("tags", [])
-        print(f"tags: {tags}")
         is_anime = bool(request.query_params.get("is_anime", False))
-        print(f"is_anime: {is_anime}")
         is_movie = bool(request.query_params.get("is_movie", False))
-        print(f"is_movie: {is_movie}")
         is_tv = bool(request.query_params.get("is_tv", False))
-        print(f"is_tv: {is_tv}")
         is_user = bool(request.query_params.get("is_user", False))
-        print(f"is_user: {is_user}")
         is_lst = bool(request.query_params.get("is_lst", False))
-        print(f"is_: {is_lst}")
 
         self.shows = []
         self.known_shows = []
