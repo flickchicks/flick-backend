@@ -51,7 +51,12 @@ class ShowDetail(generics.GenericAPIView):
         comment_info = data.get("comment_info")
 
         if score:
-            show.ratings.create(score=score, rater=user)
+            existing_rating = show.ratings.filter(rater=user)
+            if existing_rating:
+                existing_rating = show.ratings.get(rater=user)
+                existing_rating.score = score
+            else:
+                show.ratings.create(score=score, rater=user)
             show.save()
 
         if comment_info:

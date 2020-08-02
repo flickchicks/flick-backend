@@ -4,8 +4,8 @@ from django.db import models
 class Tag(models.Model):
     EXT_API_SOURCE_CHOICES = (("tmdb", "TMDB"), ("animelist", "Animelist"))
 
-    tag = models.CharField(max_length=100, unique=True)
-    ext_api_id = models.IntegerField(blank=True, null=True)
+    name = models.CharField(max_length=100, unique=True)
+    ext_api_genre_id = models.IntegerField(blank=True, null=True)
     ext_api_source = models.CharField(max_length=20, choices=EXT_API_SOURCE_CHOICES, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
