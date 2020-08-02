@@ -22,7 +22,7 @@ class TagList(generics.GenericAPIView):
         if Tag.objects.filter(tag__iexact=tag_name):
             return success_response(self.serializer_class(Tag.objects.get(tag__iexact=tag_name)).data)
         tag = Tag()
-        tag.tag = tag_name
+        tag.name = tag_name
         tag.save()
         return success_response(self.serializer_class(tag).data)
 

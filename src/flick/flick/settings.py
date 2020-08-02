@@ -33,6 +33,9 @@ DEBUG = int(config("DEBUG", default=0))
 # For example: 'DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]'
 ALLOWED_HOSTS = config("DJANGO_ALLOWED_HOSTS").split(" ")
 
+TEST_RUNNER = "django_slowtests.testrunner.DiscoverSlowestTestsRunner"
+NUM_SLOW_TESTS = 10
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",

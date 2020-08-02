@@ -1,28 +1,14 @@
-from django.conf import settings
+import json
 
-from rest_framework import mixins, status
-from rest_framework.response import Response
+from api.generics import generics
+from api.utils import failure_response
+from api.utils import success_response
+from asset.models import AssetBundle
+from item.models import Item
+from item.serializers import ItemDetailSerializer
 from rest_framework.serializers import Serializer
 
 from .utils import upload_image
-from api import settings as api_settings
-from api.generics import generics
-from api.utils import failure_response, success_response
-from asset.models import Asset, AssetBundle
-from flick.tasks import add, resize_and_upload
-from item.models import Item
-from item.serializers import ItemDetailSerializer
-
-import base64
-import boto3
-import json
-import os
-from PIL import Image
-import random
-import re
-import string
-from io import BytesIO
-from mimetypes import guess_extension, guess_type
 
 
 class UploadImage(generics.CreateAPIView):
