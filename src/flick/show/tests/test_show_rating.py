@@ -1,7 +1,6 @@
 import json
 import random
 import string
-import urllib
 
 from django.test import TestCase
 from django.urls import reverse
@@ -22,9 +21,6 @@ class ShowRatingsTests(TestCase):
         self.friend1_token = self._create_user_and_login()
         self.friend2_token = self._create_user_and_login()
         self.SHOW_DETAIL_URL = reverse("show-detail", kwargs={"pk": self.show.pk})
-
-    def reverse_with_queryparams(view, *args, **kwargs):
-        return reverse(view, args=args) + "?" + urllib.parse.urlencode(kwargs)
 
     def _create_show(self):
         show = Show()
@@ -67,7 +63,7 @@ class ShowRatingsTests(TestCase):
         return token
 
     def test_user_can_rate_show(self):
-        self._rate_show(self.user_token, 5)
+        self._rate_show(self.user_token, 4)
 
     def _rate_show(self, token, rating):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
