@@ -121,7 +121,7 @@ class TMDB_API:
     def get_movie_info_from_id(self, id):
         try:
             movie = tmdb.Movies(id)
-            return self.get_detailed_movie_from_tmdb_info(movie.info(), movie.creditss())
+            return self.get_detailed_movie_from_tmdb_info(movie.info(), movie.credits())
         except:
             return None
 
@@ -136,16 +136,16 @@ class TMDB_API:
     def get_tv_info_from_id(self, id):
         try:
             tv = tmdb.TV(id)
-            return self.get_detailed_tv_from_tmdb_info(tv.info(), tv.creditss())
+            return self.get_detailed_tv_from_tmdb_info(tv.info(), tv.credits())
         except:
             return None
 
     def get_movie_info_for_top_rated(self, info):
-        credits = tmdb.Movies(info.get("id")).creditss()
+        credits = tmdb.Movies(info.get("id")).credits()
         return self.get_detailed_movie_from_tmdb_info(info, credits)
 
     def get_tv_info_for_top_rated(self, info):
-        credits = tmdb.TV(info.get("id")).creditss()
+        credits = tmdb.TV(info.get("id")).credits()
         return self.get_detailed_tv_from_tmdb_info(info, credits)
 
     def get_top_movie(self, page=1):
@@ -156,12 +156,44 @@ class TMDB_API:
         movie_info_lst = movie.top_rated(page=page).get("results")
         return [self.get_movie_info_for_top_rated(movie_info) for movie_info in movie_info_lst if movie_info]
 
+    def get_popular_movie(self, page=1):
+        """
+        Get a list of top rated movie detailed info.
+        """
+        movie = tmdb.Movies()
+        movie_info_lst = movie.popular(page=page).get("results")
+        return [self.get_movie_info_for_top_rated(movie_info) for movie_info in movie_info_lst if movie_info]
+
+    def get_now_playing_movie(self, page=1):
+        """
+        Get a list of top rated movie detailed info.
+        """
+        movie = tmdb.Movies()
+        movie_info_lst = movie.now_playing(page=page).get("results")
+        return [self.get_movie_info_for_top_rated(movie_info) for movie_info in movie_info_lst if movie_info]
+
     def get_top_tv(self, page=1):
         """
         Get a list of top rated TV detailed info.
         """
         tv = tmdb.TV()
         tv_info_lst = tv.top_rated(page=page).get("results")
+        return [self.get_tv_info_for_top_rated(tv_info) for tv_info in tv_info_lst if tv_info]
+
+    def get_popular_tv(self, page=1):
+        """
+        Get a list of top rated TV detailed info.
+        """
+        tv = tmdb.TV()
+        tv_info_lst = tv.popular(page=page).get("results")
+        return [self.get_tv_info_for_top_rated(tv_info) for tv_info in tv_info_lst if tv_info]
+
+    def get_now_playing_tv(self, page=1):
+        """
+        Get a list of top rated TV detailed info.
+        """
+        tv = tmdb.TV()
+        tv_info_lst = tv.airing_today(page=page).get("results")
         return [self.get_tv_info_for_top_rated(tv_info) for tv_info in tv_info_lst if tv_info]
 
     def search_tv_by_name(self, name, tags):

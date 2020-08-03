@@ -64,6 +64,32 @@ class ShowAPI:
         return None
 
     @staticmethod
+    def get_popular_show_info(show_type):
+        if show_type == "movie":
+            api = TMDB_API()
+            return api.get_popular_movie()
+        elif show_type == "tv":
+            api = TMDB_API()
+            return api.get_popular_tv()
+        elif show_type == "anime":
+            api = AnimeList_API()
+            return api.get_top_anime()
+        return None
+
+    @staticmethod
+    def get_now_playing_show_info(show_type):
+        if show_type == "movie":
+            api = TMDB_API()
+            return api.get_now_playing_movie()
+        elif show_type == "tv":
+            api = TMDB_API()
+            return api.get_now_playing_tv()
+        elif show_type == "anime":
+            api = AnimeList_API()
+            return api.get_top_anime()
+        return None
+
+    @staticmethod
     def search_shows_by_name(show_type, name, tags=[]):
         """
         show_type can be 'movie', 'tv', or 'anime'
