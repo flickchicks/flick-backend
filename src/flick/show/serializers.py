@@ -1,3 +1,4 @@
+from comment.serializers import CommentSerializer
 from django.db.models import Avg
 from friendship.models import Friend
 from rest_framework import serializers
@@ -7,6 +8,7 @@ from .models import Show
 
 
 class ShowSerializer(serializers.ModelSerializer):
+    comments = CommentSerializer(many=True)
     tags = TagSimpleSerializer(read_only=True, many=True)
     friends_rating = serializers.SerializerMethodField(method_name="calculate_friends_rating")
     user_rating = serializers.SerializerMethodField(method_name="get_user_rating")
@@ -31,6 +33,7 @@ class ShowSerializer(serializers.ModelSerializer):
             "tomato_rating",
             "friends_rating",
             "user_rating",
+            "comments",
             "platforms",
             "keywords",
             "cast",

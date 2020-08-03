@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "api",
     "asset",
     "cast",
+    "comment",
     "flick_auth",
     "friend",
     "item",
