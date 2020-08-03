@@ -63,7 +63,7 @@ class ShowCommentsTests(TestCase):
         return token
 
     def _get_comment_data_from_message(self, message):
-        return {"comment_info": {"message": message, "is_spoiler": False}}
+        return {"comment": {"message": message, "is_spoiler": False}}
 
     def test_user_can_comment_show(self):
         comment_data = self._get_comment_data_from_message("Great film!")
@@ -74,7 +74,7 @@ class ShowCommentsTests(TestCase):
         response = self.client.post(self.SHOW_DETAIL_URL, comment_data, format="json")
         comment = json.loads(response.content)["data"]["comments"][-1]
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(comment["message"], comment_data.get("comment_info").get("message"))
+        self.assertEqual(comment["message"], comment_data.get("comment").get("message"))
 
     def _send_friend_requests(self):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
