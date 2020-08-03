@@ -1,5 +1,5 @@
 from django.db import models
-
+from rating.models import Rating
 from tag.models import Tag
 
 
@@ -10,8 +10,8 @@ class Show(models.Model):
     ext_api_id = models.IntegerField(blank=True, null=True)
     ext_api_source = models.CharField(max_length=20, choices=EXT_API_SOURCE_CHOICES, default=None)
     poster_pic = models.URLField(blank=True, null=True)
-    directors = models.CharField(max_length=100)
-    cast = models.CharField(max_length=200, null=True)
+    directors = models.CharField(max_length=100, null=True, blank=True)
+    cast = models.CharField(max_length=200, null=True, blank=True)
     is_tv = models.BooleanField()
     date_released = models.CharField(max_length=100, blank=True, null=True)  # models.DateField(blank=True, null=True)
     status = models.CharField(max_length=100, blank=True, null=True)
@@ -27,10 +27,7 @@ class Show(models.Model):
     keywords = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    ratings = models.ManyToManyField(Rating, blank=True)
 
     class Meta:
-        unique_together = ("title", "ext_api_id", "ext_api_source", "poster_pic", "date_released")
-
-    @property
-    def friends_rating(self):
-        return 0
+        unique_together = ("title", "ext_api_id", "ext_api_source", "poster_pic")

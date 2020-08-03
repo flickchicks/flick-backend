@@ -1,22 +1,19 @@
-from __future__ import absolute_import, unicode_literals
-
-from django.conf import settings
-
-from rest_framework import status
-from rest_framework.response import Response
-
-from asset.models import Asset, AssetBundle
+from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import base64
+from io import BytesIO
+import os
+
+from asset.models import Asset
 import boto3
 from celery import shared_task
-from io import BytesIO
-import json
-import os
+from django.conf import settings
 from PIL import Image
-import random
-import re
-import string
+from show.models import Show
+from show.tmdb_api_utils import TMDB_API
+from tag.models import Tag
+import tmdbsimple as tmdb
 
 
 def upload_image(asset_id, salt, img, kind, img_ext, width, height):
@@ -75,15 +72,26 @@ def resize_and_upload(asset_id, salt, img_str, kind, img_ext):
 
 
 @shared_task
-def add(x, y):
-    return x + y
-
-
-@shared_task
-def mul(x, y):
-    return x * y
-
-
-@shared_task
-def xsum(numbers):
-    return sum(numbers)
+def populate_show_details(show_id):
+    show = Show.objects.filter(id=show_id)
+    if not show:
+        return
+    show = Show.objects.get(id=show_id)
+    if show.ext_api_source == "animelist":
+        return
+    api = TMDB_API()
+    if show.is_tv:
+        info = api.get_tv_info_from_id(show.ext_api_id)
+    else:
+        info = api.get_movie_info_from_id(show.ext_api_id)
+    show.directors = info.get("directors")
+    show.cast = info.get("cast")
+    if info.get("ext_api_genres"):
+        for tag in info.get("ext_api_genres"):
+            try:
+                show.tags.create(
+                    name=tag.get("name"), ext_api_genre_id=tag.get("id"), ext_api_source=info.get("ext_api_source")
+                )
+            except:
+                show.tags.add(Tag.objects.get(name=tag.get("name")))
+    show.save()
