@@ -6,7 +6,7 @@ from show.models import Show
 
 class Comment(models.Model):
     show = models.ForeignKey(Show, on_delete=models.CASCADE, related_name="comments")
-    owner = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="owner")
+    owner = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="comment")
     num_likes = models.IntegerField(default=0, null=True)
     is_spoiler = models.BooleanField(default=False, blank=True, null=True)
     message = models.CharField(max_length=500)

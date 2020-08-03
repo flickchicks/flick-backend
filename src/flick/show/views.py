@@ -44,11 +44,12 @@ class ShowDetail(generics.GenericAPIView):
         show = Show.objects.get(pk=pk)
 
         user = request.user
+        # if not Profile.objects.filter(user=user):
+        #     return failure_response(f"{request.user} must be logged in.")
         profile = Profile.objects.get(user=user)
-        # print("here")
         data = json.loads(request.body)
         score = data.get("user_rating")
-        comment_info = data.get("comment_info")
+        comment_info = data.get("comment")
 
         if score:
             existing_rating = show.ratings.filter(rater=user)
