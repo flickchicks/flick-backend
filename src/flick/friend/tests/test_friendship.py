@@ -2,6 +2,7 @@ import json
 
 from django.test import TestCase
 from django.urls import reverse
+from rest_framework.test import APIClient
 
 
 class FriendshipTests(TestCase):
@@ -18,6 +19,7 @@ class FriendshipTests(TestCase):
     def setUp(self):
         for i, name in enumerate(self.USERNAMES):
             self._create_user(name, self.SOCIAL_ID_TOKENS[i])
+            self.client = APIClient()
 
     def _create_user(self, username, social_id_token):
         request_data = {
@@ -41,40 +43,36 @@ class FriendshipTests(TestCase):
 
     def test_list_friends(self):
         token = self._login_user("alanna", "test1")
-        auth_headers = {"HTTP_AUTHORIZATION": "token " + token}
-        response = self.client.get(self.FRIEND_LIST_URL, **auth_headers)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
+        response = self.client.get(self.FRIEND_LIST_URL)
         self.assertEqual(response.status_code, 200)
 
     def test_send_friend_request(self):
         token = self._login_user("alanna", "test1")
-        auth_headers = {"HTTP_AUTHORIZATION": "token " + token}
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
         request_data = {
             "user_ids": [2, 3],
         }
-        response = self.client.post(
-            self.FRIEND_REQUEST_URL, request_data, content_type="application/json", **auth_headers
-        )
+        response = self.client.post(self.FRIEND_REQUEST_URL, request_data, format="json")
         self.assertEqual(response.status_code, 200)
 
     def test_view_out_going_friend_request(self):
         token = self._login_user("alanna", "test1")
-        auth_headers = {"HTTP_AUTHORIZATION": "token " + token}
-        response = self.client.get(self.FRIEND_REQUEST_URL, **auth_headers)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
+        response = self.client.get(self.FRIEND_REQUEST_URL)
         self.assertEqual(response.status_code, 200)
 
     def test_view_incoming_friend_request(self):
         token = self._login_user("vivi", "test2")
-        auth_headers = {"HTTP_AUTHORIZATION": "token " + token}
-        response = self.client.get(self.FRIEND_ACCEPT_URL, **auth_headers)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
+        response = self.client.get(self.FRIEND_ACCEPT_URL)
         self.assertEqual(response.status_code, 200)
 
     def test_accept_incoming_friend_request(self):
         token = self._login_user("vivi", "test2")
-        auth_headers = {"HTTP_AUTHORIZATION": "token " + token}
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
         request_data = {
             "user_ids": [1],
         }
-        response = self.client.post(
-            self.FRIEND_ACCEPT_URL, request_data, content_type="application/json", **auth_headers
-        )
+        response = self.client.post(self.FRIEND_REQUEST_URL, request_data, format="json")
         self.assertEqual(response.status_code, 200)
