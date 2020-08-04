@@ -1,23 +1,29 @@
-from asset.views import AssetBundleDetail, AssetBundleList
-from django.urls import include, path
-from flick_auth import urls as auth_urls
-from item.views import CommentItem, ItemDetail, ItemList, LikeItem
-from rest_framework import routers
-from upload.views import UploadImage
 from user.views import UserViewSet
 
-from friend.views import (
-    FriendList,
-    FriendRequestListAndCreate,
-    FriendAcceptListAndCreate,
-    FriendRejectListAndCreate,
-    FriendRemoveListAndCreate,
-)
+from asset.views import AssetBundleDetail
+from asset.views import AssetBundleList
 from discover.views import DiscoverShow
+from django.urls import include
+from django.urls import path
+from flick_auth import urls as auth_urls
+from friend.views import FriendAcceptListAndCreate
+from friend.views import FriendList
+from friend.views import FriendRejectListAndCreate
+from friend.views import FriendRemoveListAndCreate
+from friend.views import FriendRequestListAndCreate
+from item.views import CommentItem
+from item.views import ItemDetail
+from item.views import ItemList
+from item.views import LikeItem
+from lst.views import LstDetail
+from lst.views import LstList
+from rest_framework import routers
 from search.views import Search
-from lst.views import LstList, LstDetail
+from show.views import ShowDetail
 from show.views import ShowViewSet
-from tag.views import TagList, TagDetail
+from tag.views import TagDetail
+from tag.views import TagList
+from upload.views import UploadImage
 
 router = routers.DefaultRouter()
 router.register(r"users", UserViewSet)
@@ -45,7 +51,8 @@ urlpatterns = [
     path("lsts/", LstList.as_view(), name="item-list"),
     path("lsts/<int:pk>/", LstDetail.as_view(), name="item-detail"),
     path("media/image/", UploadImage.as_view(), name="upload"),
-    path("search/", Search.as_view(), name="search-show"),
+    path("search/", Search.as_view(), name="search"),
     path("tags/", TagList.as_view(), name="tag-list"),
     path("tags/<int:pk>/", TagDetail.as_view(), name="tag-detail"),
+    path("show/<int:pk>/", ShowDetail.as_view(), name="show-detail"),
 ]
