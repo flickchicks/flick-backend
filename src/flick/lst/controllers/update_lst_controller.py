@@ -34,12 +34,12 @@ class UpdateLstController:
                 self._lst.shows.add(show)
 
     def _add_collaborators(self, collaborator_ids, request_user):
-        friends = [friend.id for friend in Friend.objects.friends(user=request_user)]
         self._lst.collaborators.clear()
         for c_id in collaborator_ids:
             if User.objects.filter(pk=c_id):
                 collaborator = User.objects.get(pk=c_id)
-                if c_id not in friends:
+                collaborator_friend = Friend.objects.get(to_user=request_user, from_user=collaborator)
+                if not collaborator_friend:
                     continue
                 if Profile.objects.filter(user=collaborator):
                     c = Profile.objects.get(user=collaborator)
