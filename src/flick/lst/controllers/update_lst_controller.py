@@ -33,12 +33,12 @@ class UpdateLstController:
                 show = Show.objects.get(pk=show_id)
                 self._lst.shows.add(show)
 
-    def _add_collaborators(self, collaborator_ids, request_user):
+    def _add_collaborators(self, collaborator_ids):
         self._lst.collaborators.clear()
         for c_id in collaborator_ids:
             if User.objects.filter(pk=c_id):
                 collaborator = User.objects.get(pk=c_id)
-                collaborator_friend = Friend.objects.get(to_user=request_user, from_user=collaborator)
+                collaborator_friend = Friend.objects.get(to_user=self._user, from_user=collaborator)
                 if not collaborator_friend:
                     continue
                 if Profile.objects.filter(user=collaborator):
@@ -74,14 +74,14 @@ class UpdateLstController:
             if not (self._lst.is_saved or self._lst.is_watch_later):
                 self._lst.lst_name = lst_name
                 self._lst.lst_pic = lst_pic
-                self._add_collaborators(collaborator_ids, self._user)
+                self._add_collaborators(collaborator_ids)
                 owner_user = User.objects.get(pk=owner_id)
                 owner_profile = Profile.objects.get(user=owner_user)
                 self._lst.owner = owner_profile
 
         elif user_is_collaborator:
             self._lst.lst_pic = lst_pic
-            self._add_collaborators(collaborator_ids, self._user)
+            self._add_collaborators(collaborator_ids)
             self._add_shows(show_ids)
             self._add_tags(tag_ids)
 
