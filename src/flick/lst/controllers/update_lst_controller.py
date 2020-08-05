@@ -38,7 +38,7 @@ class UpdateLstController:
         for c_id in collaborator_ids:
             if User.objects.filter(pk=c_id):
                 collaborator = User.objects.get(pk=c_id)
-                collaborator_friend = Friend.objects.get(to_user=self._user, from_user=collaborator)
+                collaborator_friend = Friend.objects.filter(to_user=self._user, from_user=collaborator)
                 if not collaborator_friend:
                     continue
                 if Profile.objects.filter(user=collaborator):
