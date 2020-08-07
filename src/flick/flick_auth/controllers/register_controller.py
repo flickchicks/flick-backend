@@ -2,9 +2,11 @@ from user.models import Profile
 
 from api.utils import failure_response
 from api.utils import success_response
+from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.auth.models import User
 from lst.models import Lst
+import requests
 
 
 class RegisterController:
@@ -39,6 +41,21 @@ class RegisterController:
         profile.save()
         return profile
 
+    def _check_token(self, token, type="facebook"):
+        """
+        checks if the token is valid, right now only supports facebook token
+        """
+        if not token:
+            return False
+        # only validate if VALIDATE_SOCIAL_TOKEN is turned on from settings, helps with easier development
+        if settings.VALIDATE_SOCIAL_TOKEN:
+            URL = settings.VALIDATE_FACEBOOK_TOKEN_URL
+            PARAMS = {"access_token": token}
+            response = requests.get(url=URL, params=PARAMS)
+            data = response.json()
+            return not data.get("error")
+        return True
+
     def process(self):
         username = self._data.get("username")
         first_name = self._data.get("first_name")
@@ -46,8 +63,9 @@ class RegisterController:
         profile_pic = self._data.get("profile_pic")
         social_id_token = self._data.get("social_id_token")
         social_id_token_type = self._data.get("social_id_token_type")
-        if not username and not social_id_token:
-            return failure_response("Neither username nor social_id_token supplied.")
+        # check first that we have a valid token:
+        if not self._check_token(social_id_token):
+            return failure_response("social_id_token is invalid")
         if not username:
             # verify that social_id_token is unique
             profile_exists = Profile.objects.filter(social_id_token=social_id_token)
