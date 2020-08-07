@@ -4,9 +4,7 @@ from .models import Tag
 
 
 class TagSimpleSerializer(serializers.ModelSerializer):
-    tag_id = serializers.CharField(source="id")
-
     class Meta:
         model = Tag
-        fields = ("tag_id", "tag")
+        fields = ("id", "name")
         read_only_fields = fields

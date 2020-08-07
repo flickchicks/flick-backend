@@ -3,6 +3,7 @@ from user.models import Profile
 from api.utils import failure_response
 from api.utils import success_response
 from django.contrib.auth.models import User
+from friendship.models import Friend
 from lst.models import Lst
 from show.models import Show
 from tag.models import Tag
@@ -37,6 +38,9 @@ class UpdateLstController:
         for c_id in collaborator_ids:
             if User.objects.filter(pk=c_id):
                 collaborator = User.objects.get(pk=c_id)
+                collaborator_friend = Friend.objects.filter(to_user=self._user, from_user=collaborator)
+                if not collaborator_friend:
+                    continue
                 if Profile.objects.filter(user=collaborator):
                     c = Profile.objects.get(user=collaborator)
                     self._lst.collaborators.add(c)

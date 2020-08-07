@@ -4,7 +4,6 @@ from .models import Lst
 
 
 class LstSimpleSerializer(serializers.ModelSerializer):
-    # shows = ShowSerializer(many=True)
     lst_id = serializers.CharField(source="id")
 
     class Meta:
