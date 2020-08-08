@@ -8,19 +8,17 @@ from rest_framework.test import APIClient
 from show.models import Show
 
 
-class ShowRatingsTests(TestCase):
+class LikeTests(TestCase):
     REGISTER_URL = reverse("register")
     LOGIN_URL = reverse("login")
-    FRIEND_REQUEST_URL = reverse("friend-request")
-    FRIEND_ACCEPT_URL = reverse("friend-accept")
 
     def setUp(self):
         self.client = APIClient()
         self.show = self._create_show()
         self.user_token = self._create_user_and_login()
-        self.friend1_token = self._create_user_and_login()
-        self.friend2_token = self._create_user_and_login()
         self.SHOW_DETAIL_URL = reverse("show-detail", kwargs={"pk": self.show.pk})
+        self.comment_pk = self._comment_show(self.user_token)
+        self.LIKE_COMMENT_URL = reverse("like-comment", kwargs={"pk": self.comment_pk})
 
     def _create_show(self):
         show = Show()
@@ -62,49 +60,31 @@ class ShowRatingsTests(TestCase):
         token = json.loads(response.content)["data"]["auth_token"]
         return token
 
-    def test_user_can_rate_show(self):
-        self._rate_show(self.user_token, 4)
-
-    def _rate_show(self, token, rating):
+    def _comment_show(self, token):
+        comment_data = {"comment": {"message": "Great film!", "is_spoiler": False}}
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
-        rating_data = {"user_rating": rating}
-        response = self.client.post(self.SHOW_DETAIL_URL, rating_data, format="json")
-        content = json.loads(response.content)
+        response = self.client.post(self.SHOW_DETAIL_URL, comment_data, format="json")
+        comment = json.loads(response.content)["data"]["comments"][-1]
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(content["data"]["user_rating"], rating)
+        self.assertEqual(comment["message"], comment_data.get("comment").get("message"))
+        return comment["id"]
 
-    def _send_friend_requests(self):
+    def test_like_and_cancel(self):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
-        request_data = {"user_ids": [2, 3]}
-        response = self.client.post(self.FRIEND_REQUEST_URL, request_data, format="json")
+
+        # test like
+        response = self.client.post(self.LIKE_COMMENT_URL)
         data = json.loads(response.content)["data"]
-        self.assertEqual(len(data), 2)
-        self.assertEqual(data[0]["to_user"]["user_id"], "2")
-        self.assertEqual(data[1]["to_user"]["user_id"], "3")
-
-    def _accept_user_friend_requests(self, token):
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
-        request_data = {"user_ids": [1]}
-        response = self.client.post(self.FRIEND_ACCEPT_URL, request_data, format="json")
-        data = json.loads(response.content)["data"]
-        self.assertEqual(data[0]["from_user"]["user_id"], "1")
-
-    def _add_friends(self):
-        self._send_friend_requests()
-        self._accept_user_friend_requests(self.friend1_token)
-        self._accept_user_friend_requests(self.friend2_token)
-
-    def _check_friends_rating(self, rating):
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
-        response = self.client.get(self.SHOW_DETAIL_URL)
-        content = json.loads(response.content)
+        likers = data["likers"]
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(content["data"]["friends_rating"], rating)
+        self.assertEqual(data["num_likes"], 1)
+        self.assertEqual(len(likers), 1)
+        self.assertEqual(likers[0]["liker"]["user_id"], "1")
 
-    def test_friends_rating(self):
-        self._add_friends()
-        friend1_rating, friend2_rating = 8, 4
-        avg_rating = (friend1_rating + friend2_rating) / 2
-        self._rate_show(self.friend1_token, friend1_rating)
-        self._rate_show(self.friend2_token, friend2_rating)
-        self._check_friends_rating(avg_rating)
+        # test cancel like
+        response = self.client.post(self.LIKE_COMMENT_URL)
+        data = json.loads(response.content)["data"]
+        likers = data["likers"]
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data["num_likes"], 0)
+        self.assertFalse(likers)

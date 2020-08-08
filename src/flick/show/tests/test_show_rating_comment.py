@@ -8,7 +8,7 @@ from rest_framework.test import APIClient
 from show.models import Show
 
 
-class ShowCommentsTests(TestCase):
+class ShowRatingsAndCommentTests(TestCase):
     REGISTER_URL = reverse("register")
     LOGIN_URL = reverse("login")
     FRIEND_REQUEST_URL = reverse("friend-request")
@@ -46,11 +46,11 @@ class ShowCommentsTests(TestCase):
         random_string = "".join(random.choice(letters) for i in range(10))
         register_data = {
             "username": "",
-            "first_name": "Alanna",
-            "last_name": "Zhou",
+            "first_name": "Alanna1",
+            "last_name": "Zhou1",
             "profile_pic": "",
             "social_id_token": random_string,
-            "social_id_token_type": "test",
+            "social_id_token_type": "test1",
         }
         response = self.client.post(self.REGISTER_URL, register_data)
         self.assertEqual(response.status_code, 200)
@@ -61,6 +61,17 @@ class ShowCommentsTests(TestCase):
         self.assertEqual(response.status_code, 200)
         token = json.loads(response.content)["data"]["auth_token"]
         return token
+
+    def test_user_can_rate_show(self):
+        self._rate_show(self.user_token, 4)
+
+    def _rate_show(self, token, rating):
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
+        rating_data = {"user_rating": rating}
+        response = self.client.post(self.SHOW_DETAIL_URL, rating_data, format="json")
+        content = json.loads(response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(content["data"]["user_rating"], rating)
 
     def _get_comment_data_from_message(self, message):
         return {"comment": {"message": message, "is_spoiler": False}}
@@ -80,7 +91,10 @@ class ShowCommentsTests(TestCase):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
         request_data = {"user_ids": [2, 3]}
         response = self.client.post(self.FRIEND_REQUEST_URL, request_data, format="json")
-        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)["data"]
+        self.assertEqual(len(data), 2)
+        self.assertEqual(data[0]["to_user"]["user_id"], "2")
+        self.assertEqual(data[1]["to_user"]["user_id"], "3")
 
     def _accept_user_friend_requests(self, token):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
@@ -92,16 +106,31 @@ class ShowCommentsTests(TestCase):
     def _add_friends(self):
         self._send_friend_requests()
         self._accept_user_friend_requests(self.friend1_token)
+        self._accept_user_friend_requests(self.friend2_token)
 
-    def _check_comments(self, friend1_comment):
+    def _check_friends_rating(self, rating):
+        self._add_friends()
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
+        response = self.client.get(self.SHOW_DETAIL_URL)
+        content = json.loads(response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(content["data"]["friends_rating"], rating)
+
+    def test_friends_rating(self):
+        friend1_rating, friend2_rating = 8, 4
+        avg_rating = (friend1_rating + friend2_rating) / 2
+        self._rate_show(self.friend1_token, friend1_rating)
+        self._rate_show(self.friend2_token, friend2_rating)
+        self._check_friends_rating(avg_rating)
+
+    def _check_comments(self, friend_comment):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
         response = self.client.get(self.SHOW_DETAIL_URL)
         comment = json.loads(response.content)["data"]["comments"][-1]
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(comment["message"], friend1_comment)
+        self.assertEqual(comment["message"], friend_comment)
 
     def test_friends_comments(self):
-        self._add_friends()
         friend1_comment = self._get_comment_data_from_message("Love it!")
         self._comment_show(self.friend1_token, friend1_comment)
         self._check_comments("Love it!")
