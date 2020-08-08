@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     "item",
     "lst",
     "member",
+    "notification",
     "pages",
     "rating",
     "search",

@@ -3,6 +3,7 @@ from user.models import Profile
 from api.utils import success_response
 from django.contrib.auth.models import User
 from lst.models import Lst
+from notification.models import Notification
 from show.models import Show
 from tag.models import Tag
 
@@ -12,6 +13,17 @@ class CreateLstController:
         self._request = request
         self._data = data
         self._serializer = serializer
+        self._profile = None
+        self._lst = None
+
+    def _notify_collaborator(self, profile):
+        notif = Notification()
+        notif.type = "list_invite"
+        notif.from_user = self._profile
+        notif.to_user = profile
+        notif.lst = self._lst
+        notif.save()
+        return notif
 
     def process(self):
         lst_name = self._data.get("lst_name")
@@ -25,9 +37,10 @@ class CreateLstController:
         lst.lst_name = lst_name
         lst.lst_pic = lst_pic
         lst.is_private = is_private
-        profile = Profile.objects.get(user=self._request.user)
-        lst.owner = profile
+        self._profile = Profile.objects.get(user=self._request.user)
+        lst.owner = self._profile
         lst.save()
+        self._lst = lst
 
         for c_id in collaborator_ids:
             if User.objects.filter(pk=c_id):
@@ -35,6 +48,7 @@ class CreateLstController:
                 if Profile.objects.filter(user=collaborator):
                     c = Profile.objects.get(user=collaborator)
                     lst.collaborators.add(c)
+                    self._notify_collaborator(profile=c)
         for show_id in show_ids:
             if Show.objects.filter(pk=show_id):
                 show = Show.objects.get(pk=show_id)
