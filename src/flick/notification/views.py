@@ -8,7 +8,6 @@ from notification.serializers import NotificationSerializer
 from rest_framework import generics
 
 
-# Create your views here.
 class NotificationList(generics.GenericAPIView):
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
