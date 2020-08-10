@@ -18,7 +18,7 @@ class CreateLstController:
 
     def _notify_collaborator(self, profile):
         notif = Notification()
-        notif.type = "list_invite"
+        notif.notif_type = "list_invite"
         notif.from_user = self._profile
         notif.to_user = profile
         notif.lst = self._lst

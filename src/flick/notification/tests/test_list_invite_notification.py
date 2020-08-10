@@ -2,18 +2,19 @@ import json
 import random
 import string
 
-from django.test import TransactionTestCase
+from django.test import TestCase
 from django.urls import reverse
 from rest_framework.test import APIClient
-from show.models import Show
 
 
-class ListInviteNotificationTests(TransactionTestCase):
+class ListInviteNotificationTests(TestCase):
     REGISTER_URL = reverse("register")
     LOGIN_URL = reverse("login")
     FRIEND_REQUEST_URL = reverse("friend-request")
     FRIEND_ACCEPT_URL = reverse("friend-accept")
     CREATE_LST_URL = reverse("lst-list")
+    NOTIFICATIONS_URL = reverse("notif-list")
+    UPDATE_LST_URL = reverse("lst-detail", kwargs={"pk": 5})
 
     def setUp(self):
         self.client = APIClient()
@@ -62,43 +63,49 @@ class ListInviteNotificationTests(TransactionTestCase):
         self._send_friend_requests()
         self._accept_user_friend_requests(self.friend_token)
 
-    def _create_show(self):
-        show = Show()
-        show.title = "title"
-        show.ext_api_id = 1
-        show.ext_api_source = "tmdb"
-        show.poster_pic = "poster.pic"
-        show.is_tv = True
-        show.date_released = "4/1/20"
-        show.status = "status"
-        show.language = "en"
-        show.duration = None
-        show.plot = "juicy plot"
-        show.seasons = 3
-        show.directors = "alanna"
-        show.cast = "alanna"
-        show.save()
-        return show
-
     def _create_list(self):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
-        request_data = {
-            "lst_name": "Alanna's Kdramas",
-            "collaborators": [2],
-            "shows": [self._create_show().id],
-            "tags": [],
-        }
+        request_data = {"lst_name": "Alanna's Kdramas", "collaborators": [2], "shows": [], "tags": []}
         response = self.client.post(self.CREATE_LST_URL, request_data, format="json")
-        print(response)
         self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)["data"]
+        # each user gets 2 default lists, additional one will have id of 5
+        self.assertEqual(data["lst_id"], "5")
+        self.assertEqual(data["collaborators"][0]["user_id"], "2")
+        self.assertEqual(data["owner"]["user_id"], "1")
+
+    def _create_and_update_list(self):
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
+        request_data = {"lst_name": "Alanna's Kdramas", "collaborators": [], "shows": [], "tags": []}
+        response = self.client.post(self.CREATE_LST_URL, request_data, format="json")
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)["data"]
+        # each user gets 2 default lists, additional one will have id of 5
+        self.assertEqual(data["lst_id"], "5")
+        self.assertEqual(len(data["collaborators"]), 0)
+        self.assertEqual(data["owner"]["user_id"], "1")
+
+        request_data = {"lst_name": "Alanna's Kdramas", "collaborators": [2], "shows": [], "tags": []}
+        response = self.client.post(self.UPDATE_LST_URL, request_data, format="json")
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)["data"]
+        self.assertEqual(data["lst_id"], "5")
+        self.assertEqual(data["collaborators"][0]["user_id"], "2")
+        self.assertEqual(data["owner"]["user_id"], "1")
+
+    def _check_notification(self):
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.friend_token)
+        response = self.client.get(self.NOTIFICATIONS_URL)
+        data = json.loads(response.content)["data"][0]
+        self.assertEqual(data["notif_type"], "list_invite")
+        self.assertEqual(data["from_user"]["user_id"], "1")
+        self.assertEqual(data["to_user"]["user_id"], "2")
+        self.assertEqual(data["lst"]["lst_id"], "5")
 
     def test_list_invite_via_list_creation(self):
-        # user adds a friend
-        # user creates a list, adds collaborator with friend
-        # login as the collaborator
-        # collaborator should have the notification from the user
         self._create_list()
-        # self.assertTrue(True)
+        self._check_notification()
 
-    # def test_list_invite_via_list_update(self):
-    #     self.assertTrue(True)
+    def test_list_invite_via_list_update(self):
+        self._create_and_update_list()
+        self._check_notification()

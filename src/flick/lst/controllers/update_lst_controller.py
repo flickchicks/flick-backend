@@ -5,6 +5,7 @@ from api.utils import success_response
 from django.contrib.auth.models import User
 from friendship.models import Friend
 from lst.models import Lst
+from notification.models import Notification
 from show.models import Show
 from tag.models import Tag
 
@@ -17,6 +18,16 @@ class UpdateLstController:
         self._serializer = serializer
         self._user = request.user
         self._lst = None
+        self._profile = None
+
+    def _notify_collaborator(self, profile):
+        notif = Notification()
+        notif.notif_type = "list_invite"
+        notif.from_user = self._profile
+        notif.to_user = profile
+        notif.lst = self._lst
+        notif.save()
+        return notif
 
     def _add_tags(self, tag_ids):
         self._lst.custom_tags.clear()
@@ -34,6 +45,7 @@ class UpdateLstController:
                 self._lst.shows.add(show)
 
     def _add_collaborators(self, collaborator_ids):
+        old_collaborators = self._lst.collaborators.all()
         self._lst.collaborators.clear()
         for c_id in collaborator_ids:
             if User.objects.filter(pk=c_id):
@@ -43,6 +55,8 @@ class UpdateLstController:
                     continue
                 if Profile.objects.filter(user=collaborator):
                     c = Profile.objects.get(user=collaborator)
+                    if c not in old_collaborators:
+                        self._notify_collaborator(profile=c)
                     self._lst.collaborators.add(c)
 
     def process(self):
@@ -60,10 +74,10 @@ class UpdateLstController:
 
         if not Profile.objects.filter(user=self._user):
             return failure_response(f"No user to be found with id of {self._user.id}.")
-        profile = Profile.objects.get(user=self._user)
+        self._profile = Profile.objects.get(user=self._user)
 
-        user_is_owner = profile == self._lst.owner
-        user_is_collaborator = profile in self._lst.collaborators.all()
+        user_is_owner = self._profile == self._lst.owner
+        user_is_collaborator = self._profile in self._lst.collaborators.all()
         if not (user_is_owner or user_is_collaborator):
             return failure_response(f"User {self._user} does not have the credentials to list of id {self._pk}.")
 
