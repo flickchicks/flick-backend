@@ -43,6 +43,5 @@ class RegisterTests(TestCase):
             "social_id_token": "",
             "social_id_token_type": "test",
         }
-        with self.assertRaises(Exception):
-            response = self.client.post(self.REGISTER_URL, request_data)
-            self.assertEqual(response.status_code, 404)
+        response = self.client.post(self.REGISTER_URL, request_data)
+        self.assertEqual(response.status_code, 404)
