@@ -15,6 +15,7 @@ from item.views import CommentItem
 from item.views import ItemDetail
 from item.views import ItemList
 from item.views import LikeItem
+from like.views import LikeView
 from lst.views import LstDetail
 from lst.views import LstList
 from notification.views import NotificationList
@@ -39,6 +40,7 @@ urlpatterns = [
     path("asset-bundles/<int:pk>/", AssetBundleDetail.as_view(), name="asset-bundles-detail"),
     path("auth/", include(auth_urls)),
     path("comment/", CommentItem.as_view(), name="comment"),
+    path("comment/<int:pk>/like/", LikeView.as_view(), name="like-comment"),
     path("discover/show/", DiscoverShow.as_view(), name="discover-show"),
     path("friendship/", include("friendship.urls")),
     path("friends/", FriendList.as_view(), name="friend-list"),
