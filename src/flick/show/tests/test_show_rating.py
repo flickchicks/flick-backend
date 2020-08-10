@@ -20,6 +20,7 @@ class ShowRatingsTests(TestCase):
         self.user_token = self._create_user_and_login()
         self.friend1_token = self._create_user_and_login()
         self.friend2_token = self._create_user_and_login()
+        self._add_friends()
         self.SHOW_DETAIL_URL = reverse("show-detail", kwargs={"pk": self.show.pk})
 
     def _create_show(self):
@@ -78,6 +79,7 @@ class ShowRatingsTests(TestCase):
         request_data = {"user_ids": [2, 3]}
         response = self.client.post(self.FRIEND_REQUEST_URL, request_data, format="json")
         data = json.loads(response.content)["data"]
+        print(data)
         self.assertEqual(len(data), 2)
         self.assertEqual(data[0]["to_user"]["user_id"], "2")
         self.assertEqual(data[1]["to_user"]["user_id"], "3")
@@ -102,7 +104,6 @@ class ShowRatingsTests(TestCase):
         self.assertEqual(content["data"]["friends_rating"], rating)
 
     def test_friends_rating(self):
-        self._add_friends()
         friend1_rating, friend2_rating = 8, 4
         avg_rating = (friend1_rating + friend2_rating) / 2
         self._rate_show(self.friend1_token, friend1_rating)
