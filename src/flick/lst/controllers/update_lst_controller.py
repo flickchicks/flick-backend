@@ -40,11 +40,10 @@ class UpdateLstController:
         for tag_id in tag_ids:
             if Tag.objects.filter(pk=tag_id):
                 tag = Tag.objects.get(pk=tag_id)
-                if tag not in self._lst.tags.all():
-                    if self._is_remove:
-                        self._lst.custom_tags.remove(tag)
-                    else:
-                        self._lst.custom_tags.add(tag)
+                if self._is_remove:
+                    self._lst.custom_tags.remove(tag)
+                elif tag not in self._lst.tags.all():
+                    self._lst.custom_tags.add(tag)
 
     def _modify_shows(self, show_ids):
         if self._should_clear():
