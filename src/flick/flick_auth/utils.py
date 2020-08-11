@@ -132,7 +132,6 @@ class AuthTools:
         """
         try:
             username_exists = User.objects.filter(username=user_data["username"])
-            print(f"{user_data['username']}")
             if username_exists:
                 return {"user": username_exists[0], "is_new": False}
 
@@ -156,7 +155,6 @@ class AuthTools:
         Register user profile:
             profile_data = {'role', 'position'}
         """
-        print("PROFILE DATA HERE ")
         try:
             return Profile.objects.get(pk=user.id)
         except ObjectDoesNotExist:

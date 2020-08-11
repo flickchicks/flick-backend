@@ -23,9 +23,7 @@ class UpdateLstController:
         self._is_remove = is_remove
 
     def _should_clear(self):
-        res = not (self._is_add or self._is_remove)
-        print("res", res)
-        return res
+        return not (self._is_add or self._is_remove)
 
     def _notify_collaborator(self, profile):
         notif = Notification()
@@ -49,20 +47,15 @@ class UpdateLstController:
                         self._lst.custom_tags.add(tag)
 
     def _modify_shows(self, show_ids):
-        print("modify_shows")
         if self._should_clear():
             self._lst.shows.clear()
-        print("show_ids", show_ids)
         for show_id in show_ids:
-            print("show_id", show_id)
             if Show.objects.filter(pk=show_id):
                 show = Show.objects.get(pk=show_id)
-                print("show", show)
                 if self._is_remove:
                     self._lst.shows.remove(show)
                 else:
                     self._lst.shows.add(show)
-                    print(self._lst.shows.all())
 
     def _modify_collaborators(self, collaborator_ids):
         old_collaborators = self._lst.collaborators.all()
