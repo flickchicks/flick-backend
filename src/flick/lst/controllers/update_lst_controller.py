@@ -11,7 +11,7 @@ from tag.models import Tag
 
 
 class UpdateLstController:
-    def __init__(self, request, pk, data, serializer):
+    def __init__(self, request, pk, data, serializer, is_add=False, is_remove=False):
         self._request = request
         self._pk = pk
         self._data = data
@@ -19,6 +19,13 @@ class UpdateLstController:
         self._user = request.user
         self._lst = None
         self._profile = None
+        self._is_add = is_add
+        self._is_remove = is_remove
+
+    def _should_clear(self):
+        res = not (self._is_add or self._is_remove)
+        print("res", res)
+        return res
 
     def _notify_collaborator(self, profile):
         notif = Notification()
@@ -29,24 +36,38 @@ class UpdateLstController:
         notif.save()
         return notif
 
-    def _add_tags(self, tag_ids):
-        self._lst.custom_tags.clear()
+    def _modify_tags(self, tag_ids):
+        if self._should_clear():
+            self._lst.custom_tags.clear()
         for tag_id in tag_ids:
             if Tag.objects.filter(pk=tag_id):
                 tag = Tag.objects.get(pk=tag_id)
                 if tag not in self._lst.tags.all():
-                    self._lst.custom_tags.add(tag)
+                    if self._is_remove:
+                        self._lst.custom_tags.remove(tag)
+                    else:
+                        self._lst.custom_tags.add(tag)
 
-    def _add_shows(self, show_ids):
-        self._lst.shows.clear()
+    def _modify_shows(self, show_ids):
+        print("modify_shows")
+        if self._should_clear():
+            self._lst.shows.clear()
+        print("show_ids", show_ids)
         for show_id in show_ids:
+            print("show_id", show_id)
             if Show.objects.filter(pk=show_id):
                 show = Show.objects.get(pk=show_id)
-                self._lst.shows.add(show)
+                print("show", show)
+                if self._is_remove:
+                    self._lst.shows.remove(show)
+                else:
+                    self._lst.shows.add(show)
+                    print(self._lst.shows.all())
 
-    def _add_collaborators(self, collaborator_ids):
+    def _modify_collaborators(self, collaborator_ids):
         old_collaborators = self._lst.collaborators.all()
-        self._lst.collaborators.clear()
+        if self._should_clear():
+            self._lst.collaborators.clear()
         for c_id in collaborator_ids:
             if User.objects.filter(pk=c_id):
                 collaborator = User.objects.get(pk=c_id)
@@ -57,7 +78,10 @@ class UpdateLstController:
                     c = Profile.objects.get(user=collaborator)
                     if c not in old_collaborators:
                         self._notify_collaborator(profile=c)
-                    self._lst.collaborators.add(c)
+                    if self._is_remove:
+                        self._lst.collaborators.remove(c)
+                    else:
+                        self._lst.collaborators.add(c)
 
     def process(self):
         lst_name = self._data.get("lst_name")
@@ -83,21 +107,21 @@ class UpdateLstController:
 
         if user_is_owner:
             self._lst.is_private = is_private
-            self._add_shows(show_ids)
-            self._add_tags(tag_ids)
+            self._modify_shows(show_ids)
+            self._modify_tags(tag_ids)
             if not (self._lst.is_saved or self._lst.is_watch_later):
                 self._lst.lst_name = lst_name
                 self._lst.lst_pic = lst_pic
-                self._add_collaborators(collaborator_ids)
+                self._modify_collaborators(collaborator_ids)
                 owner_user = User.objects.get(pk=owner_id)
                 owner_profile = Profile.objects.get(user=owner_user)
                 self._lst.owner = owner_profile
 
         elif user_is_collaborator:
             self._lst.lst_pic = lst_pic
-            self._add_collaborators(collaborator_ids)
-            self._add_shows(show_ids)
-            self._add_tags(tag_ids)
+            self._modify_collaborators(collaborator_ids)
+            self._modify_shows(show_ids)
+            self._modify_tags(tag_ids)
 
         self._lst.save()
         return success_response(self._serializer(self._lst).data)

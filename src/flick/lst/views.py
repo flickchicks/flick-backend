@@ -80,3 +80,41 @@ class LstDetail(generics.GenericAPIView):
         """
         data = json.loads(request.body)
         return UpdateLstController(request, pk, data, self.serializer_class).process()
+
+
+class LstDetailAdd(generics.GenericAPIView):
+
+    queryset = Lst.objects.all()
+    serializer_class = LstSerializer
+
+    permission_classes = api_settings.UNPROTECTED
+
+    def post(self, request, pk):
+        """
+        Update a list by id by adding all of the fields passed in.
+        Collaborators can update lst_pic, is_saved, is_watch_later, collaborators, and shows.
+        An owner can update lst_name, lst_pic, is_saved, is_private, is_watch_later, collaborators, the owner (can cede ownership completely to another user), and shows.
+        """
+        data = json.loads(request.body)
+        return UpdateLstController(
+            request=request, pk=pk, data=data, serializer=self.serializer_class, is_add=True, is_remove=False
+        ).process()
+
+
+class LstDetailRemove(generics.GenericAPIView):
+
+    queryset = Lst.objects.all()
+    serializer_class = LstSerializer
+
+    permission_classes = api_settings.UNPROTECTED
+
+    def post(self, request, pk):
+        """
+        Update a list by id by adding all of the fields passed in.
+        Collaborators can update lst_pic, is_saved, is_watch_later, collaborators, and shows.
+        An owner can update lst_name, lst_pic, is_saved, is_private, is_watch_later, collaborators, the owner (can cede ownership completely to another user), and shows.
+        """
+        data = json.loads(request.body)
+        return UpdateLstController(
+            request=request, pk=pk, data=data, serializer=self.serializer_class, is_add=False, is_remove=True
+        ).process()
