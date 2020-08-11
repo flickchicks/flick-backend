@@ -1,7 +1,7 @@
 from user.profile_simple_serializers import ProfileSimpleSerializer
 
 from rest_framework import serializers
-from show.serializers import ShowSerializer
+from show.serializers import ShowSearchSerializer
 from tag.simple_serializers import TagSimpleSerializer
 
 from .models import Lst
@@ -10,7 +10,7 @@ from .models import Lst
 class LstSerializer(serializers.ModelSerializer):
     collaborators = ProfileSimpleSerializer(many=True)
     owner = ProfileSimpleSerializer(many=False)
-    shows = ShowSerializer(many=True)
+    shows = ShowSearchSerializer(many=True)
     lst_id = serializers.CharField(source="id")
     tags = TagSimpleSerializer(many=True)
 

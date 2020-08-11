@@ -18,6 +18,7 @@ from item.views import LikeItem
 from like.views import LikeView
 from lst.views import LstDetail
 from lst.views import LstList
+from notification.views import NotificationList
 from rest_framework import routers
 from search.views import Search
 from show.views import ShowDetail
@@ -50,11 +51,12 @@ urlpatterns = [
     path("items/", ItemList.as_view(), name="item-list"),
     path("items/<int:pk>/", ItemDetail.as_view(), name="item-detail"),
     path("like/", LikeItem.as_view(), name="like"),
-    path("lsts/", LstList.as_view(), name="item-list"),
-    path("lsts/<int:pk>/", LstDetail.as_view(), name="item-detail"),
+    path("lsts/", LstList.as_view(), name="lst-list"),
+    path("lsts/<int:pk>/", LstDetail.as_view(), name="lst-detail"),
     path("media/image/", UploadImage.as_view(), name="upload"),
     path("search/", Search.as_view(), name="search"),
     path("tags/", TagList.as_view(), name="tag-list"),
     path("tags/<int:pk>/", TagDetail.as_view(), name="tag-detail"),
     path("show/<int:pk>/", ShowDetail.as_view(), name="show-detail"),
+    path("notifications/", NotificationList.as_view(), name="notif-list"),
 ]

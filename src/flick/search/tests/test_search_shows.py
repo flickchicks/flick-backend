@@ -10,11 +10,11 @@ from rest_framework.test import APIClient
 class SearchShowsTests(TransactionTestCase):
     REGISTER_URL = reverse("register")
     LOGIN_URL = reverse("login")
+    SEARCH_URL = reverse("search")
 
     def setUp(self):
         self.client = APIClient()
         self.user_token = self._create_user_and_login()
-        self.SEARCH_URL = reverse("search")
 
     def _create_user_and_login(self):
         """Returns the auth token."""
