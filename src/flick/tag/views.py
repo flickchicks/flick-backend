@@ -19,8 +19,8 @@ class TagList(generics.GenericAPIView):
     def post(self, request):
         data = json.loads(request.body)
         tag_name = data.get("tag")
-        if Tag.objects.filter(tag__iexact=tag_name):
-            return success_response(self.serializer_class(Tag.objects.get(tag__iexact=tag_name)).data)
+        if Tag.objects.filter(name__iexact=tag_name):
+            return success_response(self.serializer_class(Tag.objects.get(name__iexact=tag_name)).data)
         tag = Tag()
         tag.name = tag_name
         tag.save()

@@ -15,6 +15,10 @@ from show.tmdb_api_utils import TMDB_API
 from tag.models import Tag
 import tmdbsimple as tmdb
 
+# If you want to print, you need to log these and they will appear in the celery terminal process
+# from celery.utils.log import get_task_logger
+# logger = get_task_logger(__name__)
+
 
 def upload_image(asset_id, salt, img, kind, img_ext, width, height):
     # save image in temp dir

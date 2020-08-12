@@ -8,7 +8,7 @@ from rest_framework.test import APIClient
 from show.models import Show
 
 
-class ShowRatingsAndCommentTests(TestCase):
+class ShowRatingsTests(TestCase):
     REGISTER_URL = reverse("register")
     LOGIN_URL = reverse("login")
     FRIEND_REQUEST_URL = reverse("friend-request")
@@ -20,6 +20,7 @@ class ShowRatingsAndCommentTests(TestCase):
         self.user_token = self._create_user_and_login()
         self.friend1_token = self._create_user_and_login()
         self.friend2_token = self._create_user_and_login()
+        self._add_friends()
         self.SHOW_DETAIL_URL = reverse("show-detail", kwargs={"pk": self.show.pk})
 
     def _create_show(self):
@@ -46,11 +47,11 @@ class ShowRatingsAndCommentTests(TestCase):
         random_string = "".join(random.choice(letters) for i in range(10))
         register_data = {
             "username": "",
-            "first_name": "Alanna1",
-            "last_name": "Zhou1",
+            "first_name": "Alanna",
+            "last_name": "Zhou",
             "profile_pic": "",
             "social_id_token": random_string,
-            "social_id_token_type": "test1",
+            "social_id_token_type": "test",
         }
         response = self.client.post(self.REGISTER_URL, register_data)
         self.assertEqual(response.status_code, 200)
@@ -73,20 +74,6 @@ class ShowRatingsAndCommentTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(content["data"]["user_rating"], rating)
 
-    def _get_comment_data_from_message(self, message):
-        return {"comment": {"message": message, "is_spoiler": False}}
-
-    def test_user_can_comment_show(self):
-        comment_data = self._get_comment_data_from_message("Great film!")
-        self._comment_show(self.user_token, comment_data)
-
-    def _comment_show(self, token, comment_data):
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
-        response = self.client.post(self.SHOW_DETAIL_URL, comment_data, format="json")
-        comment = json.loads(response.content)["data"]["comments"][-1]
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(comment["message"], comment_data.get("comment").get("message"))
-
     def _send_friend_requests(self):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
         request_data = {"user_ids": [2, 3]}
@@ -105,7 +92,6 @@ class ShowRatingsAndCommentTests(TestCase):
         self._accept_user_friend_requests(self.friend2_token)
 
     def _check_friends_rating(self, rating):
-        self._add_friends()
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
         response = self.client.get(self.SHOW_DETAIL_URL)
         content = json.loads(response.content)
@@ -118,18 +104,3 @@ class ShowRatingsAndCommentTests(TestCase):
         self._rate_show(self.friend1_token, friend1_rating)
         self._rate_show(self.friend2_token, friend2_rating)
         self._check_friends_rating(avg_rating)
-
-    def _check_comments(self, friend_comment):
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
-        response = self.client.get(self.SHOW_DETAIL_URL)
-        comment = json.loads(response.content)["data"]["comments"][-1]
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(comment["message"], friend_comment)
-
-    def test_friends_comments(self):
-        friend1_comment = self._get_comment_data_from_message("Love it!")
-        self._comment_show(self.friend1_token, friend1_comment)
-        self._check_comments("Love it!")
-        friend2_comment = self._get_comment_data_from_message("It's ok")
-        self._comment_show(self.friend2_token, friend2_comment)
-        self._check_comments("It's ok")
