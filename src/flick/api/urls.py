@@ -25,6 +25,7 @@ from rest_framework import routers
 from search.views import Search
 from show.views import ShowDetail
 from show.views import ShowViewSet
+from suggestion.views import PrivateSuggesionView
 from tag.views import TagDetail
 from tag.views import TagList
 from upload.views import UploadImage
@@ -62,5 +63,6 @@ urlpatterns = [
     path("tags/", TagList.as_view(), name="tag-list"),
     path("tags/<int:pk>/", TagDetail.as_view(), name="tag-detail"),
     path("show/<int:pk>/", ShowDetail.as_view(), name="show-detail"),
+    path("suggest/", PrivateSuggesionView.as_view(), name="private-suggestion"),
     path("notifications/", NotificationList.as_view(), name="notif-list"),
 ]
