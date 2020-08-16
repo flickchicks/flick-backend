@@ -38,12 +38,12 @@ class PrivateSuggesionView(generics.GenericAPIView):
         for friend_id in data.get("user_ids"):
             try:
                 if friend_id == user.pk:
-                    continue
+                    raise Exception("Unable suggest to yourself")
                 if not User.objects.filter(id=friend_id):
-                    continue
+                    raise Exception("Friend ID does not correspond to a valid user")
                 friend = User.objects.get(id=friend_id)
                 if not Friend.objects.are_friends(user, friend):
-                    continue
+                    raise Exception("Unable to suggest to users that are not your friend")
                 pri_suggestion = PrivateSuggestion()
                 pri_suggestion.from_user = profile
                 pri_suggestion.to_user = friend
