@@ -93,20 +93,28 @@ class UpdateLstTests(TestCase):
         self._send_friend_requests()
         self._accept_user_friend_requests(self.friend_token)
 
-    def _create_list(self):
+    def _create_list(self, collaborators=[], shows=[]):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
-        request_data = {"name": "Alanna's Kdramas", "is_private": False, "collaborators": [], "shows": [], "tags": []}
+        request_data = {
+            "name": "Alanna's Kdramas",
+            "is_private": False,
+            "collaborators": collaborators,
+            "shows": shows,
+            "tags": [],
+        }
         response = self.client.post(self.CREATE_LST_URL, request_data, format="json")
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)["data"]
         self.assertEqual(data["id"], 5)
         self.assertEqual(data["is_private"], False)
-        self.assertEqual(len(data["collaborators"]), 0)
+        self.assertEqual(len(data["collaborators"]), len(collaborators))
         self.assertEqual(len(data["tags"]), 0)
-        self.assertEqual(len(data["shows"]), 0)
+        self.assertEqual(len(data["shows"]), len(shows))
         self.assertEqual(data["owner"]["id"], 1)
 
-    def _update_list(self, name, is_private, collaborators, shows, tags, is_add=False, is_remove=False):
+    def _update_list(
+        self, name="", is_private=False, collaborators=[], shows=[], tags=[], is_add=False, is_remove=False
+    ):
         request_data = {
             "name": name,
             "is_private": is_private,
@@ -124,6 +132,20 @@ class UpdateLstTests(TestCase):
         data = json.loads(response.content)["data"]
         return data
 
+    def _check_list_edit_notification(self, num_shows_added=0, num_shows_removed=0):
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.friend_token)
+        response = self.client.get(self.NOTIFICATIONS_URL)
+        data = json.loads(response.content)["data"]
+        self.assertEqual(data[0]["notif_type"], "list_invite")
+        self.assertEqual(data[0]["from_user"]["id"], 1)
+        self.assertEqual(data[0]["to_user"]["id"], 2)
+        self.assertEqual(data[0]["lst"]["id"], 5)
+        self.assertEqual(data[1]["notif_type"], "list_edit")
+        self.assertEqual(data[1]["from_user"]["id"], 1)
+        self.assertEqual(data[1]["to_user"]["id"], 2)
+        self.assertEqual(data[1]["num_shows_added"], num_shows_added)
+        self.assertEqual(data[1]["num_shows_removed"], num_shows_removed)
+
     def test_update_lst(self):
         self._create_list()
         show_ids = self._get_created_show_ids(num_shows=2)
@@ -137,6 +159,24 @@ class UpdateLstTests(TestCase):
         self.assertEqual(len(data["collaborators"]), 1)
         self.assertEqual(len(data["shows"]), 2)
         self.assertEqual(len(data["tags"]), 2)
+
+    def test_shows_added_to_lst_edit_notification(self):
+        self._create_list(collaborators=[2])
+        show_ids = self._get_created_show_ids(num_shows=3)
+        data = self._update_list(shows=show_ids, is_add=True)
+        self.assertEqual(data["id"], 5)
+        self.assertEqual(len(data["collaborators"]), 1)
+        self.assertEqual(len(data["shows"]), len(show_ids))
+        self._check_list_edit_notification(num_shows_added=len(show_ids))
+
+    def test_shows_removed_from_lst_edit_notification(self):
+        show_ids = self._get_created_show_ids(num_shows=3)
+        self._create_list(collaborators=[2], shows=show_ids)
+        data = self._update_list(shows=show_ids, is_remove=True)
+        self.assertEqual(data["id"], 5)
+        self.assertEqual(len(data["collaborators"]), 1)
+        self.assertEqual(len(data["shows"]), 0)
+        self._check_list_edit_notification(num_shows_removed=len(show_ids))
 
     def test_add_and_remove_from_lst(self):
         self._create_list()

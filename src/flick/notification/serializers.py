@@ -12,14 +12,4 @@ class NotificationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Notification
-        fields = (
-            "notif_type",
-            "from_user",
-            "to_user",
-            "lst",
-            "num_shows_added",
-            "num_shows_removed",
-            "collaborator_added",
-            "collaborator_removed",
-            "created_at",
-        )
+        fields = ("notif_type", "from_user", "to_user", "lst", "num_shows_added", "num_shows_removed", "created_at")
