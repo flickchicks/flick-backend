@@ -40,7 +40,7 @@ class PrivateSuggesionView(generics.GenericAPIView):
                 if friend_id == user.pk:
                     raise Exception("Unable suggest to yourself")
                 if not User.objects.filter(id=friend_id):
-                    raise Exception("Friend ID does not correspond to a valid user")
+                    raise Exception(f"Friend ID {friend_id} does not correspond to a valid user")
                 friend = User.objects.get(id=friend_id)
                 if not Friend.objects.are_friends(user, friend):
                     raise Exception("Unable to suggest to users that are not your friend")
