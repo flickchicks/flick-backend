@@ -13,7 +13,7 @@ from .models import PrivateSuggestion
 from .serializers import PrivateSuggestionSerializer
 
 
-class PrivateSuggesionView(generics.GenericAPIView):
+class PrivateSuggestionView(generics.GenericAPIView):
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
     def get(self, request):
@@ -35,10 +35,10 @@ class PrivateSuggesionView(generics.GenericAPIView):
         show = Show.objects.get(id=data.get("show_id"))
 
         suggestions = []
-        for friend_id in data.get("user_ids"):
+        for friend_id in data.get("users"):
             try:
                 if friend_id == user.pk:
-                    raise Exception("Unable suggest to yourself")
+                    raise Exception("Unable to suggest to yourself")
                 if not User.objects.filter(id=friend_id):
                     raise Exception(f"Friend ID {friend_id} does not correspond to a valid user")
                 friend = User.objects.get(id=friend_id)
@@ -50,12 +50,11 @@ class PrivateSuggesionView(generics.GenericAPIView):
                 pri_suggestion.show = show
                 if data.get("message"):
                     pri_suggestion.message = data.get("message")
-
                 pri_suggestion.save()
                 suggestions.append(pri_suggestion)
             except Exception as e:
                 print(str(e))
                 continue
 
-        suggestion_data = PrivateSuggestionSerializer(suggestions, many=True)
-        return success_response(suggestion_data.data)
+        suggestion_data = PrivateSuggestionSerializer(suggestions, many=True).data
+        return success_response(suggestion_data)

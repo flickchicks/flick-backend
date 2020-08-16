@@ -99,7 +99,7 @@ class PrivateSuggestionTests(TestCase):
         self.assertEqual(data[-1]["message"], suggest_data.get("message"))
 
     def test_suggestions(self):
-        suggest_data = {"user_ids": [2, 3], "message": "Great film", "show_id": self.show.pk}
+        suggest_data = {"users": [2, 3], "message": "Great film", "show_id": self.show.pk}
         # test if user can suggest show
         self._suggest_show(self.user_token, suggest_data)
 
