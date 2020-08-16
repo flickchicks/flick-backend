@@ -65,7 +65,7 @@ class UpdateLstController:
             if User.objects.filter(pk=c_id):
                 collaborator = User.objects.get(pk=c_id)
                 collaborator_friend = Friend.objects.filter(
-                    Q(to_user=self.user, from_user=collaborator) | Q(to_user=collaborator, from_user=self.user)
+                    Q(to_user=self._user, from_user=collaborator) | Q(to_user=collaborator, from_user=self._user)
                 )
                 if not collaborator_friend:
                     continue
