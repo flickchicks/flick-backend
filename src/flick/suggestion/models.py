@@ -21,3 +21,4 @@ class PrivateSuggestion(models.Model):
 
     class Meta:
         unique_together = ["message", "show", "from_user", "to_user"]
+        ordering = ["created_at"]
