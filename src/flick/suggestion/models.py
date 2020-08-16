@@ -18,3 +18,6 @@ class PrivateSuggestion(models.Model):
     message = models.CharField(max_length=140, blank=True)
     show = models.ForeignKey(Show, related_name="suggestion", blank=False, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ["message", "show", "from_user", "to_user"]

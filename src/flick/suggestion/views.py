@@ -42,17 +42,16 @@ class PrivateSuggesionView(generics.GenericAPIView):
                 if not User.objects.filter(id=friend_id):
                     continue
                 friend = User.objects.get(id=friend_id)
-                if not Friend.objects.filter(to_user=user, from_user=friend):
+                if not Friend.objects.are_friends(user, friend):
                     continue
                 pri_suggestion = PrivateSuggestion()
                 pri_suggestion.from_user = profile
                 pri_suggestion.to_user = friend
                 pri_suggestion.show = show
-                pri_suggestion.save()
                 if data.get("message"):
                     pri_suggestion.message = data.get("message")
-                    pri_suggestion.save()
 
+                pri_suggestion.save()
                 suggestions.append(pri_suggestion)
             except Exception as e:
                 print(str(e))
