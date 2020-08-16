@@ -26,16 +26,16 @@ class CreateLstController:
         return notif
 
     def process(self):
-        lst_name = self._data.get("lst_name")
-        lst_pic = self._data.get("lst_pic")
+        name = self._data.get("name")
+        pic = self._data.get("pic")
         is_private = self._data.get("is_private", False)
         collaborator_ids = self._data.get("collaborators", [])
         show_ids = self._data.get("shows", [])
         tag_ids = self._data.get("tags", [])
 
         lst = Lst()
-        lst.lst_name = lst_name
-        lst.lst_pic = lst_pic
+        lst.name = name
+        lst.pic = pic
         lst.is_private = is_private
         self._profile = Profile.objects.get(user=self._request.user)
         lst.owner = self._profile

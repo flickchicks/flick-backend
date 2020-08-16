@@ -80,14 +80,14 @@ class UpdateLstTests(TestCase):
         response = self.client.post(self.FRIEND_REQUEST_URL, request_data, format="json")
         data = json.loads(response.content)["data"]
         self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["to_user"]["user_id"], "2")
+        self.assertEqual(data[0]["to_user"]["user_id"], 2)
 
     def _accept_user_friend_requests(self, token):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
         request_data = {"user_ids": [1]}
         response = self.client.post(self.FRIEND_ACCEPT_URL, request_data, format="json")
         data = json.loads(response.content)["data"]
-        self.assertEqual(data[0]["from_user"]["user_id"], "1")
+        self.assertEqual(data[0]["from_user"]["user_id"], 1)
 
     def _add_friends(self):
         self._send_friend_requests()
@@ -95,26 +95,20 @@ class UpdateLstTests(TestCase):
 
     def _create_list(self):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
-        request_data = {
-            "lst_name": "Alanna's Kdramas",
-            "is_private": False,
-            "collaborators": [],
-            "shows": [],
-            "tags": [],
-        }
+        request_data = {"name": "Alanna's Kdramas", "is_private": False, "collaborators": [], "shows": [], "tags": []}
         response = self.client.post(self.CREATE_LST_URL, request_data, format="json")
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)["data"]
-        self.assertEqual(data["lst_id"], "5")
+        self.assertEqual(data["id"], 5)
         self.assertEqual(data["is_private"], False)
         self.assertEqual(len(data["collaborators"]), 0)
         self.assertEqual(len(data["tags"]), 0)
         self.assertEqual(len(data["shows"]), 0)
-        self.assertEqual(data["owner"]["user_id"], "1")
+        self.assertEqual(data["owner"]["user_id"], 1)
 
-    def _update_list(self, lst_name, is_private, collaborators, shows, tags, is_add=False, is_remove=False):
+    def _update_list(self, name, is_private, collaborators, shows, tags, is_add=False, is_remove=False):
         request_data = {
-            "lst_name": lst_name,
+            "name": name,
             "is_private": is_private,
             "collaborators": collaborators,
             "shows": shows,
@@ -134,13 +128,11 @@ class UpdateLstTests(TestCase):
         self._create_list()
         show_ids = self._get_created_show_ids(num_shows=2)
         tag_ids = self._get_created_tag_ids(num_tags=2)
-        lst_name = "Updated kdramaz"
+        name = "Updated kdramaz"
         is_private = True
-        data = self._update_list(
-            lst_name=lst_name, is_private=is_private, collaborators=[2], shows=show_ids, tags=tag_ids
-        )
-        self.assertEqual(data["lst_id"], "5")
-        self.assertEqual(data["lst_name"], lst_name)
+        data = self._update_list(name=name, is_private=is_private, collaborators=[2], shows=show_ids, tags=tag_ids)
+        self.assertEqual(data["id"], 5)
+        self.assertEqual(data["name"], name)
         self.assertEqual(data["is_private"], is_private)
         self.assertEqual(len(data["collaborators"]), 1)
         self.assertEqual(len(data["shows"]), 2)
@@ -150,23 +142,23 @@ class UpdateLstTests(TestCase):
         self._create_list()
         show_ids = self._get_created_show_ids(num_shows=2)
         tag_ids = self._get_created_tag_ids(num_tags=2)
-        lst_name = "Updated kdramaz"
+        name = "Updated kdramaz"
         is_private = True
         data = self._update_list(
-            lst_name=lst_name, is_private=is_private, collaborators=[2], shows=show_ids, tags=tag_ids, is_add=True
+            name=name, is_private=is_private, collaborators=[2], shows=show_ids, tags=tag_ids, is_add=True
         )
-        self.assertEqual(data["lst_id"], "5")
-        self.assertEqual(data["lst_name"], lst_name)
+        self.assertEqual(data["id"], 5)
+        self.assertEqual(data["name"], name)
         self.assertEqual(data["is_private"], is_private)
         self.assertEqual(len(data["collaborators"]), 1)
         self.assertEqual(len(data["shows"]), 2)
         self.assertEqual(len(data["tags"]), 2)
 
         data = self._update_list(
-            lst_name=lst_name, is_private=is_private, collaborators=[2], shows=show_ids, tags=tag_ids, is_remove=True
+            name=name, is_private=is_private, collaborators=[2], shows=show_ids, tags=tag_ids, is_remove=True
         )
-        self.assertEqual(data["lst_id"], "5")
-        self.assertEqual(data["lst_name"], lst_name)
+        self.assertEqual(data["id"], 5)
+        self.assertEqual(data["name"], name)
         self.assertEqual(data["is_private"], is_private)
         self.assertEqual(len(data["collaborators"]), 0)
         self.assertEqual(len(data["shows"]), 0)

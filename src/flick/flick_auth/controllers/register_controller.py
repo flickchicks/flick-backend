@@ -36,8 +36,8 @@ class RegisterController:
             group.name = "consumer_basic"
             group.save()
         profile.group = Group.objects.get(name="consumer_basic")
-        Lst.objects.create(owner=profile, is_saved=True, lst_name="Saved")
-        Lst.objects.create(owner=profile, is_watch_later=True, lst_name="Watch Later")
+        Lst.objects.create(owner=profile, is_saved=True, name="Saved")
+        Lst.objects.create(owner=profile, is_watch_later=True, name="Watch Later")
         profile.save()
         return profile
 

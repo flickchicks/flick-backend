@@ -7,11 +7,9 @@ from .models import Lst
 
 
 class LstSimpleSerializer(serializers.ModelSerializer):
-    lst_id = serializers.CharField(source="id")
-
     class Meta:
         model = Lst
-        fields = ("lst_id", "lst_name", "lst_pic", "is_saved", "is_private", "is_watch_later")
+        fields = ("id", "name", "pic", "is_saved", "is_private", "is_watch_later")
         read_only_fields = fields
 
 
@@ -25,5 +23,5 @@ class MeLstSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Lst
-        fields = ("id", "lst_name", "is_private", "collaborators", "shows")
+        fields = ("id", "name", "is_private", "collaborators", "shows")
         read_only_fields = fields

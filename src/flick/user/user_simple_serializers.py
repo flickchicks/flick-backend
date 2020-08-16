@@ -1,16 +1,11 @@
-from django.contrib.auth import get_user_model
-from django.contrib.auth.models import User
-
-from rest_framework import serializers
-
-from .serializers import UserSerializer
 from asset.serializers import AssetBundleDetailSerializer
-from user.models import Profile
+from django.contrib.auth.models import User
+from rest_framework import serializers
 
 
 class UserSimpleSerializer(serializers.ModelSerializer):
-    profile_id = serializers.CharField(source="profile.id")
-    user_id = serializers.CharField(source="id")
+    profile_id = serializers.IntegerField(source="profile.id")
+    user_id = serializers.IntegerField(source="id")
     profile_pic = AssetBundleDetailSerializer(source="profile.profile_asset_bundle")
 
     class Meta:

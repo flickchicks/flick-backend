@@ -5,8 +5,8 @@ from rest_framework import serializers
 
 
 class ProfileSimpleSerializer(serializers.ModelSerializer):
-    profile_id = serializers.CharField(source="id")
-    user_id = serializers.CharField(source="user.id")
+    profile_id = serializers.IntegerField(source="id")
+    user_id = serializers.IntegerField(source="user.id")
     profile_pic = AssetBundleDetailSerializer(source="profile_asset_bundle")
     username = serializers.CharField(source="user.username")
     first_name = serializers.CharField(source="user.first_name")

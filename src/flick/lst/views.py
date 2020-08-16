@@ -12,12 +12,13 @@ from .controllers.delete_lst_controller import DeleteLstController
 from .controllers.update_lst_controller import UpdateLstController
 from .models import Lst
 from .serializers import LstSerializer
+from .serializers import LstWithSimpleShowsSerializer
 
 
 class LstList(generics.GenericAPIView):
 
     queryset = Lst.objects.all()
-    serializer_class = LstSerializer
+    serializer_class = LstWithSimpleShowsSerializer
 
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
@@ -27,7 +28,7 @@ class LstList(generics.GenericAPIView):
             return failure_response(f"No user to be found with id of {request.user.id}.")
         profile = Profile.objects.get(user=request.user)
         lsts = Lst.objects.filter(Q(owner=profile) | Q(collaborators=profile) | Q(is_private=False))
-        serializer = LstSerializer(lsts, many=True)
+        serializer = self.serializer_class(lsts, many=True)
         return success_response(serializer.data)
 
     def post(self, request):
@@ -39,7 +40,7 @@ class LstList(generics.GenericAPIView):
 class LstDetail(generics.GenericAPIView):
 
     queryset = Lst.objects.all()
-    serializer_class = LstSerializer
+    serializer_class = LstWithSimpleShowsSerializer
 
     permission_classes = api_settings.UNPROTECTED
 
@@ -58,7 +59,7 @@ class LstDetail(generics.GenericAPIView):
         user_is_collaborator = profile in lst.collaborators.all()
         user_is_owner = profile == lst.owner
         if not lst.is_private or user_is_collaborator or user_is_owner:
-            serializer = LstSerializer(lst, many=False)
+            serializer = self.serializer_class(lst, many=False)
             return success_response(serializer.data)
         else:
             return failure_response(
@@ -75,8 +76,8 @@ class LstDetail(generics.GenericAPIView):
     def post(self, request, pk):
         """
         Update a list by id.
-        Collaborators can update lst_pic, is_saved, is_watch_later, collaborators, and shows.
-        An owner can update lst_name, lst_pic, is_saved, is_private, is_watch_later, collaborators, the owner (can cede ownership completely to another user), and shows.
+        Collaborators can update pic, is_saved, is_watch_later, collaborators, and shows.
+        An owner can update name, pic, is_saved, is_private, is_watch_later, collaborators, the owner (can cede ownership completely to another user), and shows.
         """
         data = json.loads(request.body)
         return UpdateLstController(request, pk, data, self.serializer_class).process()
@@ -92,8 +93,8 @@ class LstDetailAdd(generics.GenericAPIView):
     def post(self, request, pk):
         """
         Update a list by id by adding all of the fields passed in.
-        Collaborators can update lst_pic, is_saved, is_watch_later, collaborators, and shows.
-        An owner can update lst_name, lst_pic, is_saved, is_private, is_watch_later, collaborators, the owner (can cede ownership completely to another user), and shows.
+        Collaborators can update pic, is_saved, is_watch_later, collaborators, and shows.
+        An owner can update name, pic, is_saved, is_private, is_watch_later, collaborators, the owner (can cede ownership completely to another user), and shows.
         """
         data = json.loads(request.body)
         return UpdateLstController(
@@ -111,8 +112,8 @@ class LstDetailRemove(generics.GenericAPIView):
     def post(self, request, pk):
         """
         Update a list by id by adding all of the fields passed in.
-        Collaborators can update lst_pic, is_saved, is_watch_later, collaborators, and shows.
-        An owner can update lst_name, lst_pic, is_saved, is_private, is_watch_later, collaborators, the owner (can cede ownership completely to another user), and shows.
+        Collaborators can update pic, is_saved, is_watch_later, collaborators, and shows.
+        An owner can update name, pic, is_saved, is_private, is_watch_later, collaborators, the owner (can cede ownership completely to another user), and shows.
         """
         data = json.loads(request.body)
         return UpdateLstController(

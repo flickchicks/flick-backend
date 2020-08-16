@@ -50,14 +50,14 @@ class ListInviteNotificationTests(TestCase):
         response = self.client.post(self.FRIEND_REQUEST_URL, request_data, format="json")
         data = json.loads(response.content)["data"]
         self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["to_user"]["user_id"], "2")
+        self.assertEqual(data[0]["to_user"]["user_id"], 2)
 
     def _accept_user_friend_requests(self, token):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
         request_data = {"user_ids": [1]}
         response = self.client.post(self.FRIEND_ACCEPT_URL, request_data, format="json")
         data = json.loads(response.content)["data"]
-        self.assertEqual(data[0]["from_user"]["user_id"], "1")
+        self.assertEqual(data[0]["from_user"]["user_id"], 1)
 
     def _add_friends(self):
         self._send_friend_requests()
@@ -65,42 +65,42 @@ class ListInviteNotificationTests(TestCase):
 
     def _create_list(self):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
-        request_data = {"lst_name": "Alanna's Kdramas", "collaborators": [2], "shows": [], "tags": []}
+        request_data = {"name": "Alanna's Kdramas", "collaborators": [2], "shows": [], "tags": []}
         response = self.client.post(self.CREATE_LST_URL, request_data, format="json")
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)["data"]
         # each user gets 2 default lists, additional one will have id of 5
-        self.assertEqual(data["lst_id"], "5")
-        self.assertEqual(data["collaborators"][0]["user_id"], "2")
-        self.assertEqual(data["owner"]["user_id"], "1")
+        self.assertEqual(data["id"], 5)
+        self.assertEqual(data["collaborators"][0]["user_id"], 2)
+        self.assertEqual(data["owner"]["user_id"], 1)
 
     def _create_and_update_list(self):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
-        request_data = {"lst_name": "Alanna's Kdramas", "collaborators": [], "shows": [], "tags": []}
+        request_data = {"name": "Alanna's Kdramas", "collaborators": [], "shows": [], "tags": []}
         response = self.client.post(self.CREATE_LST_URL, request_data, format="json")
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)["data"]
         # each user gets 2 default lists, additional one will have id of 5
-        self.assertEqual(data["lst_id"], "5")
+        self.assertEqual(data["id"], 5)
         self.assertEqual(len(data["collaborators"]), 0)
-        self.assertEqual(data["owner"]["user_id"], "1")
+        self.assertEqual(data["owner"]["user_id"], 1)
 
-        request_data = {"lst_name": "Alanna's Kdramas", "collaborators": [2], "shows": [], "tags": []}
+        request_data = {"name": "Alanna's Kdramas", "collaborators": [2], "shows": [], "tags": []}
         response = self.client.post(self.UPDATE_LST_URL, request_data, format="json")
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)["data"]
-        self.assertEqual(data["lst_id"], "5")
-        self.assertEqual(data["collaborators"][0]["user_id"], "2")
-        self.assertEqual(data["owner"]["user_id"], "1")
+        self.assertEqual(data["id"], 5)
+        self.assertEqual(data["collaborators"][0]["user_id"], 2)
+        self.assertEqual(data["owner"]["user_id"], 1)
 
     def _check_notification(self):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.friend_token)
         response = self.client.get(self.NOTIFICATIONS_URL)
         data = json.loads(response.content)["data"][0]
         self.assertEqual(data["notif_type"], "list_invite")
-        self.assertEqual(data["from_user"]["user_id"], "1")
-        self.assertEqual(data["to_user"]["user_id"], "2")
-        self.assertEqual(data["lst"]["lst_id"], "5")
+        self.assertEqual(data["from_user"]["user_id"], 1)
+        self.assertEqual(data["to_user"]["user_id"], 2)
+        self.assertEqual(data["lst"]["id"], 5)
 
     def test_list_invite_via_list_creation(self):
         self._create_list()
