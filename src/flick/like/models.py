@@ -11,3 +11,4 @@ class Like(models.Model):
 
     class Meta:
         unique_together = ["liker", "comment"]
+        ordering = ["-created_at"]
