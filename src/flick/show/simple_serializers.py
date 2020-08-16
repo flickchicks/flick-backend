@@ -8,3 +8,10 @@ class ShowSimpleSerializer(ModelSerializer):
         model = Show
         fields = ("id", "title", "poster_pic", "directors", "is_tv")
         read_only_fields = fields
+
+
+class ShowSimplestSerializer(ModelSerializer):
+    class Meta:
+        model = Show
+        fields = ("id", "poster_pic")
+        read_only_fields = fields

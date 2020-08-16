@@ -89,13 +89,13 @@ class ShowRatingsAndCommentTests(TestCase):
 
     def _send_friend_requests(self):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
-        request_data = {"user_ids": [2, 3]}
+        request_data = {"ids": [2, 3]}
         response = self.client.post(self.FRIEND_REQUEST_URL, request_data, format="json")
         json.loads(response.content)["data"]
 
     def _accept_user_friend_requests(self, token):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
-        request_data = {"user_ids": [1]}
+        request_data = {"ids": [1]}
         response = self.client.post(self.FRIEND_ACCEPT_URL, request_data, format="json")
         json.loads(response.content)["data"]
 

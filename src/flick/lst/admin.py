@@ -16,7 +16,7 @@ class LstAdmin(admin.ModelAdmin):
 
         return mark_safe(html)
 
-    list_display = ["owner", "lst_name", "is_saved", "is_watch_later", "preview", "show_titles"]
+    list_display = ["owner", "name", "is_saved", "is_watch_later", "preview", "show_titles"]
     # readonly_fields = ('preview',)
 
 

@@ -1,26 +1,16 @@
-from api import settings as api_settings
-from django.contrib.auth.models import User
-from django.db import IntegrityError
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework import generics, mixins, status, viewsets
-from rest_framework.parsers import JSONParser
-from rest_framework.response import Response
-from rest_framework.serializers import CurrentUserDefault, ModelSerializer, PrimaryKeyRelatedField
-from rest_framework.views import APIView
-
-from friendship.models import Block, Friend, FriendshipRequest, Follow
-
-from api.utils import failure_response, success_response
-from friend.serializers import (
-    FriendUserSerializer,
-    FriendRequestSerializer,
-    FriendshipSerializer,
-    IncomingRequestSerializer,
-)
-
 import json
+
+from api import settings as api_settings
+from api.utils import success_response
+from django.contrib.auth.models import User
+from friend.serializers import FriendRequestSerializer
+from friend.serializers import FriendshipSerializer
+from friend.serializers import FriendUserSerializer
+from friend.serializers import IncomingRequestSerializer
+from friendship.models import Friend
+from friendship.models import FriendshipRequest
+from rest_framework import generics
+from rest_framework.views import APIView
 
 
 class FriendList(APIView):
@@ -51,7 +41,7 @@ class FriendRequestListAndCreate(generics.ListCreateAPIView):
     def post(self, request, format=None):
         data = json.loads(request.body)
         friend_requests = []
-        for friend_id in data.get("user_ids"):
+        for friend_id in data.get("ids"):
             try:
                 user = User.objects.get(id=friend_id)
                 friend_requests.append(Friend.objects.add_friend(request.user, user))
@@ -78,11 +68,11 @@ class FriendAcceptListAndCreate(generics.ListCreateAPIView):
     def post(self, request, format=None):
         data = json.loads(request.body)
         friends_accepted = []
-        for friend_id in data.get("user_ids"):
+        for friend_id in data.get("ids"):
             try:
                 friend = User.objects.get(id=friend_id)
-                user_id = request.user.id
-                friend_request = FriendshipRequest.objects.get(from_user=friend.id, to_user=user_id)
+                id = request.user.id
+                friend_request = FriendshipRequest.objects.get(from_user=friend.id, to_user=id)
                 friend_request.accept()
                 friends_accepted.append(friend_request)
             except Exception as e:
@@ -109,10 +99,10 @@ class FriendRejectListAndCreate(generics.ListCreateAPIView):
     def post(self, request, format=None):
         data = json.loads(request.body)
         friends_rejected = []
-        for friend_id in data.get("user_ids"):
+        for friend_id in data.get("ids"):
             friend = User.objects.get(id=friend_id)
-            user_id = request.user.id
-            friend_request = FriendshipRequest.objects.get(from_user=friend.id, to_user=user_id)
+            id = request.user.id
+            friend_request = FriendshipRequest.objects.get(from_user=friend.id, to_user=id)
             friend_request.reject()
             friends_rejected.append(friend_request)
 
@@ -131,7 +121,7 @@ class FriendRemoveListAndCreate(generics.ListCreateAPIView):
     def post(self, request, format=None):
         data = json.loads(request.body)
         friends_removed = []
-        for friend_id in data.get("user_ids"):
+        for friend_id in data.get("ids"):
             try:
                 friend = User.objects.get(id=friend_id)
                 Friend.objects.remove_friend(request.user, friend)

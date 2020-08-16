@@ -79,7 +79,7 @@ class UpdateLstController:
                         self._lst.collaborators.add(c)
 
     def process(self):
-        lst_name = self._data.get("lst_name")
+        name = self._data.get("name")
         lst_pic = self._data.get("lst_pic")
         is_private = self._data.get("is_private", False)
         collaborator_ids = self._data.get("collaborators", [])
@@ -105,7 +105,7 @@ class UpdateLstController:
             self._modify_shows(show_ids)
             self._modify_tags(tag_ids)
             if not (self._lst.is_saved or self._lst.is_watch_later):
-                self._lst.lst_name = lst_name
+                self._lst.name = name
                 self._lst.lst_pic = lst_pic
                 self._modify_collaborators(collaborator_ids)
                 owner_user = User.objects.get(pk=owner_id)
