@@ -1,10 +1,7 @@
-from django.contrib.auth import get_user_model
-from django.contrib.auth.models import User
-
-from rest_framework import serializers
+from user.models import Profile
 
 from asset.serializers import AssetBundleDetailSerializer
-from user.models import Profile
+from rest_framework import serializers
 
 
 class ProfileSimpleSerializer(serializers.ModelSerializer):
@@ -18,4 +15,13 @@ class ProfileSimpleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ("user_id", "username", "first_name", "last_name", "profile_id", "profile_pic")
+        read_only_fields = fields
+
+
+class ProfileSimplestSerializer(serializers.ModelSerializer):
+    profile_pic = AssetBundleDetailSerializer(source="profile_asset_bundle")
+
+    class Meta:
+        model = Profile
+        fields = ("profile_pic",)
         read_only_fields = fields

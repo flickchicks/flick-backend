@@ -2,7 +2,7 @@ from user.models import Profile
 
 from asset.serializers import AssetBundleDetailSerializer
 from django.contrib.auth.models import User
-from lst.serializers import LstSerializer
+from lst.simple_serializers import MeLstSerializer
 from rest_framework import serializers
 
 
@@ -42,8 +42,8 @@ class ProfileSerializer(serializers.ModelSerializer):
     last_name = serializers.CharField(source="user.last_name")
     username = serializers.CharField(source="user.username")
     profile_pic = AssetBundleDetailSerializer(source="profile_asset_bundle")
-    owner_lsts = LstSerializer(read_only=True, many=True)
-    collab_lsts = LstSerializer(read_only=True, many=True)
+    owner_lsts = MeLstSerializer(read_only=True, many=True)
+    collab_lsts = MeLstSerializer(read_only=True, many=True)
 
     class Meta:
         model = Profile
