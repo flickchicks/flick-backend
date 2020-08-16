@@ -13,7 +13,7 @@ class Comment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ["created_at"]
+        ordering = ["-created_at"]
         unique_together = ["owner", "message", "is_spoiler", "show"]
 
     def __str__(self):

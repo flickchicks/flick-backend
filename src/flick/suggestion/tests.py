@@ -8,7 +8,7 @@ from rest_framework.test import APIClient
 from show.models import Show
 
 
-class ShowRatingsTests(TestCase):
+class PrivateSuggestionTests(TestCase):
     REGISTER_URL = reverse("register")
     LOGIN_URL = reverse("login")
     FRIEND_REQUEST_URL = reverse("friend-request")
@@ -20,8 +20,7 @@ class ShowRatingsTests(TestCase):
         self.user_token = self._create_user_and_login()
         self.friend1_token = self._create_user_and_login()
         self.friend2_token = self._create_user_and_login()
-        self._add_friends()
-        self.SHOW_DETAIL_URL = reverse("show-detail", kwargs={"pk": self.show.pk})
+        self.SUGGESTION_URL = reverse("private-suggestion")
 
     def _create_show(self):
         show = Show()
@@ -47,11 +46,11 @@ class ShowRatingsTests(TestCase):
         random_string = "".join(random.choice(letters) for i in range(10))
         register_data = {
             "username": "",
-            "first_name": "Alanna",
-            "last_name": "Zhou",
+            "first_name": "Alanna1",
+            "last_name": "Zhou1",
             "profile_pic": "",
             "social_id_token": random_string,
-            "social_id_token_type": "test",
+            "social_id_token_type": "test1",
         }
         response = self.client.post(self.REGISTER_URL, register_data)
         self.assertEqual(response.status_code, 200)
@@ -63,16 +62,15 @@ class ShowRatingsTests(TestCase):
         token = json.loads(response.content)["data"]["auth_token"]
         return token
 
-    def test_user_can_rate_show(self):
-        self._rate_show(self.user_token, 4)
-
-    def _rate_show(self, token, rating):
+    def _suggest_show(self, token, suggest_data):
+        self._add_friends()
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
-        rating_data = {"user_rating": rating}
-        response = self.client.post(self.SHOW_DETAIL_URL, rating_data, format="json")
-        content = json.loads(response.content)
+        response = self.client.post(self.SUGGESTION_URL, suggest_data, format="json")
+        data = json.loads(response.content)["data"]
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(content["data"]["user_rating"], rating)
+        self.assertEqual(len(data), 2)
+        self.assertEqual(data[-1]["show"]["id"], suggest_data.get("show_id"))
+        self.assertEqual(data[-1]["message"], suggest_data.get("message"))
 
     def _send_friend_requests(self):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
@@ -91,16 +89,20 @@ class ShowRatingsTests(TestCase):
         self._accept_user_friend_requests(self.friend1_token)
         self._accept_user_friend_requests(self.friend2_token)
 
-    def _check_friends_rating(self, rating):
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
-        response = self.client.get(self.SHOW_DETAIL_URL)
-        content = json.loads(response.content)
+    def _check_suggestion(self, friend_token, suggest_data):
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + friend_token)
+        response = self.client.get(self.SUGGESTION_URL)
+        data = json.loads(response.content)["data"]
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(content["data"]["friends_rating"], rating)
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[-1]["show"]["id"], suggest_data.get("show_id"))
+        self.assertEqual(data[-1]["message"], suggest_data.get("message"))
 
-    def test_friends_rating(self):
-        friend1_rating, friend2_rating = 8, 4
-        avg_rating = (friend1_rating + friend2_rating) / 2
-        self._rate_show(self.friend1_token, friend1_rating)
-        self._rate_show(self.friend2_token, friend2_rating)
-        self._check_friends_rating(avg_rating)
+    def test_suggestions(self):
+        suggest_data = {"users": [2, 3], "message": "Great film", "show_id": self.show.pk}
+        # test if user can suggest show
+        self._suggest_show(self.user_token, suggest_data)
+
+        # test if friends can view the sent suggstion
+        self._check_suggestion(self.friend1_token, suggest_data)
+        self._check_suggestion(self.friend2_token, suggest_data)
