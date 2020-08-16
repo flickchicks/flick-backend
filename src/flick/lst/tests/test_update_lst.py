@@ -76,18 +76,18 @@ class UpdateLstTests(TestCase):
 
     def _send_friend_requests(self):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
-        request_data = {"user_ids": [2]}
+        request_data = {"ids": [2]}
         response = self.client.post(self.FRIEND_REQUEST_URL, request_data, format="json")
         data = json.loads(response.content)["data"]
         self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["to_user"]["user_id"], 2)
+        self.assertEqual(data[0]["to_user"]["id"], 2)
 
     def _accept_user_friend_requests(self, token):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
-        request_data = {"user_ids": [1]}
+        request_data = {"ids": [1]}
         response = self.client.post(self.FRIEND_ACCEPT_URL, request_data, format="json")
         data = json.loads(response.content)["data"]
-        self.assertEqual(data[0]["from_user"]["user_id"], 1)
+        self.assertEqual(data[0]["from_user"]["id"], 1)
 
     def _add_friends(self):
         self._send_friend_requests()
@@ -104,7 +104,7 @@ class UpdateLstTests(TestCase):
         self.assertEqual(len(data["collaborators"]), 0)
         self.assertEqual(len(data["tags"]), 0)
         self.assertEqual(len(data["shows"]), 0)
-        self.assertEqual(data["owner"]["user_id"], 1)
+        self.assertEqual(data["owner"]["id"], 1)
 
     def _update_list(self, name, is_private, collaborators, shows, tags, is_add=False, is_remove=False):
         request_data = {

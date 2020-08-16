@@ -43,7 +43,7 @@ class MeTests(TestCase):
         response = self.client.get(self.ME_URL)
         content = json.loads(response.content)["data"]
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(content.get("user_id"), 1)
+        self.assertEqual(content.get("id"), 1)
         self.assertEqual(content.get("username"), "AlannaZhou")
         self.assertEqual(content.get("first_name"), "Alanna")
         self.assertEqual(content.get("last_name"), "Zhou")

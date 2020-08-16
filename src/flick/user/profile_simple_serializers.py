@@ -5,8 +5,7 @@ from rest_framework import serializers
 
 
 class ProfileSimpleSerializer(serializers.ModelSerializer):
-    profile_id = serializers.IntegerField(source="id")
-    user_id = serializers.IntegerField(source="user.id")
+    id = serializers.IntegerField(source="user.id")
     profile_pic = AssetBundleDetailSerializer(source="profile_asset_bundle")
     username = serializers.CharField(source="user.username")
     first_name = serializers.CharField(source="user.first_name")
@@ -14,7 +13,7 @@ class ProfileSimpleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ("user_id", "username", "first_name", "last_name", "profile_id", "profile_pic")
+        fields = ("id", "username", "first_name", "last_name", "profile_pic")
         read_only_fields = fields
 
 

@@ -36,8 +36,7 @@ class UserListSerializer(UserSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    profile_id = serializers.IntegerField(source="id")
-    user_id = serializers.IntegerField(source="user.id")
+    id = serializers.IntegerField(source="user.id")
     first_name = serializers.CharField(source="user.first_name")
     last_name = serializers.CharField(source="user.last_name")
     username = serializers.CharField(source="user.username")
@@ -48,11 +47,10 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = (
-            "user_id",
+            "id",
             "username",
             "first_name",
             "last_name",
-            "profile_id",
             "profile_pic",
             "bio",
             "phone_number",

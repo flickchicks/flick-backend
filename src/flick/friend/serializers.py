@@ -6,14 +6,12 @@ from rest_framework import serializers
 
 
 class FriendUserSerializer(serializers.ModelSerializer):
-
     bio = serializers.CharField(source="profile.bio")
     profile_pic = AssetBundleDetailSerializer(source="profile.profile_asset_bundle")
-    user_id = serializers.IntegerField(source="id")
 
     class Meta:
         model = User
-        fields = (User.USERNAME_FIELD, "user_id", "first_name", "last_name", "bio", "profile_pic")
+        fields = (User.USERNAME_FIELD, "id", "first_name", "last_name", "bio", "profile_pic")
         write_only_fields = fields
 
 
