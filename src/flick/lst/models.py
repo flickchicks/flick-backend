@@ -6,8 +6,8 @@ from tag.models import Tag
 
 
 class Lst(models.Model):
-    lst_name = models.CharField(max_length=100)
-    lst_pic = models.TextField(blank=True, null=True)
+    name = models.CharField(max_length=100)
+    pic = models.TextField(blank=True, null=True)
     # lst_asset_bundle = models.ForeignKey(AssetBundle, on_delete=models.CASCADE, blank=True, null=True)
     is_saved = models.BooleanField(default=False, null=True)
     is_private = models.BooleanField(default=False, null=True)
@@ -30,5 +30,5 @@ class Lst(models.Model):
     def poster_pics(self):
         return [s.poster_pic for s in self.shows.all()]
 
-    def upload_lst_pic(self):
+    def upload_pic(self):
         pass  # TODO: look at upload_profile_pic in user models

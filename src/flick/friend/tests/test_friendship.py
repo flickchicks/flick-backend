@@ -50,9 +50,7 @@ class FriendshipTests(TestCase):
     def test_send_friend_request(self):
         token = self._login_user("alanna", "test1")
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
-        request_data = {
-            "user_ids": [2, 3],
-        }
+        request_data = {"ids": [2, 3]}
         response = self.client.post(self.FRIEND_REQUEST_URL, request_data, format="json")
         self.assertEqual(response.status_code, 200)
 
@@ -71,8 +69,6 @@ class FriendshipTests(TestCase):
     def test_accept_incoming_friend_request(self):
         token = self._login_user("vivi", "test2")
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
-        request_data = {
-            "user_ids": [1],
-        }
+        request_data = {"ids": [1]}
         response = self.client.post(self.FRIEND_REQUEST_URL, request_data, format="json")
         self.assertEqual(response.status_code, 200)
