@@ -11,7 +11,6 @@ from .controllers.create_lst_controller import CreateLstController
 from .controllers.delete_lst_controller import DeleteLstController
 from .controllers.update_lst_controller import UpdateLstController
 from .models import Lst
-from .serializers import LstSerializer
 from .serializers import LstWithSimpleShowsSerializer
 
 
@@ -86,7 +85,7 @@ class LstDetail(generics.GenericAPIView):
 class LstDetailAdd(generics.GenericAPIView):
 
     queryset = Lst.objects.all()
-    serializer_class = LstSerializer
+    serializer_class = LstWithSimpleShowsSerializer
 
     permission_classes = api_settings.UNPROTECTED
 
@@ -105,7 +104,7 @@ class LstDetailAdd(generics.GenericAPIView):
 class LstDetailRemove(generics.GenericAPIView):
 
     queryset = Lst.objects.all()
-    serializer_class = LstSerializer
+    serializer_class = LstWithSimpleShowsSerializer
 
     permission_classes = api_settings.UNPROTECTED
 
