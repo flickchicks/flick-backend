@@ -2,8 +2,11 @@ import json
 import random
 import string
 
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
+from friendship.exceptions import AlreadyFriendsError
+from friendship.models import Friend
 from rest_framework.test import APIClient
 from show.models import Show
 
@@ -11,8 +14,6 @@ from show.models import Show
 class ShowRatingsAndCommentTests(TestCase):
     REGISTER_URL = reverse("register")
     LOGIN_URL = reverse("login")
-    FRIEND_REQUEST_URL = reverse("friend-request")
-    FRIEND_ACCEPT_URL = reverse("friend-accept")
 
     def setUp(self):
         self.client = APIClient()
@@ -87,25 +88,15 @@ class ShowRatingsAndCommentTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(comment["message"], comment_data.get("comment").get("message"))
 
-    def _send_friend_requests(self):
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
-        request_data = {"ids": [2, 3]}
-        response = self.client.post(self.FRIEND_REQUEST_URL, request_data, format="json")
-        json.loads(response.content)["data"]
-
-    def _accept_user_friend_requests(self, token):
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
-        request_data = {"ids": [1]}
-        response = self.client.post(self.FRIEND_ACCEPT_URL, request_data, format="json")
-        json.loads(response.content)["data"]
-
-    def _add_friends(self):
-        self._send_friend_requests()
-        self._accept_user_friend_requests(self.friend1_token)
-        self._accept_user_friend_requests(self.friend2_token)
+    def _create_friendship(self, user1, user2):
+        try:
+            Friend.objects.add_friend(user1, user2).accept()
+        except AlreadyFriendsError:
+            return
 
     def _check_friends_rating(self, rating):
-        self._add_friends()
+        self._create_friendship(user1=User.objects.get(id=1), user2=User.objects.get(id=2))
+        self._create_friendship(user1=User.objects.get(id=1), user2=User.objects.get(id=3))
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
         response = self.client.get(self.SHOW_DETAIL_URL)
         content = json.loads(response.content)

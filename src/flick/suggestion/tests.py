@@ -2,8 +2,11 @@ import json
 import random
 import string
 
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
+from friendship.exceptions import AlreadyFriendsError
+from friendship.models import Friend
 from rest_framework.test import APIClient
 from show.models import Show
 
@@ -11,8 +14,7 @@ from show.models import Show
 class PrivateSuggestionTests(TestCase):
     REGISTER_URL = reverse("register")
     LOGIN_URL = reverse("login")
-    FRIEND_REQUEST_URL = reverse("friend-request")
-    FRIEND_ACCEPT_URL = reverse("friend-accept")
+    SUGGESTION_URL = reverse("private-suggestion")
 
     def setUp(self):
         self.client = APIClient()
@@ -20,7 +22,8 @@ class PrivateSuggestionTests(TestCase):
         self.user_token = self._create_user_and_login()
         self.friend1_token = self._create_user_and_login()
         self.friend2_token = self._create_user_and_login()
-        self.SUGGESTION_URL = reverse("private-suggestion")
+        self._create_friendship(user1=User.objects.get(id=1), user2=User.objects.get(id=2))
+        self._create_friendship(user1=User.objects.get(id=1), user2=User.objects.get(id=3))
 
     def _create_show(self):
         show = Show()
@@ -63,7 +66,6 @@ class PrivateSuggestionTests(TestCase):
         return token
 
     def _suggest_show(self, token, suggest_data):
-        self._add_friends()
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
         response = self.client.post(self.SUGGESTION_URL, suggest_data, format="json")
         data = json.loads(response.content)["data"]
@@ -72,22 +74,11 @@ class PrivateSuggestionTests(TestCase):
         self.assertEqual(data[-1]["show"]["id"], suggest_data.get("show_id"))
         self.assertEqual(data[-1]["message"], suggest_data.get("message"))
 
-    def _send_friend_requests(self):
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
-        request_data = {"ids": [2, 3]}
-        response = self.client.post(self.FRIEND_REQUEST_URL, request_data, format="json")
-        json.loads(response.content)["data"]
-
-    def _accept_user_friend_requests(self, token):
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
-        request_data = {"ids": [1]}
-        response = self.client.post(self.FRIEND_ACCEPT_URL, request_data, format="json")
-        json.loads(response.content)["data"]
-
-    def _add_friends(self):
-        self._send_friend_requests()
-        self._accept_user_friend_requests(self.friend1_token)
-        self._accept_user_friend_requests(self.friend2_token)
+    def _create_friendship(self, user1, user2):
+        try:
+            Friend.objects.add_friend(user1, user2).accept()
+        except AlreadyFriendsError:
+            return
 
     def _check_suggestion(self, friend_token, suggest_data):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + friend_token)
@@ -100,6 +91,7 @@ class PrivateSuggestionTests(TestCase):
 
     def test_suggestions(self):
         suggest_data = {"users": [2, 3], "message": "Great film", "show_id": self.show.pk}
+
         # test if user can suggest show
         self._suggest_show(self.user_token, suggest_data)
 
