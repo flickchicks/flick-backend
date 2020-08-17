@@ -47,5 +47,6 @@ class MeTests(TestCase):
         self.assertEqual(content.get("username"), "AlannaZhou")
         self.assertEqual(content.get("first_name"), "Alanna")
         self.assertEqual(content.get("last_name"), "Zhou")
+        self.assertEqual(content.get("num_notifs"), 0)
         self.assertEqual(len(content.get("owner_lsts")), 2)
         self.assertEqual(len(content.get("collab_lsts")), 0)

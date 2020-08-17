@@ -15,6 +15,7 @@ class ListInviteNotificationTests(TestCase):
     CREATE_LST_URL = reverse("lst-list")
     NOTIFICATIONS_URL = reverse("notif-list")
     UPDATE_LST_URL = reverse("lst-detail", kwargs={"pk": 5})
+    ME_URL = reverse("me")
 
     def setUp(self):
         self.client = APIClient()
@@ -63,16 +64,17 @@ class ListInviteNotificationTests(TestCase):
         self._send_friend_requests()
         self._accept_user_friend_requests(self.friend_token)
 
-    def _create_list(self):
+    def _create_list(self, id=5):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
         request_data = {"name": "Alanna's Kdramas", "collaborators": [2], "shows": [], "tags": []}
         response = self.client.post(self.CREATE_LST_URL, request_data, format="json")
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)["data"]
         # each user gets 2 default lists, additional one will have id of 5
-        self.assertEqual(data["id"], 5)
+        self.assertEqual(data["id"], id)
         self.assertEqual(data["collaborators"][0]["id"], 2)
         self.assertEqual(data["owner"]["id"], 1)
+        return data["id"]
 
     def _create_and_update_list(self):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
@@ -102,10 +104,20 @@ class ListInviteNotificationTests(TestCase):
         self.assertEqual(data["to_user"]["id"], 2)
         self.assertEqual(data["lst"]["id"], 5)
 
+    def _check_me_has_num_notifs(self, num_notifs):
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.friend_token)
+        response = self.client.get(self.ME_URL)
+        content = json.loads(response.content)["data"]
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(content.get("num_notifs"), num_notifs)
+
     def test_list_invite_via_list_creation(self):
+        self._check_me_has_num_notifs(num_notifs=0)
         self._create_list()
         self._check_notification()
+        self._check_me_has_num_notifs(num_notifs=1)
 
     def test_list_invite_via_list_update(self):
         self._create_and_update_list()
         self._check_notification()
+        self._check_me_has_num_notifs(num_notifs=1)

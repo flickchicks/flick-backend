@@ -24,7 +24,7 @@ class UserView(generics.GenericAPIView):
 
     def get(self, request):
         profile = Profile.objects.get(user=self.request.user)
-        serializer = ProfileSerializer(profile)
+        serializer = self.serializer_class(profile)
         return success_response(serializer.data)
 
     def post(self, request):

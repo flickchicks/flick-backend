@@ -41,8 +41,8 @@ class ProfileSerializer(serializers.ModelSerializer):
     last_name = serializers.CharField(source="user.last_name")
     username = serializers.CharField(source="user.username")
     profile_pic = AssetBundleDetailSerializer(source="profile_asset_bundle")
-    owner_lsts = MeLstSerializer(read_only=True, many=True)
-    collab_lsts = MeLstSerializer(read_only=True, many=True)
+    owner_lsts = MeLstSerializer(many=True)
+    collab_lsts = MeLstSerializer(many=True)
 
     class Meta:
         model = Profile
@@ -56,6 +56,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             "phone_number",
             "social_id_token_type",
             "social_id_token",
+            "num_notifs",
             "owner_lsts",
             "collab_lsts",
         )
