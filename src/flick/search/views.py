@@ -59,7 +59,6 @@ class Search(APIView):
 
     def get_users_by_username(self, query):
         users = User.objects.filter(username__icontains=query)
-        # context={"request": self.request},
         serializer = UserSimpleSerializer(instance=users, many=True, context={"request": self.request})
         return serializer.data
 

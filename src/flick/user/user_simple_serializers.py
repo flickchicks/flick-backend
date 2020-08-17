@@ -14,7 +14,7 @@ class UserSimpleSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
     def get_num_mutual_friends(self, instance):
-        if not self.context:
+        if not self.context or not self.context.get("request"):
             return None
         request = self.context.get("request")
         request_user_friends = Friend.objects.friends(request.user)
