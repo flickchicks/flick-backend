@@ -64,17 +64,16 @@ class ListInviteNotificationTests(TestCase):
         self._send_friend_requests()
         self._accept_user_friend_requests(self.friend_token)
 
-    def _create_list(self, id=5):
+    def _create_list(self):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
         request_data = {"name": "Alanna's Kdramas", "collaborators": [2], "shows": [], "tags": []}
         response = self.client.post(self.CREATE_LST_URL, request_data, format="json")
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)["data"]
         # each user gets 2 default lists, additional one will have id of 5
-        self.assertEqual(data["id"], id)
+        self.assertEqual(data["id"], 5)
         self.assertEqual(data["collaborators"][0]["id"], 2)
         self.assertEqual(data["owner"]["id"], 1)
-        return data["id"]
 
     def _create_and_update_list(self):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
