@@ -35,6 +35,17 @@ class UpdateLstController:
         notif.save()
         return notif
 
+    def _create_edit_notification(self, shows_added=[], shows_removed=[]):
+        for collaborator in self._lst.collaborators.all():
+            notif = Notification()
+            notif.notif_type = "list_edit"
+            notif.from_user = self._profile
+            notif.to_user = collaborator
+            notif.lst = self._lst
+            notif.num_shows_added = len(shows_added)
+            notif.num_shows_removed = len(shows_removed)
+            notif.save()
+
     def _modify_tags(self, tag_ids):
         if self._should_clear():
             self._lst.custom_tags.clear()
@@ -49,13 +60,21 @@ class UpdateLstController:
     def _modify_shows(self, show_ids):
         if self._should_clear():
             self._lst.shows.clear()
+        modified_shows = []
         for show_id in show_ids:
             if Show.objects.filter(pk=show_id):
                 show = Show.objects.get(pk=show_id)
                 if self._is_remove:
                     self._lst.shows.remove(show)
+                    modified_shows.append(show)
                 else:
                     self._lst.shows.add(show)
+                    modified_shows.append(show)
+        # TODO: make this a celery task
+        if self._is_remove:
+            self._create_edit_notification(shows_removed=modified_shows)
+        else:
+            self._create_edit_notification(shows_added=modified_shows)
 
     def _modify_collaborators(self, collaborator_ids):
         old_collaborators = self._lst.collaborators.all()

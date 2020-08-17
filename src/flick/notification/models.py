@@ -17,12 +17,6 @@ class Notification(models.Model):
     lst = models.ForeignKey(Lst, on_delete=models.CASCADE, blank=True, null=True, related_name="notification")
     num_shows_added = models.IntegerField(blank=True, null=True)
     num_shows_removed = models.IntegerField(blank=True, null=True)
-    collaborator_added = models.ForeignKey(
-        Profile, on_delete=models.CASCADE, blank=True, null=True, related_name="lst_added_to"
-    )
-    collaborator_removed = models.ForeignKey(
-        Profile, on_delete=models.CASCADE, blank=True, null=True, related_name="lst_removed_from"
-    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
