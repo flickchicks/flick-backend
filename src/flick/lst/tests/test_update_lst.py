@@ -120,15 +120,15 @@ class UpdateLstTests(TestCase):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.friend_token)
         response = self.client.get(self.NOTIFICATIONS_URL)
         data = json.loads(response.content)["data"]
-        self.assertEqual(data[0]["notif_type"], "list_invite")
-        self.assertEqual(data[0]["from_user"]["id"], 1)
-        self.assertEqual(data[0]["to_user"]["id"], 2)
-        self.assertEqual(data[0]["lst"]["id"], 5)
-        self.assertEqual(data[1]["notif_type"], "list_edit")
+        self.assertEqual(data[1]["notif_type"], "list_invite")
         self.assertEqual(data[1]["from_user"]["id"], 1)
         self.assertEqual(data[1]["to_user"]["id"], 2)
-        self.assertEqual(data[1]["num_shows_added"], num_shows_added)
-        self.assertEqual(data[1]["num_shows_removed"], num_shows_removed)
+        self.assertEqual(data[1]["lst"]["id"], 5)
+        self.assertEqual(data[0]["notif_type"], "list_edit")
+        self.assertEqual(data[0]["from_user"]["id"], 1)
+        self.assertEqual(data[0]["to_user"]["id"], 2)
+        self.assertEqual(data[0]["num_shows_added"], num_shows_added)
+        self.assertEqual(data[0]["num_shows_removed"], num_shows_removed)
 
     def test_update_lst(self):
         self._create_list()
