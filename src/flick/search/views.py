@@ -59,7 +59,7 @@ class Search(APIView):
 
     def get_users_by_username(self, query):
         users = User.objects.filter(username__icontains=query)
-        serializer = UserSimpleSerializer(users, many=True)
+        serializer = UserSimpleSerializer(instance=users, many=True, context={"request": self.request})
         return serializer.data
 
     def get_lsts_by_name(self, query):

@@ -2,16 +2,16 @@ import json
 import random
 import string
 
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
+from friendship.models import Friend
 from rest_framework.test import APIClient
 
 
 class ListInviteNotificationTests(TestCase):
     REGISTER_URL = reverse("register")
     LOGIN_URL = reverse("login")
-    FRIEND_REQUEST_URL = reverse("friend-request")
-    FRIEND_ACCEPT_URL = reverse("friend-accept")
     CREATE_LST_URL = reverse("lst-list")
     NOTIFICATIONS_URL = reverse("notif-list")
     UPDATE_LST_URL = reverse("lst-detail", kwargs={"pk": 5})
@@ -21,7 +21,7 @@ class ListInviteNotificationTests(TestCase):
         self.client = APIClient()
         self.user_token = self._create_user_and_login()
         self.friend_token = self._create_user_and_login()
-        self._add_friends()
+        self._create_friendship(user1=User.objects.get(id=1), user2=User.objects.get(id=2))
 
     def _create_user_and_login(self):
         """Returns the auth token."""
@@ -45,24 +45,8 @@ class ListInviteNotificationTests(TestCase):
         token = json.loads(response.content)["data"]["auth_token"]
         return token
 
-    def _send_friend_requests(self):
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
-        request_data = {"ids": [2]}
-        response = self.client.post(self.FRIEND_REQUEST_URL, request_data, format="json")
-        data = json.loads(response.content)["data"]
-        self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["to_user"]["id"], 2)
-
-    def _accept_user_friend_requests(self, token):
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
-        request_data = {"ids": [1]}
-        response = self.client.post(self.FRIEND_ACCEPT_URL, request_data, format="json")
-        data = json.loads(response.content)["data"]
-        self.assertEqual(data[0]["from_user"]["id"], 1)
-
-    def _add_friends(self):
-        self._send_friend_requests()
-        self._accept_user_friend_requests(self.friend_token)
+    def _create_friendship(self, user1, user2):
+        Friend.objects.add_friend(user1, user2).accept()
 
     def _create_list(self):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
