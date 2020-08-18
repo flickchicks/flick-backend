@@ -15,7 +15,7 @@ class PublicSuggestion(models.Model):
 class PrivateSuggestion(models.Model):
     to_user = models.ForeignKey(User, related_name="suggestions_received", on_delete=models.CASCADE)
     from_user = models.ForeignKey(Profile, related_name="suggestions_sent", on_delete=models.CASCADE)
-    message = models.CharField(max_length=140, blank=True)
+    message = models.CharField(max_length=140, blank=True, null=True)
     show = models.ForeignKey(Show, related_name="suggestion", blank=False, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now=True)
 

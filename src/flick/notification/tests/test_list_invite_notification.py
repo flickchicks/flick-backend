@@ -15,6 +15,7 @@ class ListInviteNotificationTests(TestCase):
     CREATE_LST_URL = reverse("lst-list")
     NOTIFICATIONS_URL = reverse("notif-list")
     UPDATE_LST_URL = reverse("lst-detail", kwargs={"pk": 5})
+    ME_URL = reverse("me")
 
     def setUp(self):
         self.client = APIClient()
@@ -102,10 +103,20 @@ class ListInviteNotificationTests(TestCase):
         self.assertEqual(data["to_user"]["id"], 2)
         self.assertEqual(data["lst"]["id"], 5)
 
+    def _check_me_has_num_notifs(self, num_notifs):
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.friend_token)
+        response = self.client.get(self.ME_URL)
+        content = json.loads(response.content)["data"]
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(content.get("num_notifs"), num_notifs)
+
     def test_list_invite_via_list_creation(self):
+        self._check_me_has_num_notifs(num_notifs=0)
         self._create_list()
         self._check_notification()
+        self._check_me_has_num_notifs(num_notifs=1)
 
     def test_list_invite_via_list_update(self):
         self._create_and_update_list()
         self._check_notification()
+        self._check_me_has_num_notifs(num_notifs=1)

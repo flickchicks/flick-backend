@@ -32,7 +32,7 @@ class PrivateSuggestionView(generics.GenericAPIView):
         show_id = data.get("show_id")
         if not Show.objects.filter(id=show_id):
             return failure_response(f"Show of id {show_id} does not exist.")
-        show = Show.objects.get(id=data.get("show_id"))
+        show = Show.objects.get(id=show_id)
 
         suggestions = []
         for friend_id in data.get("users"):
@@ -48,8 +48,7 @@ class PrivateSuggestionView(generics.GenericAPIView):
                 pri_suggestion.from_user = profile
                 pri_suggestion.to_user = friend
                 pri_suggestion.show = show
-                if data.get("message"):
-                    pri_suggestion.message = data.get("message")
+                pri_suggestion.message = data.get("message")
                 pri_suggestion.save()
                 suggestions.append(pri_suggestion)
             except Exception as e:
