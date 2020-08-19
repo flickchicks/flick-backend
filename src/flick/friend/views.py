@@ -74,12 +74,14 @@ class FriendAcceptListAndCreate(generics.ListCreateAPIView):
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
     def _update_notification(self, from_user, to_user):
-        from_user = Profile.objects.get(user=from_user)
-        to_user = Profile.objects.get(user=to_user)
-        notif_exists = Notification.objects.filter(notif_type="friend_request", from_user=to_user, to_user=from_user)
+        # from_user and to_user are swapped because now we are in the perspective of the user
+        # accepting (request.user) used to be to_user but now they are from_user
+        from_user = Profile.objects.get(user=to_user)
+        to_user = Profile.objects.get(user=from_user)
+        notif_exists = Notification.objects.filter(notif_type="friend_request", from_user=from_user, to_user=to_user)
         if not notif_exists:
             return
-        notif = Notification.objects.get(notif_type="friend_request", from_user=to_user, to_user=from_user)
+        notif = Notification.objects.get(notif_type="friend_request", from_user=from_user, to_user=to_user)
         notif.friend_request_accepted = True
         notif.save()
 
