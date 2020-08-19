@@ -44,7 +44,7 @@ class FriendRequestListAndCreate(generics.ListCreateAPIView):
     def post(self, request, format=None):
         data = json.loads(request.body)
         friend_requests = []
-        for friend_id in data.get("user_ids"):
+        for friend_id in data.get("ids"):
             try:
                 user = User.objects.get(id=friend_id)
                 friend_requests.append(Friend.objects.add_friend(request.user, user))
@@ -71,11 +71,11 @@ class FriendAcceptListAndCreate(generics.ListCreateAPIView):
     def post(self, request, format=None):
         data = json.loads(request.body)
         friends_accepted = []
-        for friend_id in data.get("user_ids"):
+        for friend_id in data.get("ids"):
             try:
                 friend = User.objects.get(id=friend_id)
-                user_id = request.user.id
-                friend_request = FriendshipRequest.objects.get(from_user=friend.id, to_user=user_id)
+                id = request.user.id
+                friend_request = FriendshipRequest.objects.get(from_user=friend.id, to_user=id)
                 friend_request.accept()
                 friends_accepted.append(friend_request)
             except Exception as e:
@@ -102,10 +102,10 @@ class FriendRejectListAndCreate(generics.ListCreateAPIView):
     def post(self, request, format=None):
         data = json.loads(request.body)
         friends_rejected = []
-        for friend_id in data.get("user_ids"):
+        for friend_id in data.get("ids"):
             friend = User.objects.get(id=friend_id)
-            user_id = request.user.id
-            friend_request = FriendshipRequest.objects.get(from_user=friend.id, to_user=user_id)
+            id = request.user.id
+            friend_request = FriendshipRequest.objects.get(from_user=friend.id, to_user=id)
             friend_request.reject()
             friends_rejected.append(friend_request)
 
@@ -124,7 +124,7 @@ class FriendRemoveListAndCreate(generics.ListCreateAPIView):
     def post(self, request, format=None):
         data = json.loads(request.body)
         friends_removed = []
-        for friend_id in data.get("user_ids"):
+        for friend_id in data.get("ids"):
             try:
                 friend = User.objects.get(id=friend_id)
                 Friend.objects.remove_friend(request.user, friend)

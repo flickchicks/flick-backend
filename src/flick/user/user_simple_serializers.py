@@ -1,19 +1,23 @@
-from django.contrib.auth import get_user_model
-from django.contrib.auth.models import User
-
-from rest_framework import serializers
-
-from .serializers import UserSerializer
 from asset.serializers import AssetBundleDetailSerializer
-from user.models import Profile
+from django.contrib.auth.models import User
+from friendship.models import Friend
+from rest_framework import serializers
 
 
 class UserSimpleSerializer(serializers.ModelSerializer):
-    profile_id = serializers.CharField(source="profile.id")
-    user_id = serializers.CharField(source="id")
     profile_pic = AssetBundleDetailSerializer(source="profile.profile_asset_bundle")
+    num_mutual_friends = serializers.SerializerMethodField(method_name="get_num_mutual_friends")
 
     class Meta:
         model = User
-        fields = ("user_id", "username", "first_name", "last_name", "profile_id", "profile_pic")
+        fields = ("id", "username", "first_name", "last_name", "profile_pic", "num_mutual_friends")
         read_only_fields = fields
+
+    def get_num_mutual_friends(self, instance):
+        if not self.context or not self.context.get("request"):
+            return None
+        request = self.context.get("request")
+        request_user_friends = Friend.objects.friends(request.user)
+        searched_user_friends = Friend.objects.friends(instance)
+        mutual_friends = list(set(request_user_friends) & set(searched_user_friends))
+        return len(mutual_friends)

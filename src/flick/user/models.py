@@ -21,6 +21,12 @@ class Profile(models.Model):
     def __str__(self):
         return f"{self.user.username}, {self.user.first_name}"
 
+    @property
+    def num_notifs(self):
+        from notification.models import Notification
+
+        return Notification.objects.filter(to_user=self).count()
+
     def upload_profile_pic(self):
         from upload.utils import upload_image
 

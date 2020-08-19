@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     "rating",
     "search",
     "show",
+    "suggestion",
     "tag",
     "user",
 ]

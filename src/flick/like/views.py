@@ -31,5 +31,5 @@ class LikeView(generics.GenericAPIView):
 
         comment.save(update_fields=["num_likes"])
 
-        comment_data = CommentSerializer(comment, many=False)
-        return success_response(comment_data.data)
+        comment_data = CommentSerializer(comment, many=False).data
+        return success_response(comment_data)

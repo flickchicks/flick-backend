@@ -2,23 +2,28 @@ import json
 import random
 import string
 
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
+from friendship.exceptions import AlreadyFriendsError
+from friendship.models import Friend
 from rest_framework.test import APIClient
 from show.models import Show
 
 
-class LikeTests(TestCase):
+class PrivateSuggestionTests(TestCase):
     REGISTER_URL = reverse("register")
     LOGIN_URL = reverse("login")
+    SUGGESTION_URL = reverse("private-suggestion")
 
     def setUp(self):
         self.client = APIClient()
         self.show = self._create_show()
         self.user_token = self._create_user_and_login()
-        self.SHOW_DETAIL_URL = reverse("show-detail", kwargs={"pk": self.show.pk})
-        self.comment_pk = self._comment_show(self.user_token)
-        self.LIKE_COMMENT_URL = reverse("like-comment", kwargs={"pk": self.comment_pk})
+        self.friend1_token = self._create_user_and_login()
+        self.friend2_token = self._create_user_and_login()
+        self._create_friendship(user1=User.objects.get(id=1), user2=User.objects.get(id=2))
+        self._create_friendship(user1=User.objects.get(id=1), user2=User.objects.get(id=3))
 
     def _create_show(self):
         show = Show()
@@ -44,11 +49,11 @@ class LikeTests(TestCase):
         random_string = "".join(random.choice(letters) for i in range(10))
         register_data = {
             "username": "",
-            "first_name": "Alanna",
-            "last_name": "Zhou",
+            "first_name": "Alanna1",
+            "last_name": "Zhou1",
             "profile_pic": "",
             "social_id_token": random_string,
-            "social_id_token_type": "test",
+            "social_id_token_type": "test1",
         }
         response = self.client.post(self.REGISTER_URL, register_data)
         self.assertEqual(response.status_code, 200)
@@ -60,31 +65,36 @@ class LikeTests(TestCase):
         token = json.loads(response.content)["data"]["auth_token"]
         return token
 
-    def _comment_show(self, token):
-        comment_data = {"comment": {"message": "Great film!", "is_spoiler": False}}
+    def _suggest_show(self, token, suggest_data):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
-        response = self.client.post(self.SHOW_DETAIL_URL, comment_data, format="json")
-        comment = json.loads(response.content)["data"]["comments"][-1]
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(comment["message"], comment_data.get("comment").get("message"))
-        return comment["id"]
-
-    def test_like_and_cancel(self):
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
-
-        # test like
-        response = self.client.post(self.LIKE_COMMENT_URL)
+        response = self.client.post(self.SUGGESTION_URL, suggest_data, format="json")
         data = json.loads(response.content)["data"]
-        likers = data["likers"]
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(data["num_likes"], 1)
-        self.assertEqual(len(likers), 1)
-        self.assertEqual(likers[0]["liker"]["id"], 1)
+        self.assertEqual(len(data), 2)
+        self.assertEqual(data[-1]["show"]["id"], suggest_data.get("show_id"))
+        self.assertEqual(data[-1]["message"], suggest_data.get("message"))
 
-        # test cancel like
-        response = self.client.post(self.LIKE_COMMENT_URL)
+    def _create_friendship(self, user1, user2):
+        try:
+            Friend.objects.add_friend(user1, user2).accept()
+        except AlreadyFriendsError:
+            return
+
+    def _check_suggestion(self, friend_token, suggest_data):
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + friend_token)
+        response = self.client.get(self.SUGGESTION_URL)
         data = json.loads(response.content)["data"]
-        likers = data["likers"]
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(data["num_likes"], 0)
-        self.assertFalse(likers)
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[-1]["show"]["id"], suggest_data.get("show_id"))
+        self.assertEqual(data[-1]["message"], suggest_data.get("message"))
+
+    def test_suggestions(self):
+        suggest_data = {"users": [2, 3], "message": "Great film", "show_id": self.show.pk}
+
+        # test if user can suggest show
+        self._suggest_show(self.user_token, suggest_data)
+
+        # test if friends can view the sent suggstion
+        self._check_suggestion(self.friend1_token, suggest_data)
+        self._check_suggestion(self.friend2_token, suggest_data)
