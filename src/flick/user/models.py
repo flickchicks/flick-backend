@@ -1,6 +1,7 @@
 from asset.models import AssetBundle
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import Q
 
 
 class Profile(models.Model):
@@ -25,7 +26,9 @@ class Profile(models.Model):
     def num_notifs(self):
         from notification.models import Notification
 
-        return Notification.objects.filter(to_user=self).count()
+        return Notification.objects.filter(
+            Q(to_user=self) & ~(Q(notif_type="friend_request") & Q(friend_request_accepted=False))
+        ).count()
 
     def upload_profile_pic(self):
         from upload.utils import upload_image
