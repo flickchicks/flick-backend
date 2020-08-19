@@ -11,6 +11,7 @@ from friend.views import FriendList
 from friend.views import FriendRejectListAndCreate
 from friend.views import FriendRemoveListAndCreate
 from friend.views import FriendRequestListAndCreate
+from friend.views import FriendUserView
 from item.views import CommentItem
 from item.views import ItemDetail
 from item.views import ItemList
@@ -45,6 +46,7 @@ urlpatterns = [
     path("comment/<int:pk>/like/", LikeView.as_view(), name="like-comment"),
     path("discover/show/", DiscoverShow.as_view(), name="discover-show"),
     path("friendship/", include("friendship.urls")),
+    path("friends/<int:pk>", FriendUserView.as_view(), name="friend_profile"),
     path("friends/", FriendList.as_view(), name="friend-list"),
     path("friends/request/", FriendRequestListAndCreate.as_view(), name="friend-request"),
     path("friends/accept/", FriendAcceptListAndCreate.as_view(), name="friend-accept"),

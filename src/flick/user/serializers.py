@@ -2,6 +2,7 @@ from user.models import Profile
 
 from asset.serializers import AssetBundleDetailSerializer
 from django.contrib.auth.models import User
+from django.db.models import Q
 from lst.serializers import LstSerializer
 from rest_framework import serializers
 
@@ -60,5 +61,41 @@ class ProfileSerializer(serializers.ModelSerializer):
             "social_id_token",
             "owner_lsts",
             "collab_lsts",
+        )
+        read_only_fields = fields
+
+
+class FriendProfileSerializer(serializers.ModelSerializer):
+    profile_id = serializers.CharField(source="id")
+    user_id = serializers.CharField(source="user.id")
+    first_name = serializers.CharField(source="user.first_name")
+    last_name = serializers.CharField(source="user.last_name")
+    username = serializers.CharField(source="user.username")
+    profile_pic = AssetBundleDetailSerializer(source="profile_asset_bundle")
+    public_owner_lst = serializers.SerializerMethodField("public_owner_lsts")
+    public_collab_lst = serializers.SerializerMethodField("public_collab_lsts")
+
+    def public_owner_lsts(self, profile):
+        lists = profile.owner_lsts.all().filter(is_private=False)
+        serializer = LstSerializer(lists, read_only=True, many=True)
+        return serializer.data
+
+    def public_collab_lsts(self, profile):
+        lists = profile.collab_lsts.all().filter(Q(is_private=False) | Q(collaborators=profile))
+        serializer = LstSerializer(lists, read_only=True, many=True)
+        return serializer.data
+
+    class Meta:
+        model = Profile
+        fields = (
+            "user_id",
+            "username",
+            "first_name",
+            "last_name",
+            "profile_id",
+            "profile_pic",
+            "bio",
+            "public_collab_lst",
+            "public_owner_lst",
         )
         read_only_fields = fields

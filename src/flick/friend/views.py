@@ -1,26 +1,19 @@
-from api import settings as api_settings
-from django.contrib.auth.models import User
-from django.db import IntegrityError
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework import generics, mixins, status, viewsets
-from rest_framework.parsers import JSONParser
-from rest_framework.response import Response
-from rest_framework.serializers import CurrentUserDefault, ModelSerializer, PrimaryKeyRelatedField
-from rest_framework.views import APIView
-
-from friendship.models import Block, Friend, FriendshipRequest, Follow
-
-from api.utils import failure_response, success_response
-from friend.serializers import (
-    FriendUserSerializer,
-    FriendRequestSerializer,
-    FriendshipSerializer,
-    IncomingRequestSerializer,
-)
-
 import json
+from user.models import Profile
+from user.serializers import FriendProfileSerializer
+
+from api import settings as api_settings
+from api.utils import failure_response
+from api.utils import success_response
+from django.contrib.auth.models import User
+from friend.serializers import FriendRequestSerializer
+from friend.serializers import FriendshipSerializer
+from friend.serializers import FriendUserSerializer
+from friend.serializers import IncomingRequestSerializer
+from friendship.models import Friend
+from friendship.models import FriendshipRequest
+from rest_framework import generics
+from rest_framework.views import APIView
 
 
 class FriendList(APIView):
@@ -142,4 +135,18 @@ class FriendRemoveListAndCreate(generics.ListCreateAPIView):
 
         serializer = FriendUserSerializer(friends_removed, many=True)
 
+        return success_response(serializer.data)
+
+
+class FriendUserView(generics.GenericAPIView):
+    model = Profile
+    serializer_class = FriendProfileSerializer
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
+
+    def get(self, request, pk):
+        if not User.objects.filter(id=pk):
+            return failure_response("user not found")
+        user = User.objects.get(id=pk)
+        profile = Profile.objects.get(user=user)
+        serializer = FriendProfileSerializer(profile)
         return success_response(serializer.data)
