@@ -4,16 +4,13 @@ import string
 
 from django.test import TestCase
 from django.urls import reverse
-from friendship.models import Friend
 from rest_framework.test import APIClient
 
 
 class FriendshipNotification(TestCase):
     REGISTER_URL = reverse("register")
     LOGIN_URL = reverse("login")
-    CREATE_LST_URL = reverse("lst-list")
     NOTIFICATIONS_URL = reverse("notif-list")
-    UPDATE_LST_URL = reverse("lst-detail", kwargs={"pk": 5})
     ME_URL = reverse("me")
     FRIEND_REQUEST_URL = reverse("friend-request")
     FRIEND_ACCEPT_URL = reverse("friend-accept")
@@ -45,9 +42,6 @@ class FriendshipNotification(TestCase):
         token = json.loads(response.content)["data"]["auth_token"]
         return token
 
-    def _create_friendship(self, user1, user2):
-        Friend.objects.add_friend(user1, user2).accept()
-
     def _send_friend_request(self):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
         request_data = {"ids": [2]}
@@ -76,7 +70,6 @@ class FriendshipNotification(TestCase):
         self.assertEqual(content.get("num_notifs"), num_notifs)
 
     def test_friend_request_notif_shows_once_accepted(self):
-        self._check_me_has_num_notifs(num_notifs=0)
         self._send_friend_request()
         data = self._get_notification()
         self.assertEqual(len(data), 0)
