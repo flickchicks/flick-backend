@@ -66,36 +66,32 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class FriendProfileSerializer(serializers.ModelSerializer):
-    profile_id = serializers.CharField(source="id")
-    user_id = serializers.CharField(source="user.id")
+    id = serializers.IntegerField(source="user.id")
     first_name = serializers.CharField(source="user.first_name")
     last_name = serializers.CharField(source="user.last_name")
     username = serializers.CharField(source="user.username")
     profile_pic = AssetBundleDetailSerializer(source="profile_asset_bundle")
-    public_owner_lst = serializers.SerializerMethodField("public_owner_lsts")
-    public_collab_lst = serializers.SerializerMethodField("public_collab_lsts")
+    owner_lst = serializers.SerializerMethodField("get_owner_lsts")
+    collab_lst = serializers.SerializerMethodField("get_collab_lsts")
 
-    def public_owner_lsts(self, profile):
+    def get_owner_lsts(self, profile):
         lists = profile.owner_lsts.all().filter(is_private=False)
-        serializer = LstSerializer(lists, read_only=True, many=True)
-        return serializer.data
+        return LstSerializer(lists, read_only=True, many=True).data
 
-    def public_collab_lsts(self, profile):
+    def get_collab_lsts(self, profile):
         lists = profile.collab_lsts.all().filter(Q(is_private=False) | Q(collaborators=profile))
-        serializer = LstSerializer(lists, read_only=True, many=True)
-        return serializer.data
+        return LstSerializer(lists, read_only=True, many=True).data
 
     class Meta:
         model = Profile
         fields = (
-            "user_id",
+            "id",
             "username",
             "first_name",
             "last_name",
-            "profile_id",
             "profile_pic",
             "bio",
-            "public_collab_lst",
-            "public_owner_lst",
+            "collab_lst",
+            "owner_lst",
         )
         read_only_fields = fields

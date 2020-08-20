@@ -47,7 +47,7 @@ urlpatterns = [
     path("comment/<int:pk>/like/", LikeView.as_view(), name="like-comment"),
     path("discover/show/", DiscoverShow.as_view(), name="discover-show"),
     path("friendship/", include("friendship.urls")),
-    path("friends/<int:pk>", FriendUserView.as_view(), name="friend_profile"),
+    path("friends/<int:pk>", FriendUserView.as_view(), name="friend-profile"),
     path("friends/", FriendList.as_view(), name="friend-list"),
     path("friends/request/", FriendRequestListAndCreate.as_view(), name="friend-request"),
     path("friends/accept/", FriendAcceptListAndCreate.as_view(), name="friend-accept"),

@@ -145,8 +145,6 @@ class FriendUserView(generics.GenericAPIView):
 
     def get(self, request, pk):
         if not User.objects.filter(id=pk):
-            return failure_response("user not found")
-        user = User.objects.get(id=pk)
-        profile = Profile.objects.get(user=user)
-        serializer = FriendProfileSerializer(profile)
-        return success_response(serializer.data)
+            return failure_response(f"User of id {pk} not found.")
+        profile = Profile.objects.get(user_id=pk)
+        return success_response(FriendProfileSerializer(profile).data)
