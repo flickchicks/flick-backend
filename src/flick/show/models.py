@@ -21,7 +21,7 @@ class Show(models.Model):
     tags = models.ManyToManyField(Tag, related_name="shows", blank=True)
     seasons = models.IntegerField(blank=True, null=True)
     audience_level = models.CharField(max_length=100, blank=True, null=True)
-    imdb_rating = models.CharField(max_length=10, blank=True, null=True)
+    imdb_rating = models.IntegerField(blank=True, null=True)
     tomato_rating = models.CharField(max_length=10, blank=True, null=True)
     platforms = models.CharField(max_length=100, blank=True, null=True)
     keywords = models.TextField(blank=True, null=True)
