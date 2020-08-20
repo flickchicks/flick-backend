@@ -5,11 +5,7 @@ from lst.models import Lst
 
 
 class Notification(models.Model):
-    NOTIF_TYPE_CHOICES = (
-        ("list_invite", "List Invite"),
-        ("list_edit", "List Edit"),
-        ("friend_request", "Friend Request"),
-    )
+    NOTIF_TYPE_CHOICES = (("list_invite", "List Invite"), ("list_edit", "List Edit"))
 
     notif_type = models.CharField(max_length=20, choices=NOTIF_TYPE_CHOICES, default=None)
     from_user = models.ForeignKey(
@@ -22,7 +18,6 @@ class Notification(models.Model):
     num_shows_added = models.IntegerField(blank=True, null=True)
     num_shows_removed = models.IntegerField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    friend_request_accepted = models.BooleanField(blank=True, null=True)
 
     class Meta:
         ordering = ["-created_at"]
