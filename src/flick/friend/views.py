@@ -46,7 +46,7 @@ class FriendRequestListAndCreate(generics.ListCreateAPIView):
                 user = User.objects.get(id=friend_id)
                 friend_requests.append(Friend.objects.add_friend(request.user, user))
             except Exception as e:
-                print(str(e))
+                print("FriendRequestListAndCreate:", str(e))
                 continue
 
         serializer = FriendRequestSerializer(friend_requests, many=True)
@@ -76,7 +76,7 @@ class FriendAcceptListAndCreate(generics.ListCreateAPIView):
                 friend_request.accept()
                 friends_accepted.append(friend_request)
             except Exception as e:
-                print(str(e))
+                print("FriendAcceptListAndCreate:", str(e))
                 continue
 
         serializer = FriendshipSerializer(friends_accepted, many=True)
@@ -127,7 +127,7 @@ class FriendRemoveListAndCreate(generics.ListCreateAPIView):
                 Friend.objects.remove_friend(request.user, friend)
                 friends_removed.append(friend)
             except Exception as e:
-                print(e)
+                print("FriendRemoveListAndCreate:", str(e))
                 continue
 
         serializer = FriendUserSerializer(friends_removed, many=True)
