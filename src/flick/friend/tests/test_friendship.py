@@ -11,8 +11,8 @@ class FriendshipTests(TestCase):
     FRIEND_REQUEST_URL = reverse("friend-request")
     FRIEND_ACCEPT_URL = reverse("friend-accept")
     FRIEND_REJECT_URL = reverse("friend-reject")
-    USER_PROFILE_EXIST_URL = reverse("friend-profile", kwargs={"pk": 1})
-    USER_PROFILE_NOT_EXIST_URL = reverse("friend-profile", kwargs={"pk": 10})
+    VALID_USER_PROFILE_URL = reverse("friend-profile", kwargs={"pk": 1})
+    INVALID_USER_PROFILE_URL = reverse("friend-profile", kwargs={"pk": 10})
     LOGIN_URL = reverse("login")
     USERNAMES = ["alanna", "vivi", "olivia"]
     SOCIAL_ID_TOKENS = ["test1", "test2", "test3"]
@@ -74,14 +74,14 @@ class FriendshipTests(TestCase):
         response = self.client.post(self.FRIEND_REQUEST_URL, request_data, format="json")
         self.assertEqual(response.status_code, 200)
 
-    def test_usr_profile_exist(self):
+    def test_usr_profile_exists(self):
         token = self._login_user("alanna", "test1")
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
-        response = self.client.get(self.USER_PROFILE_EXIST_URL)
+        response = self.client.get(self.VALID_USER_PROFILE_URL)
         self.assertEqual(response.status_code, 200)
 
-    def test_usr_profile_not_exist(self):
+    def test_usr_profile_does_not_exist(self):
         token = self._login_user("alanna", "test1")
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
-        response = self.client.get(self.USER_PROFILE_NOT_EXIST_URL)
+        response = self.client.get(self.INVALID_USER_PROFILE_URL)
         self.assertEqual(response.status_code, 404)
