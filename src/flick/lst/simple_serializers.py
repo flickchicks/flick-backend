@@ -1,4 +1,4 @@
-from user.profile_simple_serializers import ProfileSimplestSerializer
+from user.profile_simple_serializers import ProfileSimpleSerializer
 
 from rest_framework import serializers
 from show.simple_serializers import ShowSimplestSerializer
@@ -14,7 +14,7 @@ class LstSimpleSerializer(serializers.ModelSerializer):
 
 
 class MeLstSerializer(serializers.ModelSerializer):
-    collaborators = ProfileSimplestSerializer(many=True)
+    collaborators = ProfileSimpleSerializer(many=True)
     shows = serializers.SerializerMethodField("get_subset_of_shows")
 
     def get_subset_of_shows(self, obj):
