@@ -1,4 +1,5 @@
 import json
+from user.models import Profile
 
 from api import settings as api_settings
 from api.utils import success_response
@@ -9,6 +10,7 @@ from friend.serializers import FriendUserSerializer
 from friend.serializers import IncomingRequestSerializer
 from friendship.models import Friend
 from friendship.models import FriendshipRequest
+from notification.models import Notification
 from rest_framework import generics
 from rest_framework.views import APIView
 
@@ -33,6 +35,16 @@ class FriendRequestListAndCreate(generics.ListCreateAPIView):
 
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
+    def _create_notification(self, from_user, to_user):
+        from_user = Profile.objects.get(user=from_user)
+        to_user = Profile.objects.get(user=to_user)
+        notif = Notification()
+        notif.notif_type = "friend_request"
+        notif.from_user = from_user
+        notif.to_user = to_user
+        notif.friend_request_accepted = False
+        notif.save()
+
     def get(self, request, format=None):
         friend_requests = Friend.objects.sent_requests(user=request.user)
         serializer = FriendRequestSerializer(friend_requests, many=True)
@@ -45,6 +57,7 @@ class FriendRequestListAndCreate(generics.ListCreateAPIView):
             try:
                 user = User.objects.get(id=friend_id)
                 friend_requests.append(Friend.objects.add_friend(request.user, user))
+                self._create_notification(from_user=request.user, to_user=user)
             except Exception as e:
                 print(str(e))
                 continue
@@ -59,6 +72,18 @@ class FriendAcceptListAndCreate(generics.ListCreateAPIView):
     """
 
     permission_classes = api_settings.CONSUMER_PERMISSIONS
+
+    def _update_notification(self, from_user, to_user):
+        # from_user and to_user are swapped because now we are in the perspective of the user
+        # accepting (request.user) used to be to_user but now they are from_user
+        from_user = Profile.objects.get(user=to_user)
+        to_user = Profile.objects.get(user=from_user)
+        notif_exists = Notification.objects.filter(notif_type="friend_request", from_user=from_user, to_user=to_user)
+        if not notif_exists:
+            return
+        notif = Notification.objects.get(notif_type="friend_request", from_user=from_user, to_user=to_user)
+        notif.friend_request_accepted = True
+        notif.save()
 
     def get(self, request, format=None):
         friend_requests = Friend.objects.unrejected_requests(user=request.user)
@@ -75,6 +100,7 @@ class FriendAcceptListAndCreate(generics.ListCreateAPIView):
                 friend_request = FriendshipRequest.objects.get(from_user=friend.id, to_user=id)
                 friend_request.accept()
                 friends_accepted.append(friend_request)
+                self._update_notification(from_user=request.user, to_user=friend)
             except Exception as e:
                 print(str(e))
                 continue
