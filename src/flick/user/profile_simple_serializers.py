@@ -15,12 +15,3 @@ class ProfileSimpleSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ("id", "username", "first_name", "last_name", "profile_pic")
         read_only_fields = fields
-
-
-class ProfileSimplestSerializer(serializers.ModelSerializer):
-    profile_pic = AssetBundleDetailSerializer(source="profile_asset_bundle")
-
-    class Meta:
-        model = Profile
-        fields = ("profile_pic",)
-        read_only_fields = fields

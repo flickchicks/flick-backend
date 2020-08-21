@@ -9,11 +9,13 @@ from asset.models import Asset
 import boto3
 from celery import shared_task
 from django.conf import settings
+from imdb import IMDb
 from PIL import Image
 from show.models import Show
 from show.tmdb_api_utils import TMDB_API
 from tag.models import Tag
 import tmdbsimple as tmdb
+
 
 # If you want to print, you need to log these and they will appear in the celery terminal process
 # from celery.utils.log import get_task_logger
@@ -83,11 +85,15 @@ def populate_show_details(show_id):
     show = Show.objects.get(id=show_id)
     if show.ext_api_source == "animelist":
         return
-    api = TMDB_API()
+    tmdb_api = TMDB_API()
+    imdb_api = IMDb()
+    info = None
     if show.is_tv:
-        info = api.get_tv_info_from_id(show.ext_api_id)
+        info = tmdb_api.get_tv_info_from_id(show.ext_api_id)
     else:
-        info = api.get_movie_info_from_id(show.ext_api_id)
+        info = tmdb_api.get_movie_info_from_id(show.ext_api_id)
+    if not info:
+        return
     show.directors = info.get("directors")
     show.cast = info.get("cast")
     if info.get("ext_api_genres"):
@@ -98,4 +104,9 @@ def populate_show_details(show_id):
                 )
             except:
                 show.tags.add(Tag.objects.get(name=tag.get("name")))
+    imdb_id = info.get("imdb_id")
+    if imdb_id:
+        imdb_id = imdb_id[2:]
+        imdb_rating = imdb_api.get_movie(imdb_id).get("rating")
+        show.imdb_rating = imdb_rating
     show.save()

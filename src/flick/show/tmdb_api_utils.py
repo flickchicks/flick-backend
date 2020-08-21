@@ -55,6 +55,7 @@ class TMDB_API:
             "plot": info.get("overview"),
             "directors": directors,
             "cast": cast_info,
+            "imdb_id": info.get("imdb_id"),
         }
         return movie
 

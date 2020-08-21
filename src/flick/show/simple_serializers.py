@@ -13,5 +13,5 @@ class ShowSimpleSerializer(ModelSerializer):
 class ShowSimplestSerializer(ModelSerializer):
     class Meta:
         model = Show
-        fields = ("id", "poster_pic")
+        fields = ("id", "title", "poster_pic")
         read_only_fields = fields
