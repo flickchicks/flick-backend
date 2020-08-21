@@ -3,7 +3,6 @@ from user.models import Profile
 from asset.serializers import AssetBundleDetailSerializer
 from django.contrib.auth.models import User
 from django.db.models import Q
-from lst.serializers import LstSerializer
 from lst.simple_serializers import MeLstSerializer
 from rest_framework import serializers
 
@@ -76,11 +75,11 @@ class FriendProfileSerializer(serializers.ModelSerializer):
 
     def get_owner_lsts(self, profile):
         lists = profile.owner_lsts.all().filter(is_private=False)
-        return LstSerializer(lists, read_only=True, many=True).data
+        return MeLstSerializer(lists, read_only=True, many=True).data
 
     def get_collab_lsts(self, profile):
         lists = profile.collab_lsts.all().filter(Q(is_private=False) | Q(collaborators=profile))
-        return LstSerializer(lists, read_only=True, many=True).data
+        return MeLstSerializer(lists, read_only=True, many=True).data
 
     class Meta:
         model = Profile
