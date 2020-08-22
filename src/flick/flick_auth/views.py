@@ -6,7 +6,9 @@ from user.serializers import UserSerializer
 from api import settings as api_settings
 from api.utils import failure_response
 from api.utils import success_response
+from django.contrib.auth import logout
 from rest_framework import generics
+from rest_framework.authtoken.models import Token
 
 from .controllers.login_controller import LoginController
 from .controllers.register_controller import RegisterController
@@ -14,7 +16,6 @@ from .controllers.update_profile_controller import UpdateProfileController
 from .serializers import LoginSerializer
 from .serializers import LogoutSerializer
 from .serializers import RegisterSerializer
-from .utils import AuthTools
 
 
 class UserView(generics.GenericAPIView):
@@ -57,8 +58,19 @@ class LogoutView(generics.GenericAPIView):
     serializer_class = LogoutSerializer
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
+    def logout(self, request):
+        if request:
+            try:
+                Token.objects.filter(user=request.user).delete()
+                logout(request)
+                return True
+            except Exception as e:
+                print(e)
+                pass
+        return False
+
     def post(self, request):
-        if AuthTools.logout(request):
+        if self.logout(request):
             return success_response(None)
         return failure_response(None)
 
