@@ -1,5 +1,4 @@
 import datetime
-import pprint as pp
 
 from jikanpy import Jikan
 import tmdbsimple as tmdb

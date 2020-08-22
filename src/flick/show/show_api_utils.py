@@ -1,5 +1,3 @@
-import pprint as pp
-
 from flick.tasks import populate_show_details
 import tmdbsimple as tmdb
 
