@@ -44,8 +44,8 @@ class ShowDetail(generics.GenericAPIView):
         show = Show.objects.get(pk=pk)
 
         user = request.user
-        # if not Profile.objects.filter(user=user):
-        #     return failure_response(f"{request.user} must be logged in.")
+        if not Profile.objects.filter(user=user):
+            return failure_response(f"User must be logged in.")
         profile = Profile.objects.get(user=user)
         data = json.loads(request.body)
         score = data.get("user_rating")
@@ -56,6 +56,7 @@ class ShowDetail(generics.GenericAPIView):
             if existing_rating:
                 existing_rating = show.ratings.get(rater=user)
                 existing_rating.score = score
+                existing_rating.save()
             else:
                 show.ratings.create(score=score, rater=user)
             show.save()
