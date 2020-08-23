@@ -1,5 +1,4 @@
 import datetime
-import pprint as pp
 
 from django.conf import settings
 import tmdbsimple as tmdb

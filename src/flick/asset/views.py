@@ -1,19 +1,13 @@
-from django.shortcuts import render
-from django.views.decorators.csrf import csrf_exempt
-
-from rest_framework.parsers import JSONParser
-from rest_framework import viewsets, status, generics, mixins
-
-from .serializers import AssetBundleSerializer, AssetBundleDetailSerializer
-from .models import AssetBundle
 from api import settings as api_settings
-from api.utils import failure_response, success_response
+from api.utils import success_response
+from rest_framework import generics
+
+from .models import AssetBundle
+from .serializers import AssetBundleDetailSerializer
+from .serializers import AssetBundleSerializer
 
 
 class AssetBundleList(generics.ListCreateAPIView):
-    """
-    Item: Create, List
-    """
 
     queryset = AssetBundle.objects.all()
     serializer_class = AssetBundleSerializer
@@ -28,9 +22,6 @@ class AssetBundleList(generics.ListCreateAPIView):
 
 
 class AssetBundleDetail(generics.RetrieveUpdateDestroyAPIView):
-    """
-    Location: Read, Write, Delete
-    """
 
     queryset = AssetBundle.objects.all()
     serializer_class = AssetBundleDetailSerializer
@@ -38,6 +29,4 @@ class AssetBundleDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
     def retrieve(self, request, pk):
-        queryset = self.get_object()
-        serializer = AssetBundleDetailSerializer(queryset, many=False)
-        return success_response(serializer.data)
+        return success_response(self.serializer_class(self.get_object(), many=False).data)

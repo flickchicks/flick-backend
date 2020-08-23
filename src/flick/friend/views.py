@@ -155,7 +155,7 @@ class FriendRemoveListAndCreate(generics.ListCreateAPIView):
                 Friend.objects.remove_friend(request.user, friend)
                 friends_removed.append(friend)
             except Exception as e:
-                print(e)
+                print(str(e))
                 continue
 
         serializer = FriendUserSerializer(friends_removed, many=True)

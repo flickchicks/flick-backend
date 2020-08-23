@@ -11,10 +11,6 @@ from friend.views import FriendList
 from friend.views import FriendRejectListAndCreate
 from friend.views import FriendRemoveListAndCreate
 from friend.views import FriendRequestListAndCreate
-from item.views import CommentItem
-from item.views import ItemDetail
-from item.views import ItemList
-from item.views import LikeItem
 from like.views import LikeView
 from lst.views import LstDetail
 from lst.views import LstDetailAdd
@@ -42,7 +38,6 @@ urlpatterns = [
     path("asset-bundles/", AssetBundleList.as_view(), name="asset-bundles-list"),
     path("asset-bundles/<int:pk>/", AssetBundleDetail.as_view(), name="asset-bundles-detail"),
     path("auth/", include(auth_urls)),
-    path("comment/", CommentItem.as_view(), name="comment"),
     path("comment/<int:pk>/like/", LikeView.as_view(), name="like-comment"),
     path("discover/show/", DiscoverShow.as_view(), name="discover-show"),
     path("friendship/", include("friendship.urls")),
@@ -51,9 +46,6 @@ urlpatterns = [
     path("friends/accept/", FriendAcceptListAndCreate.as_view(), name="friend-accept"),
     path("friends/reject/", FriendRejectListAndCreate.as_view(), name="friend-reject"),
     path("friends/remove/", FriendRemoveListAndCreate.as_view(), name="friend-remove"),
-    path("items/", ItemList.as_view(), name="item-list"),
-    path("items/<int:pk>/", ItemDetail.as_view(), name="item-detail"),
-    path("like/", LikeItem.as_view(), name="like"),
     path("lsts/", LstList.as_view(), name="lst-list"),
     path("lsts/<int:pk>/", LstDetail.as_view(), name="lst-detail"),
     path("lsts/<int:pk>/add/", LstDetailAdd.as_view(), name="lst-detail-add"),
