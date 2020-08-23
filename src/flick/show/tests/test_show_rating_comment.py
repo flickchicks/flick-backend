@@ -65,6 +65,7 @@ class ShowRatingsAndCommentTests(TestCase):
 
     def test_user_can_rate_show(self):
         self._rate_show(self.user_token, 4)
+        self._rate_show(self.user_token, 5)
 
     def _rate_show(self, token, rating):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
