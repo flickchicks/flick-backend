@@ -15,6 +15,7 @@ class PrivateSuggestionTests(TestCase):
     REGISTER_URL = reverse("register")
     LOGIN_URL = reverse("login")
     SUGGESTION_URL = reverse("private-suggestion")
+    ME_URL = reverse("me")
 
     def setUp(self):
         self.client = APIClient()
@@ -89,12 +90,17 @@ class PrivateSuggestionTests(TestCase):
         self.assertEqual(data[-1]["show"]["id"], suggest_data.get("show_id"))
         self.assertEqual(data[-1]["message"], suggest_data.get("message"))
 
+    def _check_me_has_num_notifs(self, friend_token, num_notifs):
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + friend_token)
+        response = self.client.get(self.ME_URL)
+        content = json.loads(response.content)["data"]
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(content.get("num_notifs"), num_notifs)
+
     def test_suggestions(self):
         suggest_data = {"users": [2, 3], "message": "Great film", "show_id": self.show.pk}
-
-        # test if user can suggest show
         self._suggest_show(self.user_token, suggest_data)
-
-        # test if friends can view the sent suggstion
         self._check_suggestion(self.friend1_token, suggest_data)
         self._check_suggestion(self.friend2_token, suggest_data)
+        self._check_me_has_num_notifs(self.friend1_token, 1)
+        self._check_me_has_num_notifs(self.friend2_token, 1)

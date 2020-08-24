@@ -25,10 +25,14 @@ class Profile(models.Model):
     @property
     def num_notifs(self):
         from notification.models import Notification
+        from suggestion.models import PrivateSuggestion
 
-        return Notification.objects.filter(
-            Q(to_user=self) & ~(Q(notif_type="friend_request") & Q(friend_request_accepted=False))
-        ).count()
+        return (
+            Notification.objects.filter(
+                Q(to_user=self) & ~(Q(notif_type="friend_request") & Q(friend_request_accepted=False))
+            ).count()
+            + PrivateSuggestion.objects.filter(to_user=self.user).count()
+        )
 
     def upload_profile_pic(self):
         from upload.utils import upload_image
