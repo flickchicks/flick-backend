@@ -97,7 +97,7 @@ class UpdateLstTests(TestCase):
         self.assertEqual(data["owner"]["id"], 1)
 
     def _update_list(
-        self, name="", is_private=False, collaborators=[], shows=[], tags=[], is_add=False, is_remove=False
+        self, name="", is_private=False, collaborators=[], shows=[], tags=[], is_add=False, is_remove=False, owner=None
     ):
         request_data = {
             "name": name,
@@ -105,6 +105,7 @@ class UpdateLstTests(TestCase):
             "collaborators": collaborators,
             "shows": shows,
             "tags": tags,
+            "owner": owner,
         }
         url = self.UPDATE_LST_URL
         if is_add:
@@ -143,6 +144,21 @@ class UpdateLstTests(TestCase):
         self.assertEqual(len(data["collaborators"]), 1)
         self.assertEqual(len(data["shows"]), 2)
         self.assertEqual(len(data["tags"]), 2)
+
+    def test_transfer_ownership_lst_edit_notification(self):
+        self._create_list(collaborators=[2])
+        data = self._update_list(owner=2, is_add=True)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.friend_token)
+        response = self.client.get(self.NOTIFICATIONS_URL)
+        data = json.loads(response.content)["data"][0]
+        self.assertEqual(data["notif_type"], "list_edit")
+        self.assertEqual(data["from_user"]["id"], 1)
+        self.assertEqual(data["to_user"]["id"], 2)
+        self.assertEqual(data["lst"]["id"], 5)
+        self.assertEqual(data["new_owner"]["id"], 2)
+        self.assertEqual(data["num_shows_added"], None)
+        self.assertEqual(data["num_shows_removed"], None)
+        self.assertEqual(data["friend_request_accepted"], None)
 
     def test_shows_added_to_lst_edit_notification(self):
         self._create_list(collaborators=[2])

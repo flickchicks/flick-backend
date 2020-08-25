@@ -46,6 +46,16 @@ class UpdateLstController:
             notif.num_shows_removed = len(shows_removed)
             notif.save()
 
+    def _create_new_owner_notification(self, owner):
+        for collaborator in self._lst.collaborators.all():
+            notif = Notification()
+            notif.notif_type = "list_edit"
+            notif.from_user = self._profile
+            notif.to_user = collaborator
+            notif.lst = self._lst
+            notif.new_owner = owner
+            notif.save()
+
     def _modify_tags(self, tag_ids):
         if self._should_clear():
             self._lst.custom_tags.clear()
@@ -127,10 +137,10 @@ class UpdateLstController:
                 self._lst.name = name
                 self._lst.lst_pic = lst_pic
                 self._modify_collaborators(collaborator_ids)
-                owner_user = User.objects.get(pk=owner_id)
-                owner_profile = Profile.objects.get(user=owner_user)
-                self._lst.owner = owner_profile
-
+                if self._user.id != owner_id and Profile.objects.filter(user__id=owner_id):
+                    owner = Profile.objects.get(user__id=owner_id)
+                    self._create_new_owner_notification(owner)
+                    self._lst.owner = owner
         elif user_is_collaborator:
             self._lst.lst_pic = lst_pic
             self._modify_collaborators(collaborator_ids)
