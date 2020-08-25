@@ -73,7 +73,7 @@ class RegisterController:
                 return failure_response("Profile already exists with the social_id_token.")
             # generate username based on first_name and last_name
             if not first_name:
-                return failure_response("Must supply a first_name to get a generated username.")
+                return failure_response("Must supply a first_name and last_name to get a generated username.")
             username = self._generate_username(first_name, last_name)
         else:
             # verify that username is unique
