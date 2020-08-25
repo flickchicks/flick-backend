@@ -11,6 +11,7 @@ from show.models import Show
 from show.serializers import ShowSerializer
 from show.show_api_utils import ShowAPI
 from tag.models import Tag
+from tag.simple_serializers import TagSimpleSerializer
 
 # cache to store search_movie_by_name (and tv and anime)
 # search_movie_by_name example: ("query", "movie"), movie_id
@@ -67,6 +68,10 @@ class Search(APIView):
         serializer = LstSerializer(lsts, many=True)
         return serializer.data
 
+    def get_tags_by_name(self, query):
+        tags = Tag.objects.filter(name__icontains=query)
+        return TagSimpleSerializer(tags, many=True).data
+
     def get(self, request, *args, **kwargs):
         self.request = request
         query = request.query_params.get("query")
@@ -76,6 +81,7 @@ class Search(APIView):
         is_tv = bool(request.query_params.get("is_tv", False))
         is_user = bool(request.query_params.get("is_user", False))
         is_lst = bool(request.query_params.get("is_lst", False))
+        is_tag = bool(request.query_params.get("is_tag", False))
 
         self.shows = []
         self.known_shows = []
@@ -84,6 +90,8 @@ class Search(APIView):
             return success_response(self.get_users_by_username(query))
         elif is_lst:
             return success_response(self.get_lsts_by_name(query))
+        elif is_tag:
+            return success_response(self.get_tags_by_name(query))
         else:
             self.get_shows_by_query(query, is_movie, is_tv, is_anime, tags)
 
