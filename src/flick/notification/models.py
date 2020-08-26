@@ -33,4 +33,4 @@ class Notification(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self):
-        return f"{self.notif_type}, {self.created_at}"
+        return f"{self.notif_type}, {self.created_at}, collaborators_removed: {self.collaborators_removed}"

@@ -23,6 +23,7 @@ class NotificationList(generics.GenericAPIView):
         notifs = Notification.objects.filter(
             Q(to_user=profile) & ~(Q(notif_type="friend_request") & Q(friend_request_accepted=False))
         )
+        print(notifs)
         serializer = self.serializer_class(notifs, many=True)
         return success_response(serializer.data)
 
