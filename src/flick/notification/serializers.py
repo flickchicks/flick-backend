@@ -10,6 +10,8 @@ class NotificationSerializer(serializers.ModelSerializer):
     to_user = ProfileSimpleSerializer(many=False)
     lst = LstSimpleSerializer(many=False)
     new_owner = ProfileSimpleSerializer(many=False)
+    collaborators_added = ProfileSimpleSerializer(many=True)
+    collaborators_removed = ProfileSimpleSerializer(many=True)
 
     class Meta:
         model = Notification
@@ -22,6 +24,8 @@ class NotificationSerializer(serializers.ModelSerializer):
             "num_shows_added",
             "num_shows_removed",
             "friend_request_accepted",
+            "collaborators_added",
+            "collaborators_removed",
             "created_at",
         )
         ready_only_fields = fields

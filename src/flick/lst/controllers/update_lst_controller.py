@@ -23,9 +23,13 @@ class UpdateLstController:
         self._is_add = is_add
         self._is_remove = is_remove
         self._old_collaborators = []
+        self._old_owner = None
 
     def _should_clear(self):
         return not (self._is_add or self._is_remove)
+
+    def _get_profiles_to_notify(self):
+        return self._old_collaborators + [self._old_owner]
 
     def _notify_collaborator(self, profile):
         notif = Notification()
@@ -37,7 +41,7 @@ class UpdateLstController:
         return notif
 
     def _create_edit_notification(self, shows_added=[], shows_removed=[]):
-        for collaborator in self._old_collaborators:
+        for collaborator in self._get_profiles_to_notify():
             notif = Notification()
             notif.notif_type = "list_edit"
             notif.from_user = self._profile
@@ -48,7 +52,7 @@ class UpdateLstController:
             notif.save()
 
     def _create_new_owner_notification(self, owner):
-        for collaborator in self._old_collaborators:
+        for collaborator in self._get_profiles_to_notify():
             notif = Notification()
             notif.notif_type = "list_edit"
             notif.from_user = self._profile
@@ -58,7 +62,7 @@ class UpdateLstController:
             notif.save()
 
     def _create_collaborators_modified_notification(self, collaborators_added=[], collaborators_removed=[]):
-        for collaborator in self._old_collaborators:
+        for collaborator in self._get_profiles_to_notify():
             notif = Notification()
             notif.notif_type = "list_edit"
             notif.from_user = self._profile
@@ -144,6 +148,7 @@ class UpdateLstController:
         if not (user_is_owner or user_is_collaborator):
             return failure_response(f"User {self._user} does not have the credentials to list of id {self._pk}.")
         self._old_collaborators = self._lst.collaborators.all()
+        self._old_owner = self._lst.owner
         if user_is_owner:
             self._lst.is_private = is_private
             self._modify_shows(show_ids)
