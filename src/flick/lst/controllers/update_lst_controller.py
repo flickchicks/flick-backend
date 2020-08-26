@@ -22,6 +22,7 @@ class UpdateLstController:
         self._profile = None
         self._is_add = is_add
         self._is_remove = is_remove
+        self._old_collaborators = []
 
     def _should_clear(self):
         return not (self._is_add or self._is_remove)
@@ -36,7 +37,7 @@ class UpdateLstController:
         return notif
 
     def _create_edit_notification(self, shows_added=[], shows_removed=[]):
-        for collaborator in self._lst.collaborators.all():
+        for collaborator in self._old_collaborators:
             notif = Notification()
             notif.notif_type = "list_edit"
             notif.from_user = self._profile
@@ -47,13 +48,24 @@ class UpdateLstController:
             notif.save()
 
     def _create_new_owner_notification(self, owner):
-        for collaborator in self._lst.collaborators.all():
+        for collaborator in self._old_collaborators:
             notif = Notification()
             notif.notif_type = "list_edit"
             notif.from_user = self._profile
             notif.to_user = collaborator
             notif.lst = self._lst
             notif.new_owner = owner
+            notif.save()
+
+    def _create_collaborators_modified_notification(self, collaborators_added=[], collaborators_removed=[]):
+        for collaborator in self._old_collaborators:
+            notif = Notification()
+            notif.notif_type = "list_edit"
+            notif.from_user = self._profile
+            notif.to_user = collaborator
+            notif.lst = self._lst
+            notif.collaborators_added.add(*collaborators_added)
+            notif.collaborators_removed.add(*collaborators_removed)
             notif.save()
 
     def _modify_tags(self, tag_ids):
@@ -87,7 +99,8 @@ class UpdateLstController:
             self._create_edit_notification(shows_added=modified_shows)
 
     def _modify_collaborators(self, collaborator_ids):
-        old_collaborators = self._lst.collaborators.all()
+        collaborators_added = []
+        collaborators_removed = []
         if self._should_clear():
             self._lst.collaborators.clear()
         for c_id in collaborator_ids:
@@ -100,12 +113,14 @@ class UpdateLstController:
                     continue
                 if Profile.objects.filter(user=collaborator):
                     c = Profile.objects.get(user=collaborator)
-                    if c not in old_collaborators:
-                        self._notify_collaborator(profile=c)
                     if self._is_remove:
                         self._lst.collaborators.remove(c)
+                        collaborators_removed.append(c)
                     else:
+                        if c not in self._old_collaborators:
+                            self._notify_collaborator(c)
                         self._lst.collaborators.add(c)
+                        collaborators_added.append(c)
 
     def process(self):
         name = self._data.get("name")
@@ -128,7 +143,7 @@ class UpdateLstController:
         user_is_collaborator = self._profile in self._lst.collaborators.all()
         if not (user_is_owner or user_is_collaborator):
             return failure_response(f"User {self._user} does not have the credentials to list of id {self._pk}.")
-
+        self._old_collaborators = self._lst.collaborators.all()
         if user_is_owner:
             self._lst.is_private = is_private
             self._modify_shows(show_ids)
