@@ -9,6 +9,7 @@ class NotificationSerializer(serializers.ModelSerializer):
     from_user = ProfileSimpleSerializer(many=False)
     to_user = ProfileSimpleSerializer(many=False)
     lst = LstSimpleSerializer(many=False)
+    new_owner = ProfileSimpleSerializer(many=False)
 
     class Meta:
         model = Notification
@@ -17,6 +18,7 @@ class NotificationSerializer(serializers.ModelSerializer):
             "from_user",
             "to_user",
             "lst",
+            "new_owner",
             "num_shows_added",
             "num_shows_removed",
             "friend_request_accepted",

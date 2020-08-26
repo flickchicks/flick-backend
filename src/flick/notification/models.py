@@ -23,6 +23,9 @@ class Notification(models.Model):
     num_shows_removed = models.IntegerField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     friend_request_accepted = models.BooleanField(blank=True, null=True)
+    new_owner = models.ForeignKey(
+        Profile, on_delete=models.CASCADE, blank=True, null=True, related_name="newly_owned_lst_notification"
+    )
 
     class Meta:
         ordering = ["-created_at"]
