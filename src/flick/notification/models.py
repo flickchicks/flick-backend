@@ -26,6 +26,8 @@ class Notification(models.Model):
     new_owner = models.ForeignKey(
         Profile, on_delete=models.CASCADE, blank=True, null=True, related_name="newly_owned_lst_notification"
     )
+    collaborators_added = models.ManyToManyField(Profile, blank=True, related_name="added_to_lst_notification")
+    collaborators_removed = models.ManyToManyField(Profile, blank=True, related_name="removed_from_lst_notification")
 
     class Meta:
         ordering = ["-created_at"]
