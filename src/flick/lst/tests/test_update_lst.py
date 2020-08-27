@@ -27,6 +27,7 @@ class UpdateLstTests(TestCase):
         self.friend2_token = self._create_user_and_login()
         self._create_friendship(user1=User.objects.get(id=1), user2=User.objects.get(id=2))
         self._create_friendship(user1=User.objects.get(id=1), user2=User.objects.get(id=3))
+        self._create_friendship(user1=User.objects.get(id=2), user2=User.objects.get(id=3))
 
     def _create_show(self):
         show = Show()
@@ -197,31 +198,45 @@ class UpdateLstTests(TestCase):
         for token in notified_c_tokens:
             self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
             response = self.client.get(self.NOTIFICATIONS_URL)
-            data = json.loads(response.content)["data"]
-            print(data)
-            # self.assertEqual(data["notif_type"], "list_edit")
-            # self.assertEqual(data["from_user"]["id"], from_user_id)
-            # self.assertEqual(data["lst"]["id"], 7)
-            # self.assertEqual(len(data["collaborators_added"]), len(c_ids_added))
-            # self.assertEqual(len(data["collaborators_removed"]), len(c_ids_removed))
-            # for i in range(len(c_ids_added)):
-            #     self.assertEqual(data["collaborators_added"][i]["id"], c_ids_added[i])
-            # for i in range(len(c_ids_removed)):
-            #     self.assertEqual(data["collaborators_removed"][i]["id"], c_ids_removed[i])
+            data = json.loads(response.content)["data"][0]
+            self.assertEqual(data["notif_type"], "list_edit")
+            self.assertEqual(data["from_user"]["id"], from_user_id)
+            self.assertEqual(data["lst"]["id"], 7)
+            self.assertEqual(len(data["collaborators_added"]), len(c_ids_added))
+            self.assertEqual(len(data["collaborators_removed"]), len(c_ids_removed))
+            for i in range(len(c_ids_added)):
+                self.assertEqual(data["collaborators_added"][i]["id"], c_ids_added[i])
+            for i in range(len(c_ids_removed)):
+                self.assertEqual(data["collaborators_removed"][i]["id"], c_ids_removed[i])
 
-    def test_collaborators_modified_lst_edit_notification(self):
+    def test_collaborators_modified_by_owner_lst_edit_notification(self):
         self._create_list(collaborators=[2])
         data = self._update_list(collaborators=[3], is_add=True)
         self.assertEqual(data["id"], 7)
         self.assertEqual(len(data["collaborators"]), 2)
-        # self._check_collaborators_modified_lst_edit_notification(notified_c_tokens=[self.friend_token], c_ids_added=[3])
+        self._check_collaborators_modified_lst_edit_notification(notified_c_tokens=[self.friend_token], c_ids_added=[3])
 
-        # if friend removes friend2, then both the owner and friend2 get notified
+        data = self._update_list(collaborators=[3], is_remove=True)
+        self.assertEqual(data["id"], 7)
+        self.assertEqual(len(data["collaborators"]), 1)
+        self._check_collaborators_modified_lst_edit_notification(
+            notified_c_tokens=[self.friend_token, self.friend2_token], c_ids_removed=[3]
+        )
+
+    def test_collaborators_modified_by_collaborator_lst_edit_notification(self):
+        self._create_list(collaborators=[2])
+        data = self._update_list(token=self.friend_token, collaborators=[3], is_add=True)
+        self.assertEqual(data["id"], 7)
+        self.assertEqual(len(data["collaborators"]), 2)
+        self._check_collaborators_modified_lst_edit_notification(
+            from_user_id=2, notified_c_tokens=[self.user_token], c_ids_added=[3]
+        )
+
         data = self._update_list(token=self.friend_token, collaborators=[3], is_remove=True)
         self.assertEqual(data["id"], 7)
         self.assertEqual(len(data["collaborators"]), 1)
         self._check_collaborators_modified_lst_edit_notification(
-            from_user_id=2, notified_c_tokens=[self.friend2_token], c_ids_removed=[3]
+            from_user_id=2, notified_c_tokens=[self.user_token, self.friend2_token], c_ids_removed=[3]
         )
 
     def test_add_and_remove_from_lst(self):

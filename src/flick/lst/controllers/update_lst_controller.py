@@ -29,6 +29,8 @@ class UpdateLstController:
         return not (self._is_add or self._is_remove)
 
     def _notify_collaborator(self, profile):
+        if not profile:
+            return
         notif = Notification()
         notif.notif_type = "list_invite"
         notif.from_user = self._profile
@@ -37,18 +39,24 @@ class UpdateLstController:
         notif.save()
         return notif
 
-    def _create_edit_notification(self, shows_added=[], shows_removed=[]):
+    def _create_edit_notification(self, shows_modified):
+        if not shows_modified:
+            return
         for profile in self._profiles_to_notify:
             notif = Notification()
             notif.notif_type = "list_edit"
             notif.from_user = self._profile
             notif.to_user = profile
             notif.lst = self._lst
-            notif.num_shows_added = len(shows_added)
-            notif.num_shows_removed = len(shows_removed)
+            if self._is_add:
+                notif.num_shows_added = len(shows_modified)
+            elif self._is_remove:
+                notif.num_shows_removed = len(shows_modified)
             notif.save()
 
     def _create_new_owner_notification(self, owner):
+        if not owner:
+            return
         for profile in self._profiles_to_notify:
             notif = Notification()
             notif.notif_type = "list_edit"
@@ -58,11 +66,9 @@ class UpdateLstController:
             notif.new_owner = owner
             notif.save()
 
-    def _create_collaborators_modified_notification(self, collaborators_added=[], collaborators_removed=[]):
-        if not collaborators_added and not collaborators_removed:
+    def _create_collaborators_modified_notification(self, collaborators_modified=[]):
+        if not collaborators_modified:
             return
-        print("profiles to notify:", self._profiles_to_notify)
-        print("to remove:", collaborators_removed)
         for profile in self._profiles_to_notify:
             notif = Notification()
             notif.notif_type = "list_edit"
@@ -70,11 +76,11 @@ class UpdateLstController:
             notif.to_user = profile
             notif.lst = self._lst
             notif.save()
-            notif.collaborators_added.add(*collaborators_added)
+            if self._is_add:
+                notif.collaborators_added.add(*collaborators_modified)
+            elif self._is_remove:
+                notif.collaborators_removed.add(*collaborators_modified)
             notif.save()
-            notif.collaborators_removed.add(*collaborators_removed)
-            notif.save()
-            print("notif", notif)
 
     def _modify_tags(self, tag_ids):
         if self._is_simple_update():
@@ -90,27 +96,22 @@ class UpdateLstController:
     def _modify_shows(self, show_ids):
         if self._is_simple_update():
             return
-        modified_shows = []
+        shows_modified = []
         for show_id in show_ids:
             if Show.objects.filter(pk=show_id):
                 show = Show.objects.get(pk=show_id)
                 if self._is_remove:
                     self._lst.shows.remove(show)
-                    modified_shows.append(show)
+                    shows_modified.append(show)
                 else:
                     self._lst.shows.add(show)
-                    modified_shows.append(show)
-        # TODO: make this a celery task
-        if self._is_remove:
-            self._create_edit_notification(shows_removed=modified_shows)
-        else:
-            self._create_edit_notification(shows_added=modified_shows)
+                    shows_modified.append(show)
+        self._create_edit_notification(shows_modified=shows_modified)
 
     def _modify_collaborators(self, collaborator_ids):
         if self._is_simple_update():
             return
-        collaborators_added = []
-        collaborators_removed = []
+        collaborators_modified = []
         for c_id in collaborator_ids:
             if not (User.objects.filter(id=c_id) or Profile.objects.filter(user__id=c_id)):
                 continue
@@ -119,14 +120,12 @@ class UpdateLstController:
             c = Profile.objects.get(user__id=c_id)
             if self._is_remove and c in self._old_collaborators:
                 self._lst.collaborators.remove(c)
-                collaborators_removed.append(c)
+                collaborators_modified.append(c)
             elif self._is_add and c_is_friend and c not in self._old_collaborators:
                 self._lst.collaborators.add(c)
-                collaborators_added.append(c)
+                collaborators_modified.append(c)
                 self._notify_collaborator(c)
-        # create two separate notifications, even though we can technically do it in one
-        self._create_collaborators_modified_notification(collaborators_added=collaborators_added)
-        self._create_collaborators_modified_notification(collaborators_removed=collaborators_removed)
+        self._create_collaborators_modified_notification(collaborators_modified=collaborators_modified)
 
     def process(self):
         name = self._data.get("name")
