@@ -141,9 +141,10 @@ class UpdateLstTests(TestCase):
         self.assertEqual(data["id"], 5)
         self.assertEqual(data["name"], name)
         self.assertEqual(data["is_private"], is_private)
-        self.assertEqual(len(data["collaborators"]), 1)
-        self.assertEqual(len(data["shows"]), 2)
-        self.assertEqual(len(data["tags"]), 2)
+        # regular list update does not allow list-type fields to be modified!
+        self.assertEqual(len(data["collaborators"]), 0)
+        self.assertEqual(len(data["shows"]), 0)
+        self.assertEqual(len(data["tags"]), 0)
 
     def test_transfer_ownership_lst_edit_notification(self):
         self._create_list(collaborators=[2])

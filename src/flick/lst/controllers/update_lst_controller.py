@@ -23,7 +23,7 @@ class UpdateLstController:
         self._is_add = is_add
         self._is_remove = is_remove
 
-    def _should_clear(self):
+    def _is_simple_update(self):
         return not (self._is_add or self._is_remove)
 
     def _notify_collaborator(self, profile):
@@ -57,8 +57,8 @@ class UpdateLstController:
             notif.save()
 
     def _modify_tags(self, tag_ids):
-        if self._should_clear():
-            self._lst.custom_tags.clear()
+        if self._is_simple_update():
+            return
         for tag_id in tag_ids:
             if Tag.objects.filter(pk=tag_id):
                 tag = Tag.objects.get(pk=tag_id)
@@ -68,8 +68,8 @@ class UpdateLstController:
                     self._lst.custom_tags.add(tag)
 
     def _modify_shows(self, show_ids):
-        if self._should_clear():
-            self._lst.shows.clear()
+        if self._is_simple_update():
+            return
         modified_shows = []
         for show_id in show_ids:
             if Show.objects.filter(pk=show_id):
@@ -87,9 +87,9 @@ class UpdateLstController:
             self._create_edit_notification(shows_added=modified_shows)
 
     def _modify_collaborators(self, collaborator_ids):
+        if self._is_simple_update():
+            return
         old_collaborators = self._lst.collaborators.all()
-        if self._should_clear():
-            self._lst.collaborators.clear()
         for c_id in collaborator_ids:
             if User.objects.filter(pk=c_id):
                 collaborator = User.objects.get(pk=c_id)
