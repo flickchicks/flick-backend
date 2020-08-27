@@ -112,22 +112,18 @@ class UpdateLstController:
         collaborators_added = []
         collaborators_removed = []
         for c_id in collaborator_ids:
-            if User.objects.filter(pk=c_id):
-                collaborator = User.objects.get(pk=c_id)
-                if Profile.objects.filter(user=collaborator):
-                    c = Profile.objects.get(user=collaborator)
-                    collaborator_friend = Friend.objects.filter(
-                        Q(to_user=self._user, from_user=collaborator) | Q(to_user=collaborator, from_user=self._user)
-                    )
-                    if self._is_remove:
-                        self._lst.collaborators.remove(c)
-                        if c in self._old_collaborators:
-                            collaborators_removed.append(c)
-                    elif collaborator_friend:
-                        self._lst.collaborators.add(c)
-                        collaborators_added.append(c)
-                        if c not in self._old_collaborators:
-                            self._notify_collaborator(c)
+            if not (User.objects.filter(id=c_id) or Profile.objects.filter(user__id=c_id)):
+                continue
+            c = User.objects.get(id=c_id)
+            c_is_friend = Friend.objects.filter(Q(to_user=self._user, from_user=c) | Q(to_user=c, from_user=self._user))
+            c = Profile.objects.get(user__id=c_id)
+            if self._is_remove and c in self._old_collaborators:
+                self._lst.collaborators.remove(c)
+                collaborators_removed.append(c)
+            elif self._is_add and c_is_friend and c not in self._old_collaborators:
+                self._lst.collaborators.add(c)
+                collaborators_added.append(c)
+                self._notify_collaborator(c)
         # create two separate notifications, even though we can technically do it in one
         self._create_collaborators_modified_notification(collaborators_added=collaborators_added)
         self._create_collaborators_modified_notification(collaborators_removed=collaborators_removed)
