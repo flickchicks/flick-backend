@@ -14,7 +14,7 @@ class ListInviteNotificationTests(TestCase):
     LOGIN_URL = reverse("login")
     CREATE_LST_URL = reverse("lst-list")
     NOTIFICATIONS_URL = reverse("notif-list")
-    UPDATE_LST_URL = reverse("lst-detail", kwargs={"pk": 5})
+    ADD_TO_LST_URL = reverse("lst-detail-add", kwargs={"pk": 5})
     ME_URL = reverse("me")
 
     def setUp(self):
@@ -71,7 +71,7 @@ class ListInviteNotificationTests(TestCase):
         self.assertEqual(data["owner"]["id"], 1)
 
         request_data = {"name": "Alanna's Kdramas", "collaborators": [2], "shows": [], "tags": []}
-        response = self.client.post(self.UPDATE_LST_URL, request_data, format="json")
+        response = self.client.post(self.ADD_TO_LST_URL, request_data, format="json")
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)["data"]
         self.assertEqual(data["id"], 5)

@@ -143,19 +143,20 @@ class UpdateLstTests(TestCase):
         self.assertEqual(data[0]["num_shows_added"], num_shows_added)
         self.assertEqual(data[0]["num_shows_removed"], num_shows_removed)
 
-    # def test_update_lst(self):
-    #     self._create_list()
-    #     show_ids = self._get_created_show_ids(num_shows=2)
-    #     tag_ids = self._get_created_tag_ids(num_tags=2)
-    #     name = "Updated kdramaz"
-    #     is_private = True
-    #     data = self._update_list(name=name, is_private=is_private, collaborators=[2], shows=show_ids, tags=tag_ids)
-    #     self.assertEqual(data["id"], 7)
-    #     self.assertEqual(data["name"], name)
-    #     self.assertEqual(data["is_private"], is_private)
-    #     self.assertEqual(len(data["collaborators"]), 1)
-    #     self.assertEqual(len(data["shows"]), 2)
-    #     self.assertEqual(len(data["tags"]), 2)
+    def test_update_lst(self):
+        self._create_list()
+        show_ids = self._get_created_show_ids(num_shows=2)
+        tag_ids = self._get_created_tag_ids(num_tags=2)
+        name = "Updated kdramaz"
+        is_private = True
+        data = self._update_list(name=name, is_private=is_private, collaborators=[2], shows=show_ids, tags=tag_ids)
+        self.assertEqual(data["id"], 7)
+        self.assertEqual(data["name"], name)
+        self.assertEqual(data["is_private"], is_private)
+        # regular list update does not allow list-type fields to be modified!
+        self.assertEqual(len(data["collaborators"]), 0)
+        self.assertEqual(len(data["shows"]), 0)
+        self.assertEqual(len(data["tags"]), 0)
 
     # def test_transfer_ownership_lst_edit_notification(self):
     #     self._create_list(collaborators=[2])
