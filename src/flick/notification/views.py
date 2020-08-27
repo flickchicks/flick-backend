@@ -24,11 +24,6 @@ class NotificationList(generics.GenericAPIView):
             Q(to_user=profile) & ~(Q(notif_type="friend_request") & Q(friend_request_accepted=False))
         )
         serializer = self.serializer_class(notifs, many=True)
-        # print(f"notifs in the eyes of {request.user}: {serializer.data}")
-        # notif3 = self.serializer_class(Notification.objects.get(id=3), many=False).data
-        # notif4 = self.serializer_class(Notification.objects.get(id=4), many=False).data
-        # print("NOTIF3: ", notif3)
-        # print("NOTIF4:", notif4)
         return success_response(serializer.data)
 
     def post(self, request):

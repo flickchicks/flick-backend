@@ -74,14 +74,14 @@ class FriendshipTests(TestCase):
         response = self.client.post(self.FRIEND_REQUEST_URL, request_data, format="json")
         self.assertEqual(response.status_code, 200)
 
-    # def test_user_profile_exists(self):
-    #     token = self._login_user("alanna", "test1")
-    #     self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
-    #     response = self.client.get(self.VALID_USER_PROFILE_URL)
-    #     self.assertEqual(response.status_code, 200)
+    def test_user_profile_exists(self):
+        token = self._login_user("alanna", "test1")
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
+        response = self.client.get(self.VALID_USER_PROFILE_URL)
+        self.assertEqual(response.status_code, 200)
 
-    # def test_user_profile_does_not_exist(self):
-    #     token = self._login_user("alanna", "test1")
-    #     self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
-    #     response = self.client.get(self.INVALID_USER_PROFILE_URL)
-    #     self.assertEqual(response.status_code, 404)
+    def test_user_profile_does_not_exist(self):
+        token = self._login_user("alanna", "test1")
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
+        response = self.client.get(self.INVALID_USER_PROFILE_URL)
+        self.assertEqual(response.status_code, 404)
