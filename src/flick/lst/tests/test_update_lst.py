@@ -130,7 +130,7 @@ class UpdateLstTests(TestCase):
         self.assertEqual(response.status_code, 200)
         return json.loads(response.content)["data"]
 
-    def _check_list_edit_notification(self, num_shows_added=0, num_shows_removed=0):
+    def _check_list_edit_notification(self, num_shows_added=None, num_shows_removed=None):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.friend_token)
         response = self.client.get(self.NOTIFICATIONS_URL)
         data = json.loads(response.content)["data"]
