@@ -22,11 +22,15 @@ class UpdateLstController:
         self._profile = None
         self._is_add = is_add
         self._is_remove = is_remove
+        self._old_collaborators = []
+        self._profiles_to_notify = []
 
     def _is_simple_update(self):
         return not (self._is_add or self._is_remove)
 
     def _notify_collaborator(self, profile):
+        if not profile:
+            return
         notif = Notification()
         notif.notif_type = "list_invite"
         notif.from_user = self._profile
@@ -35,25 +39,47 @@ class UpdateLstController:
         notif.save()
         return notif
 
-    def _create_edit_notification(self, shows_added=[], shows_removed=[]):
-        for collaborator in self._lst.collaborators.all():
+    def _create_edit_notification(self, modified_shows):
+        if not modified_shows:
+            return
+        for profile in self._profiles_to_notify:
             notif = Notification()
             notif.notif_type = "list_edit"
             notif.from_user = self._profile
-            notif.to_user = collaborator
+            notif.to_user = profile
             notif.lst = self._lst
-            notif.num_shows_added = len(shows_added)
-            notif.num_shows_removed = len(shows_removed)
+            if self._is_add:
+                notif.num_shows_added = len(modified_shows)
+            elif self._is_remove:
+                notif.num_shows_removed = len(modified_shows)
             notif.save()
 
     def _create_new_owner_notification(self, owner):
-        for collaborator in self._lst.collaborators.all():
+        if not owner:
+            return
+        for profile in self._profiles_to_notify:
             notif = Notification()
             notif.notif_type = "list_edit"
             notif.from_user = self._profile
-            notif.to_user = collaborator
+            notif.to_user = profile
             notif.lst = self._lst
             notif.new_owner = owner
+            notif.save()
+
+    def _create_modified_collaborators_notification(self, modified_collaborators=[]):
+        if not modified_collaborators:
+            return
+        for profile in self._profiles_to_notify:
+            notif = Notification()
+            notif.notif_type = "list_edit"
+            notif.from_user = self._profile
+            notif.to_user = profile
+            notif.lst = self._lst
+            notif.save()
+            if self._is_add:
+                notif.collaborators_added.add(*modified_collaborators)
+            elif self._is_remove:
+                notif.collaborators_removed.add(*modified_collaborators)
             notif.save()
 
     def _modify_tags(self, tag_ids):
@@ -80,32 +106,26 @@ class UpdateLstController:
                 else:
                     self._lst.shows.add(show)
                     modified_shows.append(show)
-        # TODO: make this a celery task
-        if self._is_remove:
-            self._create_edit_notification(shows_removed=modified_shows)
-        else:
-            self._create_edit_notification(shows_added=modified_shows)
+        self._create_edit_notification(modified_shows=modified_shows)
 
     def _modify_collaborators(self, collaborator_ids):
         if self._is_simple_update():
             return
-        old_collaborators = self._lst.collaborators.all()
+        modified_collaborators = []
         for c_id in collaborator_ids:
-            if User.objects.filter(pk=c_id):
-                collaborator = User.objects.get(pk=c_id)
-                collaborator_friend = Friend.objects.filter(
-                    Q(to_user=self._user, from_user=collaborator) | Q(to_user=collaborator, from_user=self._user)
-                )
-                if not collaborator_friend:
-                    continue
-                if Profile.objects.filter(user=collaborator):
-                    c = Profile.objects.get(user=collaborator)
-                    if c not in old_collaborators:
-                        self._notify_collaborator(profile=c)
-                    if self._is_remove:
-                        self._lst.collaborators.remove(c)
-                    else:
-                        self._lst.collaborators.add(c)
+            if not (User.objects.filter(id=c_id) or Profile.objects.filter(user__id=c_id)):
+                continue
+            c = User.objects.get(id=c_id)
+            c_is_friend = Friend.objects.filter(Q(to_user=self._user, from_user=c) | Q(to_user=c, from_user=self._user))
+            c = Profile.objects.get(user__id=c_id)
+            if self._is_remove and c in self._old_collaborators:
+                self._lst.collaborators.remove(c)
+                modified_collaborators.append(c)
+            elif self._is_add and c_is_friend and c not in self._old_collaborators:
+                self._lst.collaborators.add(c)
+                modified_collaborators.append(c)
+                self._notify_collaborator(c)
+        self._create_modified_collaborators_notification(modified_collaborators=modified_collaborators)
 
     def process(self):
         name = self._data.get("name")
@@ -128,6 +148,13 @@ class UpdateLstController:
         user_is_collaborator = self._profile in self._lst.collaborators.all()
         if not (user_is_owner or user_is_collaborator):
             return failure_response(f"User {self._user} does not have the credentials to list of id {self._pk}.")
+
+        # need to copy; querysets cannot be copied easily
+        self._old_collaborators = [Profile.objects.get(pk=c.id) for c in self._lst.collaborators.all()]
+        self._profiles_to_notify = self._old_collaborators + [self._lst.owner]
+
+        # don't want to notify yourself
+        self._profiles_to_notify.remove(self._profile)
 
         if user_is_owner:
             self._lst.is_private = is_private
