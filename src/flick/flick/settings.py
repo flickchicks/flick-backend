@@ -30,7 +30,7 @@ SECRET_KEY = config("SECRET_KEY")
 DEBUG = int(config("DEBUG", default=0))
 
 
-VALIDATE_SOCIAL_TOKEN = False
+VALIDATE_SOCIAL_TOKEN = True
 # URL for validate Facebook Token
 VALIDATE_FACEBOOK_TOKEN_URL = "https://graph.facebook.com/me"
 

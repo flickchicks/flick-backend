@@ -1,15 +1,11 @@
-from django.contrib.auth import login, authenticate
+from api.utils import failure_response
+from api.utils import success_response
+from django.contrib.auth import authenticate
+from django.contrib.auth import login
 from django.contrib.auth.models import User
 from django.core import signing
-
-
-from rest_framework.authtoken.models import Token
-
 from flick_auth import settings as auth_settings
-from api.utils import failure_response, success_response
-from user.models import Profile
-
-import json
+from rest_framework.authtoken.models import Token
 
 
 class LoginController:
@@ -35,7 +31,7 @@ class LoginController:
 
     def _issue_auth_token(self, user, salt):
         if not user:
-            return failure_response(f"Can only issue token to existing users.")
+            return failure_response("Can only issue token to existing users.")
         if salt == "login":
             token, _ = Token.objects.get_or_create(user=user)
         else:
@@ -57,7 +53,6 @@ class LoginController:
     def process(self):
         username = self._data.get("username")
         social_id_token = self._data.get("social_id_token")
-        self._authenticate(username, social_id_token)
         user = self._authenticate(username, social_id_token)
         if not user:
             return failure_response(f"User with username {username} could be authenticated.")
