@@ -6,6 +6,8 @@ from discover.views import DiscoverShow
 from django.urls import include
 from django.urls import path
 from flick_auth import urls as auth_urls
+from flick_auth.views import AuthenticateView
+from flick_auth.views import UserView
 from friend.views import FriendAcceptListAndCreate
 from friend.views import FriendList
 from friend.views import FriendRejectListAndCreate
@@ -31,13 +33,13 @@ router = routers.DefaultRouter()
 router.register(r"users", UserViewSet)
 router.register(r"shows", ShowViewSet)
 
-# Wire up our API using automatic URL routing.
-# Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     path("", include(router.urls)),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     path("asset-bundles/", AssetBundleList.as_view(), name="asset-bundles-list"),
     path("asset-bundles/<int:pk>/", AssetBundleDetail.as_view(), name="asset-bundles-detail"),
+    path("me/", UserView.as_view(), name="me"),
+    path("authenticate/", AuthenticateView.as_view(), name="authenticate"),
     path("auth/", include(auth_urls)),
     path("comment/<int:pk>/like/", LikeView.as_view(), name="like-comment"),
     path("discover/show/", DiscoverShow.as_view(), name="discover-show"),

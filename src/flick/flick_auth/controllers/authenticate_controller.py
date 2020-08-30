@@ -8,8 +8,6 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.models import User
 from django.core import signing
 from flick_auth import settings as auth_settings
-from flick_auth.serializers import LoginSerializer
-from flick_auth.serializers import RegisterSerializer
 from lst.models import Lst
 import requests
 from rest_framework.authtoken.models import Token
@@ -19,11 +17,10 @@ class AuthenticateController:
     PASSWORD_SALT = auth_settings.AUTH_PASSWORD_SALT
     TOKEN_AGE = auth_settings.AUTH_TOKEN_AGE
 
-    def __init__(self, request, data):
+    def __init__(self, request, data, serializer):
         self._request = request
         self._data = data
-        self._login_serializer = LoginSerializer
-        self._register_serializer = RegisterSerializer
+        self._serializer = serializer
         self._username = self._data.get("username")
         self._first_name = self._data.get("first_name")
         self._last_name = self._data.get("last_name")
@@ -39,7 +36,7 @@ class AuthenticateController:
             token, _ = Token.objects.get_or_create(user=user)
         else:
             token = signing.dumps({"id": user.id}, salt=salt)
-        return token
+        return token.key
 
     def _get_user_from_token(self, token, salt):
         try:
@@ -87,14 +84,8 @@ class AuthenticateController:
             return False
         # only validate if VALIDATE_SOCIAL_TOKEN is turned on from settings, helps with easier development
         if settings.VALIDATE_SOCIAL_TOKEN:
-            # URL = settings.VALIDATE_FACEBOOK_TOKEN_URL
-            # PARAMS = {"access_token": token}
-            # response = requests.get(url=URL, params=PARAMS)
-            # data = response.json()
-            # return not data.get("error")
-            URL = "https://graph.facebook.com/me?fields=id&access_token=" + token
-            response = requests.get(url=URL)
-            data = response.json()
+            url = settings.VALIDATE_FACEBOOK_ID_AND_TOKEN_URL + token
+            data = requests.get(url=url).json()
             return not data.get("error") and data.get("id") == social_id
         return True
 
@@ -124,8 +115,8 @@ class AuthenticateController:
                     f"social_id_token of {self._social_id_token} is invalid or does not match with social_id of {self._social_id}."
                 )
         login(self._request, user)
-        token = self._issue_auth_token(user, "login")
-        return success_response(self._login_serializer(token).data)
+        auth_token = self._issue_auth_token(user, "login")
+        return success_response(self._serializer(user, context={"auth_token": auth_token}).data)
 
     def register(self):
         if not self._check_token(self._social_id, self._social_id_token):
@@ -159,4 +150,6 @@ class AuthenticateController:
             "social_id_token_type": self._social_id_token_type,
         }
         self._create_profile(profile_data)
-        return success_response(self._register_serializer(user).data)
+        login(self._request, user)
+        auth_token = self._issue_auth_token(user, "login")
+        return success_response(self._serializer(user, context={"auth_token": auth_token}).data)

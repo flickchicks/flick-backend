@@ -14,6 +14,7 @@ from .controllers.authenticate_controller import AuthenticateController
 from .controllers.login_controller import LoginController
 from .controllers.register_controller import RegisterController
 from .controllers.update_profile_controller import UpdateProfileController
+from .serializers import AuthenticateSerializer
 from .serializers import LoginSerializer
 from .serializers import LogoutSerializer
 from .serializers import RegisterSerializer
@@ -89,6 +90,7 @@ class RegisterView(generics.GenericAPIView):
 
 
 class AuthenticateView(generics.GenericAPIView):
+    serializer_class = AuthenticateSerializer
     permission_classes = api_settings.UNPROTECTED
 
     def post(self, request):
@@ -96,4 +98,4 @@ class AuthenticateView(generics.GenericAPIView):
             data = json.loads(request.body)
         except json.JSONDecodeError:
             data = request.data
-        return AuthenticateController(request, data).process()
+        return AuthenticateController(request, data, self.serializer_class).process()
