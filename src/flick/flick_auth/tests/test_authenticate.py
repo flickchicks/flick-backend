@@ -12,13 +12,24 @@ class AuthenticateTests(TestCase):
 
     def setUp(self):
         self.client = APIClient()
-        self.user_token = self._create_user_and_login()
 
-    def _create_user_and_login(self):
+    def _check_logged_in_or_registered(self, data):
+        response = self.client.post(self.AUTHENTICATE_URL, data)
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)["data"]
+        self.assertEqual(data["username"], data.get("username"))
+        self.assertEqual(data["first_name"], data.get("first_name"))
+        self.assertEqual(data["last_name"], data.get("last_name"))
+        self.assertEqual(data["profile_pic"], data.get("profile_pic"))
+        self.assertEqual(data["social_id"], data.get("social_id"))
+        self.assertEqual(data["social_id_token"], data.get("social_id_token"))
+        self.assertEqual(data["social_id_token_type"], data.get("social_id_token_type"))
+
+    def test_authenticate(self):
         """Returns the auth token."""
         letters = string.digits
         random_string = "".join(random.choice(letters) for i in range(10))
-        register_data = {
+        data = {
             "username": "",
             "first_name": "Alanna",
             "last_name": "Zhou",
@@ -27,25 +38,7 @@ class AuthenticateTests(TestCase):
             "social_id_token": random_string,
             "social_id_token_type": "test",
         }
-        response = self.client.post(self.AUTHENTICATE_URL, register_data)
-        self.assertEqual(response.status_code, 200)
-        username = json.loads(response.content)["data"]["username"]
+        self._check_logged_in_or_registered(data)
 
-        login_data = {"username": username, "social_id_token": random_string}
-        response = self.client.post(self.LOGIN_URL, login_data)
-        self.assertEqual(response.status_code, 200)
-        token = json.loads(response.content)["data"]["auth_token"]
-        return token
-
-    def test_me(self):
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
-        response = self.client.get(self.ME_URL)
-        content = json.loads(response.content)["data"]
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(content.get("id"), 1)
-        self.assertEqual(content.get("username"), "AlannaZhou")
-        self.assertEqual(content.get("first_name"), "Alanna")
-        self.assertEqual(content.get("last_name"), "Zhou")
-        self.assertEqual(content.get("num_notifs"), 0)
-        self.assertEqual(len(content.get("owner_lsts")), 2)
-        self.assertEqual(len(content.get("collab_lsts")), 0)
+        # doing this again should return the same data
+        self._check_logged_in_or_registered(data)
