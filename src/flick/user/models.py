@@ -16,6 +16,7 @@ class Profile(models.Model):
     profile_pic = models.TextField(blank=True, null=True)
     profile_asset_bundle = models.ForeignKey(AssetBundle, on_delete=models.CASCADE, blank=True, null=True)
     phone_number = models.TextField(blank=True, null=True)
+    social_id = models.TextField(blank=True, null=True)
     social_id_token_type = models.TextField(blank=True, null=True)
     social_id_token = models.TextField(blank=True, null=True)
 
