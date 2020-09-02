@@ -11,16 +11,17 @@ class FriendshipTests(TestCase):
     FRIEND_REQUEST_URL = reverse("friend-request")
     FRIEND_ACCEPT_URL = reverse("friend-accept")
     FRIEND_REJECT_URL = reverse("friend-reject")
-    VALID_USER_PROFILE_URL = reverse("friend-profile", kwargs={"pk": 1})
+    VALID_USER_PROFILE_URL = reverse("friend-profile", kwargs={"pk": 2})
+    REQUEST_USER_PROFILE_URL = reverse("friend-profile", kwargs={"pk": 1})
     INVALID_USER_PROFILE_URL = reverse("friend-profile", kwargs={"pk": 10})
     LOGIN_URL = reverse("login")
     USERNAMES = ["alanna", "vivi", "olivia"]
     SOCIAL_ID_TOKENS = ["test1", "test2", "test3"]
 
     def setUp(self):
+        self.client = APIClient()
         for i, name in enumerate(self.USERNAMES):
             self._create_user(name, self.SOCIAL_ID_TOKENS[i])
-            self.client = APIClient()
 
     def _create_user(self, username, social_id_token):
         request_data = {
@@ -85,3 +86,9 @@ class FriendshipTests(TestCase):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
         response = self.client.get(self.INVALID_USER_PROFILE_URL)
         self.assertEqual(response.status_code, 404)
+
+    def test_redirect(self):
+        token = self._login_user("alanna", "test1")
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
+        response = self.client.get(self.REQUEST_USER_PROFILE_URL)
+        self.assertRedirects(response, reverse("me"))
