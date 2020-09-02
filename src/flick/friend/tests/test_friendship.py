@@ -11,9 +11,9 @@ class FriendshipTests(TestCase):
     FRIEND_REQUEST_URL = reverse("friend-request")
     FRIEND_ACCEPT_URL = reverse("friend-accept")
     FRIEND_REJECT_URL = reverse("friend-reject")
-    VALID_USER_PROFILE_URL = reverse("friend-profile", kwargs={"pk": 2})
-    REQUEST_USER_PROFILE_URL = reverse("friend-profile", kwargs={"pk": 1})
-    INVALID_USER_PROFILE_URL = reverse("friend-profile", kwargs={"pk": 10})
+    VALID_USER_PROFILE_URL = reverse("user-profile", kwargs={"pk": 2})
+    REQUEST_USER_PROFILE_URL = reverse("user-profile", kwargs={"pk": 1})
+    INVALID_USER_PROFILE_URL = reverse("user-profile", kwargs={"pk": 10})
     LOGIN_URL = reverse("login")
     USERNAMES = ["alanna", "vivi", "olivia"]
     SOCIAL_ID_TOKENS = ["test1", "test2", "test3"]

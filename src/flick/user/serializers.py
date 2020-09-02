@@ -64,7 +64,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
-class FriendProfileSerializer(serializers.ModelSerializer):
+class UserProfileSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(source="user.id")
     first_name = serializers.CharField(source="user.first_name")
     last_name = serializers.CharField(source="user.last_name")

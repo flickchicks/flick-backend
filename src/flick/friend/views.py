@@ -1,13 +1,9 @@
 import json
 from user.models import Profile
-from user.serializers import FriendProfileSerializer
 
 from api import settings as api_settings
-from api.utils import failure_response
 from api.utils import success_response
 from django.contrib.auth.models import User
-from django.http import HttpResponseRedirect
-from django.shortcuts import reverse
 from friend.serializers import FriendRequestSerializer
 from friend.serializers import FriendshipSerializer
 from friend.serializers import FriendUserSerializer
@@ -165,17 +161,3 @@ class FriendRemoveListAndCreate(generics.ListCreateAPIView):
         serializer = FriendUserSerializer(friends_removed, many=True)
 
         return success_response(serializer.data)
-
-
-class FriendUserView(generics.GenericAPIView):
-    model = Profile
-    serializer_class = FriendProfileSerializer
-    permission_classes = api_settings.CONSUMER_PERMISSIONS
-
-    def get(self, request, pk):
-        if request.user.id == pk:
-            return HttpResponseRedirect(reverse("me"))
-        if not User.objects.filter(id=pk):
-            return failure_response(f"User of id {pk} not found.")
-        profile = Profile.objects.get(user__id=pk)
-        return success_response(FriendProfileSerializer(profile).data)

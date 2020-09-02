@@ -1,12 +1,16 @@
 import json
 from user.models import Profile
 from user.serializers import ProfileSerializer
+from user.serializers import UserProfileSerializer
 from user.serializers import UserSerializer
 
 from api import settings as api_settings
 from api.utils import failure_response
 from api.utils import success_response
 from django.contrib.auth import logout
+from django.contrib.auth.models import User
+from django.http import HttpResponseRedirect
+from django.shortcuts import reverse
 from rest_framework import generics
 from rest_framework.authtoken.models import Token
 
@@ -36,6 +40,20 @@ class UserView(generics.GenericAPIView):
         except json.JSONDecodeError:
             data = request.data
         return UpdateProfileController(request, data, self.serializer_class).process()
+
+
+class UserProfileView(generics.GenericAPIView):
+    model = Profile
+    serializer_class = UserProfileSerializer
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
+
+    def get(self, request, pk):
+        if request.user.id == pk:
+            return HttpResponseRedirect(reverse("me"))
+        if not User.objects.filter(id=pk):
+            return failure_response(f"User of id {pk} not found.")
+        profile = Profile.objects.get(user__id=pk)
+        return success_response(UserProfileSerializer(profile).data)
 
 
 class LoginView(generics.GenericAPIView):
