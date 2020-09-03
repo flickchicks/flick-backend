@@ -7,7 +7,7 @@ db.sqlite3
 media
 
 # tmp dir for images #
-tmp/*
+src/flick/tmp/*
 # allow git to add empty folder
 !tmp/.gitkeep 
 

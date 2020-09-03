@@ -8,18 +8,22 @@ tmdb.API_KEY = settings.TMDB_API_KEY
 
 
 class TMDB_API:
-    def get_show_from_tmdb_info(self, info):
+    def get_show_from_tmdb_info(self, info, is_tv):
         poster_path = info.get("poster_path")
+        if is_tv:
+            duration = info.get("episode_run_time")[0] if info.get("episode_run_time") else 0
+        else:
+            duration = info.get("runtime", 0)
 
         show = {
             "ext_api_id": info.get("id"),
             "ext_api_source": "tmdb",
-            "title": info.get("original_title"),
+            "title": info.get("original_name" if is_tv else "original_title"),
             "poster_pic": settings.TMDB_BASE_URL + poster_path if poster_path else None,
             "ext_api_genres": info.get("genres"),
-            "is_tv": False,
-            "date_released": info.get("release_date"),
-            "duration": datetime.timedelta(minutes=info.get("runtime", 0)),
+            "is_tv": is_tv,
+            "date_released": info.get("first_air_date" if is_tv else "release_date"),
+            "duration": datetime.timedelta(minutes=duration),
             "language": info.get("original_language"),
             "plot": info.get("overview"),
             "seasons": info.get("number_of_seasons"),
@@ -111,11 +115,11 @@ class TMDB_API:
                 show_ids.append(show_info.get("id"))
         return show_ids
 
-    def get_shows_from_tmdb_search(self, search, tags):
+    def get_shows_from_tmdb_search(self, search, tags, is_tv):
         shows = []
         for show_info in search.results:
             if set(tags).issubset(set(show_info.get("genre_ids"))):
-                shows.append(self.get_show_from_tmdb_info(show_info))
+                shows.append(self.get_show_from_tmdb_info(show_info, is_tv))
         return shows
 
     def get_movie_info_from_id(self, id):
@@ -131,7 +135,7 @@ class TMDB_API:
         """
         search = tmdb.Search()
         search.movie(query=name)
-        return self.get_shows_from_tmdb_search(search, tags)
+        return self.get_shows_from_tmdb_search(search, tags, False)
 
     def get_tv_info_from_id(self, id):
         try:
@@ -202,4 +206,4 @@ class TMDB_API:
         """
         search = tmdb.Search()
         search.tv(query=name)
-        return self.get_shows_from_tmdb_search(search, tags)
+        return self.get_shows_from_tmdb_search(search, tags, True)
