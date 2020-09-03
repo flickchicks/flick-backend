@@ -7,13 +7,13 @@ from django.urls import include
 from django.urls import path
 from flick_auth import urls as auth_urls
 from flick_auth.views import AuthenticateView
+from flick_auth.views import UserProfileView
 from flick_auth.views import UserView
 from friend.views import FriendAcceptListAndCreate
 from friend.views import FriendList
 from friend.views import FriendRejectListAndCreate
 from friend.views import FriendRemoveListAndCreate
 from friend.views import FriendRequestListAndCreate
-from friend.views import FriendUserView
 from like.views import LikeView
 from lst.views import LstDetail
 from lst.views import LstDetailAdd
@@ -39,12 +39,12 @@ urlpatterns = [
     path("asset-bundles/", AssetBundleList.as_view(), name="asset-bundles-list"),
     path("asset-bundles/<int:pk>/", AssetBundleDetail.as_view(), name="asset-bundles-detail"),
     path("me/", UserView.as_view(), name="me"),
+    path("user/<int:pk>", UserProfileView.as_view(), name="user-profile"),
     path("authenticate/", AuthenticateView.as_view(), name="authenticate"),
     path("auth/", include(auth_urls)),
     path("comment/<int:pk>/like/", LikeView.as_view(), name="like-comment"),
     path("discover/show/", DiscoverShow.as_view(), name="discover-show"),
     path("friendship/", include("friendship.urls")),
-    path("friends/<int:pk>", FriendUserView.as_view(), name="friend-profile"),
     path("friends/", FriendList.as_view(), name="friend-list"),
     path("friends/request/", FriendRequestListAndCreate.as_view(), name="friend-request"),
     path("friends/accept/", FriendAcceptListAndCreate.as_view(), name="friend-accept"),
