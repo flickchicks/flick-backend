@@ -85,7 +85,7 @@ class ShowRatingsAndCommentTests(TestCase):
     def _comment_show(self, token, comment_data):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
         response = self.client.post(self.SHOW_DETAIL_URL, comment_data, format="json")
-        comment = json.loads(response.content)["data"]["comments"][0]
+        comment = json.loads(response.content)["data"]["comments"][-1]
         self.assertEqual(response.status_code, 200)
         self.assertEqual(comment["message"], comment_data.get("comment").get("message"))
 
@@ -114,7 +114,7 @@ class ShowRatingsAndCommentTests(TestCase):
     def _check_comments(self, friend_comment):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
         response = self.client.get(self.SHOW_DETAIL_URL)
-        comment = json.loads(response.content)["data"]["comments"][0]
+        comment = json.loads(response.content)["data"]["comments"][-1]
         self.assertEqual(response.status_code, 200)
         self.assertEqual(comment["message"], friend_comment)
 
