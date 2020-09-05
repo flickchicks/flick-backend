@@ -64,7 +64,8 @@ class ShowSerializer(serializers.ModelSerializer):
             return []
         profile = Profile.objects.get(user=user)
         friends = Friend.objects.friends(user=user)
-        comments = instance.comments.filter(Q(owner__in=friends) | Q(owner=profile))
+        friend_profiles = [friend.profile for friend in friends]
+        comments = instance.comments.filter(Q(owner__in=friend_profiles) | Q(owner=profile))
         return CommentSerializer(comments, many=True, context={"request": request}).data
 
 

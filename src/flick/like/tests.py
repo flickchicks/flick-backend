@@ -75,16 +75,13 @@ class LikeTests(TestCase):
         # test like
         response = self.client.post(self.LIKE_COMMENT_URL)
         data = json.loads(response.content)["data"]
-        likers = data["likers"]
         self.assertEqual(response.status_code, 200)
         self.assertEqual(data["num_likes"], 1)
-        self.assertEqual(len(likers), 1)
-        self.assertEqual(likers[0]["liker"]["id"], 1)
+        self.assertTrue(data["has_liked"])
 
         # test cancel like
         response = self.client.post(self.LIKE_COMMENT_URL)
         data = json.loads(response.content)["data"]
-        likers = data["likers"]
         self.assertEqual(response.status_code, 200)
         self.assertEqual(data["num_likes"], 0)
-        self.assertFalse(likers)
+        self.assertFalse(data["has_liked"])
