@@ -20,6 +20,7 @@ from lst.views import LstDetailAdd
 from lst.views import LstDetailRemove
 from lst.views import LstList
 from notification.views import NotificationList
+from read.views import ReadView
 from rest_framework import routers
 from search.views import Search
 from show.views import ShowDetail
@@ -43,6 +44,7 @@ urlpatterns = [
     path("authenticate/", AuthenticateView.as_view(), name="authenticate"),
     path("auth/", include(auth_urls)),
     path("comment/<int:pk>/like/", LikeView.as_view(), name="like-comment"),
+    path("comment/<int:pk>/read/", ReadView.as_view(), name="read-comment"),
     path("discover/show/", DiscoverShow.as_view(), name="discover-show"),
     path("friendship/", include("friendship.urls")),
     path("friends/", FriendList.as_view(), name="friend-list"),

@@ -69,12 +69,12 @@ INSTALLED_APPS = [
     "member",
     "notification",
     "rating",
+    "read",
     "search",
     "show",
     "suggestion",
     "tag",
     "user",
-    "view",
 ]
 
 # needed to test in Postman
