@@ -74,6 +74,7 @@ INSTALLED_APPS = [
     "suggestion",
     "tag",
     "user",
+    "view",
 ]
 
 # needed to test in Postman
