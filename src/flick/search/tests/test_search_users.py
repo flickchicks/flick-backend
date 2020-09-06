@@ -5,6 +5,7 @@ import string
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
+from friendship.exceptions import AlreadyFriendsError
 from friendship.models import Friend
 from rest_framework.test import APIClient
 
@@ -52,7 +53,10 @@ class SearchUsersTests(TestCase):
         return token
 
     def _create_friendship(self, user1, user2):
-        Friend.objects.add_friend(user1, user2).accept()
+        try:
+            Friend.objects.add_friend(user1, user2).accept()
+        except AlreadyFriendsError:
+            return
 
     def test_search_user(self):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
