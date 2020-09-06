@@ -80,7 +80,7 @@ class ReadTests(TestCase):
         response = self.client.post(self.READ_COMMENT_URL)
         data = json.loads(response.content)["data"]
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(data["has_read"])
+        self.assertTrue(data["is_readable"])
 
     def test_read_comment_by_user(self):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
@@ -88,7 +88,7 @@ class ReadTests(TestCase):
         response = self.client.get(self.SHOW_DETAIL_URL)
         comment = json.loads(response.content)["data"]["comments"][-1]
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(comment["has_read"])
+        self.assertTrue(comment["is_readable"])
 
     def _create_friendship(self, user1, user2):
         try:
@@ -102,7 +102,7 @@ class ReadTests(TestCase):
         response = self.client.get(self.SHOW_DETAIL_URL)
         comment = json.loads(response.content)["data"]["comments"][-1]
         self.assertEqual(response.status_code, 200)
-        self.assertFalse(comment["has_read"])
+        self.assertFalse(comment["is_readable"])
 
     def test_read_comment_by_friend(self):
 
