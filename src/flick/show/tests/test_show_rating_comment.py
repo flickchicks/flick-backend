@@ -22,6 +22,8 @@ class ShowRatingsAndCommentTests(TestCase):
         self.friend1_token = self._create_user_and_login()
         self.friend2_token = self._create_user_and_login()
         self.SHOW_DETAIL_URL = reverse("show-detail", kwargs={"pk": self.show.pk})
+        self._create_friendship(user1=User.objects.get(id=1), user2=User.objects.get(id=2))
+        self._create_friendship(user1=User.objects.get(id=1), user2=User.objects.get(id=3))
 
     def _create_show(self):
         show = Show()
@@ -96,8 +98,6 @@ class ShowRatingsAndCommentTests(TestCase):
             return
 
     def _check_friends_rating(self, rating):
-        self._create_friendship(user1=User.objects.get(id=1), user2=User.objects.get(id=2))
-        self._create_friendship(user1=User.objects.get(id=1), user2=User.objects.get(id=3))
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
         response = self.client.get(self.SHOW_DETAIL_URL)
         content = json.loads(response.content)

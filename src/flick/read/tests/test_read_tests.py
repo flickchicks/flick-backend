@@ -23,6 +23,7 @@ class ReadTests(TestCase):
         self.SHOW_DETAIL_URL = reverse("show-detail", kwargs={"pk": self.show.pk})
         self.comment_pk = self._comment_show(self.user_token)
         self.READ_COMMENT_URL = reverse("read-comment", kwargs={"pk": self.comment_pk})
+        self._create_friendship(user1=User.objects.get(id=1), user2=User.objects.get(id=2))
 
     def _create_show(self):
         show = Show()
@@ -104,7 +105,6 @@ class ReadTests(TestCase):
         self.assertFalse(comment["has_read"])
 
     def test_read_comment_by_friend(self):
-        self._create_friendship(user1=User.objects.get(id=1), user2=User.objects.get(id=2))
 
         self._check_before_read(self.friend1_token)
         self._read_comment(self.friend1_token)
