@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     "member",
     "notification",
     "rating",
+    "read",
     "search",
     "show",
     "suggestion",

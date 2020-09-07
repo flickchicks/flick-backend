@@ -5,6 +5,7 @@ import string
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
+from friendship.exceptions import AlreadyFriendsError
 from friendship.models import Friend
 from rest_framework.test import APIClient
 
@@ -25,9 +26,6 @@ class SearchUsersTests(TestCase):
         self.friend2 = User.objects.get(id=3)
         self.friend3 = User.objects.get(id=4)
         # user and friend3 should have one mutual friend: friend1
-        self._create_friendship(user1=self.user, user2=self.friend1)
-        self._create_friendship(user1=self.user, user2=self.friend2)
-        self._create_friendship(user1=self.friend3, user2=self.friend1)
 
     def _create_user_and_login(self):
         """Returns the auth token."""
@@ -52,9 +50,15 @@ class SearchUsersTests(TestCase):
         return token
 
     def _create_friendship(self, user1, user2):
-        Friend.objects.add_friend(user1, user2).accept()
+        try:
+            Friend.objects.add_friend(user1, user2).accept()
+        except AlreadyFriendsError:
+            return
 
     def test_search_user(self):
+        self._create_friendship(user1=self.user, user2=self.friend1)
+        self._create_friendship(user1=self.user, user2=self.friend2)
+        self._create_friendship(user1=self.friend3, user2=self.friend1)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
         data = {"is_user": True, "query": self.friend3.username}
         response = self.client.get(self.SEARCH_URL, data, format="json")

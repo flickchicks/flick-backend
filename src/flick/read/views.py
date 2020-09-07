@@ -8,28 +8,23 @@ from comment.serializers import CommentSerializer
 from rest_framework import generics
 
 
-class LikeView(generics.GenericAPIView):
+class ReadView(generics.GenericAPIView):
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
     def post(self, request, pk):
         if not Comment.objects.filter(pk=pk):
             return failure_response(f"Comment of id {pk} does not exist.")
         comment = Comment.objects.get(pk=pk)
+        if not comment.is_spoiler:
+            return failure_response(f"Comment {pk} is not a spoiler.")
 
         user = request.user
         if not Profile.objects.filter(user=user):
             return failure_response(f"{user} must be logged in.")
         profile = Profile.objects.get(user=user)
 
-        existing_like = comment.likers.filter(liker=profile)
-        if not existing_like:
-            comment.num_likes += 1
-            comment.likers.create(liker=profile)
-        else:
-            comment.num_likes -= 1
-            existing_like.delete()
-
-        comment.save(update_fields=["num_likes"])
+        if not comment.reads.filter(reader=profile):
+            comment.reads.create(reader=profile)
 
         comment_data = CommentSerializer(comment, context={"request": request}).data
         return success_response(comment_data)
