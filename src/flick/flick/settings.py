@@ -198,7 +198,7 @@ S3_BUCKET = "flick"
 S3_BASE_URL = f"https://{S3_BUCKET}.s3-us-west-1.amazonaws.com/"
 
 # MovieDB setup
-TMDB_BASE_URL = "http://image.tmdb.org/t/p/w185"
+TMDB_BASE_URL = "http://image.tmdb.org/t/p/w400"
 
 # Celery
 """
