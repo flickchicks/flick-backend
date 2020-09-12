@@ -7,6 +7,7 @@ from django.urls import include
 from django.urls import path
 from flick_auth import urls as auth_urls
 from flick_auth.views import AuthenticateView
+from flick_auth.views import CheckUsernameView
 from flick_auth.views import UserProfileView
 from flick_auth.views import UserView
 from friend.views import FriendAcceptListAndCreate
@@ -39,8 +40,6 @@ urlpatterns = [
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     path("asset-bundles/", AssetBundleList.as_view(), name="asset-bundles-list"),
     path("asset-bundles/<int:pk>/", AssetBundleDetail.as_view(), name="asset-bundles-detail"),
-    path("me/", UserView.as_view(), name="me"),
-    path("user/<int:pk>", UserProfileView.as_view(), name="user-profile"),
     path("authenticate/", AuthenticateView.as_view(), name="authenticate"),
     path("auth/", include(auth_urls)),
     path("comment/<int:pk>/like/", LikeView.as_view(), name="like-comment"),
@@ -56,11 +55,14 @@ urlpatterns = [
     path("lsts/<int:pk>/", LstDetail.as_view(), name="lst-detail"),
     path("lsts/<int:pk>/add/", LstDetailAdd.as_view(), name="lst-detail-add"),
     path("lsts/<int:pk>/remove/", LstDetailRemove.as_view(), name="lst-detail-remove"),
+    path("me/", UserView.as_view(), name="me"),
     path("media/image/", UploadImage.as_view(), name="upload"),
     path("search/", Search.as_view(), name="search"),
-    path("tags/", TagList.as_view(), name="tag-list"),
-    path("tags/<int:pk>/", TagDetail.as_view(), name="tag-detail"),
     path("show/<int:pk>/", ShowDetail.as_view(), name="show-detail"),
     path("suggest/", PrivateSuggestionView.as_view(), name="private-suggestion"),
+    path("tags/", TagList.as_view(), name="tag-list"),
+    path("tags/<int:pk>/", TagDetail.as_view(), name="tag-detail"),
+    path("user/<int:pk>", UserProfileView.as_view(), name="user-profile"),
+    path("username/", CheckUsernameView.as_view(), name="check-username"),
     path("notifications/", NotificationList.as_view(), name="notif-list"),
 ]

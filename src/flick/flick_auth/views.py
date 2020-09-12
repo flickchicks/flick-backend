@@ -15,6 +15,7 @@ from rest_framework import generics
 from rest_framework.authtoken.models import Token
 
 from .controllers.authenticate_controller import AuthenticateController
+from .controllers.check_username_controller import CheckUsernameController
 from .controllers.login_controller import LoginController
 from .controllers.register_controller import RegisterController
 from .controllers.update_profile_controller import UpdateProfileController
@@ -40,6 +41,15 @@ class UserView(generics.GenericAPIView):
         except json.JSONDecodeError:
             data = request.data
         return UpdateProfileController(request, data, self.serializer_class).process()
+
+
+class CheckUsernameView(generics.GenericAPIView):
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            data = request.data
+        return CheckUsernameController(request, data).process()
 
 
 class UserProfileView(generics.GenericAPIView):
