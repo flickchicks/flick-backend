@@ -44,7 +44,7 @@ urlpatterns = [
     path("auth/", include(auth_urls)),
     path("comment/<int:pk>/like/", LikeView.as_view(), name="like-comment"),
     path("comment/<int:pk>/read/", ReadView.as_view(), name="read-comment"),
-    path("discover/show/", DiscoverShow.as_view(), name="discover-show"),
+    path("discover/", DiscoverShow.as_view(), name="discover-show"),
     path("friendship/", include("friendship.urls")),
     path("friends/", FriendList.as_view(), name="friend-list"),
     path("friends/request/", FriendRequestListAndCreate.as_view(), name="friend-request"),
