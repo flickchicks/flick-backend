@@ -11,7 +11,9 @@ class CheckUsernameController:
     def process(self):
         username = self._data.get("username")
         if len(username) > 30:
-            return failure_response(f"{username} must be 30 characters or less.")
+            return failure_response("Username must be 30 characters or less.")
+        if len(username) < 3:
+            return failure_response("Username must be at least three characters.")
         if User.objects.filter(username=username):
-            return failure_response(f"{username} is already taken.")
-        return success_response(f"{username} is available!")
+            return failure_response("Username is already taken.")
+        return success_response("Username is available!")
