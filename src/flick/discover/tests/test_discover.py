@@ -5,8 +5,8 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 
 
-class SearchShowsTests(TransactionTestCase):
-    DISCOVER_URL = reverse("discover-show")
+class DiscoverTests(TransactionTestCase):
+    DISCOVER_URL = reverse("discover")
 
     def setUp(self):
         self.client = APIClient()

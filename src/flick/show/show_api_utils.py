@@ -9,7 +9,7 @@ from .tmdb_api_utils import TMDB_API
 
 class ShowAPI:
     @staticmethod
-    def create_show_objects(show_info_lst, custom_serializer=ShowSearchSerializer):
+    def create_show_objects(show_info_lst, serializer=ShowSearchSerializer):
         serializer_data = []
         for show_info in show_info_lst:
             if not show_info:
@@ -24,8 +24,8 @@ class ShowAPI:
                     ext_api_id=show_info.get("ext_api_id"),
                     ext_api_source=show_info.get("ext_api_source"),
                 )
-                serializer = custom_serializer(show)
-                serializer_data.append(serializer.data)
+                s = serializer(show)
+                serializer_data.append(s.data)
             else:
                 try:
                     show = Show()
@@ -42,8 +42,8 @@ class ShowAPI:
                     show.seasons = show_info.get("seasons")
                     show.save()
                     populate_show_details.delay(show.id)
-                    serializer = custom_serializer(show)
-                    serializer_data.append(serializer.data)
+                    s = serializer(show)
+                    serializer_data.append(s.data)
                 except Exception as e:
                     print("create_show_objects:", e)
         return serializer_data
