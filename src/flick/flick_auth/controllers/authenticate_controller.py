@@ -21,7 +21,6 @@ class AuthenticateController:
         self._request = request
         self._data = data
         self._serializer = serializer
-        self._username = self._data.get("username")
         self._first_name = self._data.get("first_name")
         self._last_name = self._data.get("last_name")
         self._profile_pic = self._data.get("profile_pic")
@@ -125,15 +124,9 @@ class AuthenticateController:
             )
         if Profile.objects.filter(social_id_token=self._social_id_token):
             return failure_response("Profile already exists with the social_id_token.")
-        if not self._username:
-            if not self._first_name:
-                return failure_response(
-                    "Must supply a first_name and last_name to get a generated username. Or, supply a username."
-                )
-            self._username = self._generate_username()
-        else:
-            if User.objects.filter(username=self._username):
-                return failure_response("User already exists with the username.")
+        if not self._first_name:
+            return failure_response("Must supply a first_name and last_name to get a generated username.")
+        self._username = self._generate_username()
         user_data = {
             "username": self._username,
             "first_name": self._first_name,
