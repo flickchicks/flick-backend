@@ -4,6 +4,7 @@ from api import settings as api_settings
 from api.utils import success_response
 from django.contrib.auth.models import User
 from django.core.cache import caches
+from django.db.models import Q
 from lst.models import Lst
 from lst.serializers import LstSerializer
 from rest_framework.views import APIView
@@ -12,6 +13,7 @@ from show.serializers import ShowSerializer
 from show.show_api_utils import ShowAPI
 from tag.models import Tag
 from tag.simple_serializers import TagSimpleSerializer
+
 
 # cache to store search_movie_by_name (and tv and anime)
 # search_movie_by_name example: ("query", "movie"), movie_id
@@ -59,7 +61,7 @@ class Search(APIView):
             self.get_shows_by_type_and_query(query, "anime", "animelist")
 
     def get_users_by_username(self, query):
-        users = User.objects.filter(username__icontains=query)
+        users = User.objects.filter(Q(username__icontains=query) & Q(is_superuser=False))
         serializer = UserSimpleSerializer(instance=users, many=True, context={"request": self.request})
         return serializer.data
 
