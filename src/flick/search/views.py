@@ -1,7 +1,7 @@
 from user.user_simple_serializers import UserSimpleSerializer
 
 from api import settings as api_settings
-from api.utils import success_response
+from api.utils import success_response_with_query
 from django.contrib.auth.models import User
 from django.core.cache import caches
 from django.db.models import Q
@@ -89,11 +89,11 @@ class Search(APIView):
         self.known_shows = []
 
         if is_user:
-            return success_response(self.get_users_by_username(query))
+            return success_response_with_query(query=query, data=self.get_users_by_username(query))
         elif is_lst:
-            return success_response(self.get_lsts_by_name(query))
+            return success_response_with_query(query=query, data=self.get_lsts_by_name(query))
         elif is_tag:
-            return success_response(self.get_tags_by_name(query))
+            return success_response_with_query(query=query, data=self.get_tags_by_name(query))
         else:
             self.get_shows_by_query(query, is_movie, is_tv, is_anime, tags)
 
@@ -101,4 +101,4 @@ class Search(APIView):
         serializer_data.extend(ShowAPI.create_show_objects(self.shows))
         serializer_data.extend(self.known_shows)
 
-        return success_response(serializer_data)
+        return success_response_with_query(query=query, data=serializer_data)
