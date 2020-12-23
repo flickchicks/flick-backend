@@ -44,11 +44,13 @@ class SearchTagsTests(TestCase):
         Tag.objects.create(name="amazing")
         Tag.objects.create(name="hhhhh")
         Tag.objects.create(name="Another")
-        data = {"is_tag": True, "query": "a"}
+        query = "a"
+        data = {"is_tag": True, "query": query}
         response = self.client.get(self.SEARCH_URL, data, format="json")
         content = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(content.get("success"))
+        self.assertEqual(content.get("query"), query)
         data = content.get("data")
         self.assertEqual(len(data), 2)
         self.assertEqual(data[0]["name"], "amazing")

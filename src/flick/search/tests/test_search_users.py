@@ -65,6 +65,7 @@ class SearchUsersTests(TestCase):
         content = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(content.get("success"))
+        self.assertEqual(content.get("query"), self.friend3.username)
         data = content.get("data")[0]
         self.assertEqual(data["id"], self.friend3.id)
         self.assertEqual(data["username"], self.friend3.username)
