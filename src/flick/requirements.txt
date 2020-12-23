@@ -10,7 +10,7 @@ backcall==0.2.0
 beautifulsoup4==4.9.0
 billiard==3.6.3.0
 boto3==1.13.16
-botocore==1.13.20
+botocore==1.16.16
 cachetools==4.0.0
 celery==4.4.2
 certifi==2019.3.9
@@ -25,10 +25,6 @@ decorator==4.4.2
 defusedxml==0.6.0
 dill==0.3.2
 Django==3.0.6
-django-allauth==0.41.0
-django-celery==3.3.1
-django-celery-beat==2.0.0
-django-celery-results==1.2.1
 django-friendship==1.9.1
 django-live-profiler==0.0.9
 django-lrucache-backend==4.0.0
@@ -54,7 +50,7 @@ jmespath==0.10.0
 joblib==0.14.1
 kombu==4.6.8
 lxml==4.5.2
-MarkupSafe==1.0
+MarkupSafe==1.1.1
 multidict==4.7.6
 multiprocess==0.70.10
 nltk==3.5
