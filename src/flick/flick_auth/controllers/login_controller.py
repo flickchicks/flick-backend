@@ -41,11 +41,15 @@ class LoginController:
     def _get_user_from_token(self, token, salt):
         try:
             value = signing.loads(token, salt=self.PASSWORD_SALT, max_age=900)
+            print("value", value)
         except signing.SignatureExpired:
+            print("signature expired")
             return None
         except signing.BadSignature:
+            print("bad signature")
             return None
         user_exists = User.objects.filter(id=value.get("id"))
+        print("user_exists", user_exists)
         if user_exists:
             return User.objects.get(id=value.get("id"))
         return None
@@ -55,7 +59,7 @@ class LoginController:
         social_id_token = self._data.get("social_id_token")
         user = self._authenticate(username, social_id_token)
         if not user:
-            return failure_response(f"User with username {username} could be authenticated.")
+            return failure_response(f"User with username {username} could not be authenticated.")
         if self._login(user):
             token = self._issue_auth_token(user, "login")
             return success_response(self._serializer(token).data)
