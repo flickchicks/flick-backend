@@ -55,7 +55,7 @@ class LoginController:
         social_id_token = self._data.get("social_id_token")
         user = self._authenticate(username, social_id_token)
         if not user:
-            return failure_response(f"User with username {username} could be authenticated.")
+            return failure_response(f"User with username {username} could not be authenticated.")
         if self._login(user):
             token = self._issue_auth_token(user, "login")
             return success_response(self._serializer(token).data)
