@@ -41,15 +41,11 @@ class LoginController:
     def _get_user_from_token(self, token, salt):
         try:
             value = signing.loads(token, salt=self.PASSWORD_SALT, max_age=900)
-            print("value", value)
         except signing.SignatureExpired:
-            print("signature expired")
             return None
         except signing.BadSignature:
-            print("bad signature")
             return None
         user_exists = User.objects.filter(id=value.get("id"))
-        print("user_exists", user_exists)
         if user_exists:
             return User.objects.get(id=value.get("id"))
         return None
