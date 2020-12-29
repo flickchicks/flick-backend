@@ -70,8 +70,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
     last_name = serializers.CharField(source="user.last_name")
     username = serializers.CharField(source="user.username")
     profile_pic = AssetBundleDetailSerializer(source="profile_asset_bundle")
-    owner_lst = serializers.SerializerMethodField("get_owner_lsts")
-    collab_lst = serializers.SerializerMethodField("get_collab_lsts")
+    owner_lsts = serializers.SerializerMethodField("get_owner_lsts")
+    collab_lsts = serializers.SerializerMethodField("get_collab_lsts")
 
     def get_owner_lsts(self, profile):
         lists = profile.owner_lsts.all().filter(is_private=False)
@@ -90,7 +90,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "last_name",
             "profile_pic",
             "bio",
-            "collab_lst",
-            "owner_lst",
+            "collab_lsts",
+            "owner_lsts",
         )
         read_only_fields = fields
