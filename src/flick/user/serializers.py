@@ -3,7 +3,6 @@ from user.models import Profile
 from asset.serializers import AssetBundleDetailSerializer
 from django.contrib.auth.models import User
 from django.db.models import Q
-from friendship.models import Friend
 from lst.simple_serializers import MeLstSerializer
 from rest_framework import serializers
 
@@ -67,7 +66,6 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(source="user.id")
-    is_friend = serializers.SerializerMethodField("get_is_friend")
     first_name = serializers.CharField(source="user.first_name")
     last_name = serializers.CharField(source="user.last_name")
     username = serializers.CharField(source="user.username")
@@ -83,16 +81,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
         lists = profile.collab_lsts.all().filter(Q(is_private=False) | Q(collaborators=profile))
         return MeLstSerializer(lists, read_only=True, many=True).data
 
-    def get_is_friend(self, profile):
-        other_user = profile.user
-        request = self.context.get("request")
-        return Friend.objects.are_friends(request.user, other_user)
-
     class Meta:
         model = Profile
         fields = (
             "id",
-            "is_friend",
             "username",
             "first_name",
             "last_name",
