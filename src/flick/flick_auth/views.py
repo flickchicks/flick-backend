@@ -63,7 +63,7 @@ class UserProfileView(generics.GenericAPIView):
         if not User.objects.filter(id=pk):
             return failure_response(f"User of id {pk} not found.")
         profile = Profile.objects.get(user__id=pk)
-        return success_response(UserProfileSerializer(profile).data)
+        return success_response(self.serializer_class(profile, context={"request": self.request}).data)
 
 
 class LoginView(generics.GenericAPIView):

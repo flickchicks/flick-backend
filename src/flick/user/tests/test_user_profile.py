@@ -10,22 +10,21 @@ from friendship.models import Friend
 from rest_framework.test import APIClient
 
 
-class SearchUsersTests(TestCase):
+class UserProfileTests(TestCase):
     REGISTER_URL = reverse("register")
     LOGIN_URL = reverse("login")
-    SEARCH_URL = reverse("search")
+    ME_URL = reverse("me")
+    USER_ID = 1
+    FRIEND_ID = 2
+    RANDO_ID = 3
+    FRIEND_PROFILE_URL = reverse("user-profile", kwargs={"pk": FRIEND_ID})
+    RANDO_PROFILE_URL = reverse("user-profile", kwargs={"pk": RANDO_ID})
 
     def setUp(self):
         self.client = APIClient()
         self.user_token = self._create_user_and_login()
-        self.friend1_token = self._create_user_and_login()
-        self.friend2_token = self._create_user_and_login()
-        self.friend3_token = self._create_user_and_login()
-        self.user = User.objects.get(id=1)
-        self.friend1 = User.objects.get(id=2)
-        self.friend2 = User.objects.get(id=3)
-        self.friend3 = User.objects.get(id=4)
-        # user and friend3 should have one mutual friend: friend1
+        self.friend_token = self._create_user_and_login()
+        # self.rando_token = self._create_user_and_login()
 
     def _create_user_and_login(self):
         """Returns the auth token."""
@@ -55,21 +54,21 @@ class SearchUsersTests(TestCase):
         except AlreadyFriendsError:
             return
 
-    # Known to fail when running `python manage.py test` likely due to concurrency
-    def test_search_user(self):
-        self._create_friendship(user1=self.user, user2=self.friend1)
-        self._create_friendship(user1=self.user, user2=self.friend2)
-        self._create_friendship(user1=self.friend3, user2=self.friend1)
+    def test_view_friend_profile(self):
+        self._create_friendship(user1=User.objects.get(id=self.USER_ID), user2=User.objects.get(id=self.FRIEND_ID))
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
-        data = {"is_user": True, "query": self.friend3.username}
-        response = self.client.get(self.SEARCH_URL, data, format="json")
-        content = json.loads(response.content)
+        response = self.client.get(self.FRIEND_PROFILE_URL)
+        content = json.loads(response.content)["data"]
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(content.get("success"))
-        self.assertEqual(content.get("query"), self.friend3.username)
-        data = content.get("data")[0]
-        self.assertEqual(data["id"], self.friend3.id)
-        self.assertEqual(data["username"], self.friend3.username)
-        self.assertEqual(data["first_name"], self.friend3.first_name)
-        self.assertEqual(data["last_name"], self.friend3.last_name)
-        self.assertEqual(data["num_mutual_friends"], 1)
+        self.assertEqual(content.get("id"), self.FRIEND_ID)
+        self.assertTrue(content.get("is_friend"))
+
+    # Known to fail when running `python manage.py test` likely due to concurrency
+    def test_view_rando_profile(self):
+        Friend.objects.remove_friend(User.objects.get(id=self.USER_ID), User.objects.get(id=self.FRIEND_ID))
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
+        response = self.client.get(self.FRIEND_PROFILE_URL)
+        content = json.loads(response.content)["data"]
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(content.get("id"), self.FRIEND_ID)
+        self.assertFalse(content.get("is_friend"))
