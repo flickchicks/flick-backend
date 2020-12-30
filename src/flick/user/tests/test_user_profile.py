@@ -24,8 +24,7 @@ class UserProfileTests(TestCase):
         self.client = APIClient()
         self.user_token = self._create_user_and_login()
         self.friend_token = self._create_user_and_login()
-        self.rando_token = self._create_user_and_login()
-        self._create_friendship(user1=User.objects.get(id=self.USER_ID), user2=User.objects.get(id=self.FRIEND_ID))
+        # self.rando_token = self._create_user_and_login()
 
     def _create_user_and_login(self):
         """Returns the auth token."""
@@ -56,6 +55,7 @@ class UserProfileTests(TestCase):
             return
 
     def test_view_friend_profile(self):
+        self._create_friendship(user1=User.objects.get(id=self.USER_ID), user2=User.objects.get(id=self.FRIEND_ID))
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
         response = self.client.get(self.FRIEND_PROFILE_URL)
         content = json.loads(response.content)["data"]
@@ -63,10 +63,12 @@ class UserProfileTests(TestCase):
         self.assertEqual(content.get("id"), self.FRIEND_ID)
         self.assertTrue(content.get("is_friend"))
 
+    # Known to fail when running `python manage.py test` likely due to concurrency
     def test_view_rando_profile(self):
+        Friend.objects.remove_friend(User.objects.get(id=self.USER_ID), User.objects.get(id=self.FRIEND_ID))
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
-        response = self.client.get(self.RANDO_PROFILE_URL)
+        response = self.client.get(self.FRIEND_PROFILE_URL)
         content = json.loads(response.content)["data"]
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(content.get("id"), self.RANDO_ID)
+        self.assertEqual(content.get("id"), self.FRIEND_ID)
         self.assertFalse(content.get("is_friend"))
