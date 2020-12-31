@@ -55,6 +55,7 @@ class SearchUsersTests(TestCase):
         except AlreadyFriendsError:
             return
 
+    # Known to fail when running `python manage.py test` likely due to concurrency
     def test_search_user(self):
         self._create_friendship(user1=self.user, user2=self.friend1)
         self._create_friendship(user1=self.user, user2=self.friend2)

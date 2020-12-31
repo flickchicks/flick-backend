@@ -3,6 +3,7 @@ from user.models import Profile
 from asset.serializers import AssetBundleDetailSerializer
 from django.contrib.auth.models import User
 from django.db.models import Q
+from friendship.models import Friend
 from lst.simple_serializers import MeLstSerializer
 from rest_framework import serializers
 
@@ -66,6 +67,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(source="user.id")
+    friend_status = serializers.SerializerMethodField("get_friend_status")
     first_name = serializers.CharField(source="user.first_name")
     last_name = serializers.CharField(source="user.last_name")
     username = serializers.CharField(source="user.username")
@@ -81,10 +83,24 @@ class UserProfileSerializer(serializers.ModelSerializer):
         lists = profile.collab_lsts.all().filter(Q(is_private=False) | Q(collaborators=profile))
         return MeLstSerializer(lists, read_only=True, many=True).data
 
+    def get_friend_status(self, profile):
+        other_user = profile.user
+        request = self.context.get("request")
+        for sent_request in Friend.objects.sent_requests(user=request.user):
+            if sent_request.to_user.id == profile.user.id:
+                return "outgoing request"
+        for sent_request in Friend.objects.sent_requests(user=other_user):
+            if sent_request.to_user.id == request.user.id:
+                return "incoming request"
+        if Friend.objects.are_friends(request.user, other_user):
+            return "friends"
+        return "not friends"
+
     class Meta:
         model = Profile
         fields = (
             "id",
+            "friend_status",
             "username",
             "first_name",
             "last_name",
