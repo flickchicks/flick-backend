@@ -1,9 +1,9 @@
+from api.tests import FlickTestCase
 from django.contrib.auth.models import User
-from django.test import TestCase
 from django.urls import reverse
 
 
-class CheckUsernameTests(TestCase):
+class CheckUsernameTests(FlickTestCase):
     CHECK_USERNAME_URL = reverse("check-username")
 
     def setUp(self):

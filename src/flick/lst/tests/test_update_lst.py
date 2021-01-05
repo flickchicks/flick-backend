@@ -2,8 +2,8 @@ import json
 import random
 import string
 
+from api.tests import FlickTestCase
 from django.contrib.auth.models import User
-from django.test import TestCase
 from django.urls import reverse
 from friendship.models import Friend
 from rest_framework.test import APIClient
@@ -11,9 +11,7 @@ from show.models import Show
 from tag.models import Tag
 
 
-class UpdateLstTests(TestCase):
-    REGISTER_URL = reverse("register")
-    LOGIN_URL = reverse("login")
+class UpdateLstTests(FlickTestCase):
     CREATE_LST_URL = reverse("lst-list")
     NOTIFICATIONS_URL = reverse("notif-list")
     LST_ID = 7  # each user has 2 default lists, and we intend to create 3 test users
@@ -57,27 +55,6 @@ class UpdateLstTests(TestCase):
 
     def _get_created_tag_ids(self, num_tags):
         return [Tag.objects.create(name=self._get_random_string()).id for n in range(num_tags)]
-
-    def _create_user_and_login(self):
-        """Returns the auth token."""
-        random_string = self._get_random_string()
-        register_data = {
-            "username": "",
-            "first_name": "Alanna",
-            "last_name": "Zhou",
-            "profile_pic": "",
-            "social_id_token": random_string,
-            "social_id_token_type": "test",
-        }
-        response = self.client.post(self.REGISTER_URL, register_data)
-        self.assertEqual(response.status_code, 200)
-        username = json.loads(response.content)["data"]["username"]
-
-        login_data = {"username": username, "social_id_token": random_string}
-        response = self.client.post(self.LOGIN_URL, login_data)
-        self.assertEqual(response.status_code, 200)
-        token = json.loads(response.content)["data"]["auth_token"]
-        return token
 
     def _create_friendship(self, user1, user2):
         Friend.objects.add_friend(user1, user2).accept()

@@ -1,11 +1,11 @@
 import json
 
-from django.test import TransactionTestCase
+from api.tests import FlickTransactionTestCase
 from django.urls import reverse
 from rest_framework.test import APIClient
 
 
-class DiscoverTests(TransactionTestCase):
+class DiscoverTests(FlickTransactionTestCase):
     DISCOVER_URL = reverse("discover")
 
     def setUp(self):

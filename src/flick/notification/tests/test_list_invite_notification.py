@@ -1,17 +1,13 @@
 import json
-import random
-import string
 
+from api.tests import FlickTestCase
 from django.contrib.auth.models import User
-from django.test import TestCase
 from django.urls import reverse
 from friendship.models import Friend
 from rest_framework.test import APIClient
 
 
-class ListInviteNotificationTests(TestCase):
-    REGISTER_URL = reverse("register")
-    LOGIN_URL = reverse("login")
+class ListInviteNotificationTests(FlickTestCase):
     CREATE_LST_URL = reverse("lst-list")
     NOTIFICATIONS_URL = reverse("notif-list")
     ADD_TO_LST_URL = reverse("lst-detail-add", kwargs={"pk": 5})
@@ -22,28 +18,6 @@ class ListInviteNotificationTests(TestCase):
         self.user_token = self._create_user_and_login()
         self.friend_token = self._create_user_and_login()
         self._create_friendship(user1=User.objects.get(id=1), user2=User.objects.get(id=2))
-
-    def _create_user_and_login(self):
-        """Returns the auth token."""
-        letters = string.digits
-        random_string = "".join(random.choice(letters) for i in range(10))
-        register_data = {
-            "username": "",
-            "first_name": "Alanna",
-            "last_name": "Zhou",
-            "profile_pic": "",
-            "social_id_token": random_string,
-            "social_id_token_type": "test",
-        }
-        response = self.client.post(self.REGISTER_URL, register_data)
-        self.assertEqual(response.status_code, 200)
-        username = json.loads(response.content)["data"]["username"]
-
-        login_data = {"username": username, "social_id_token": random_string}
-        response = self.client.post(self.LOGIN_URL, login_data)
-        self.assertEqual(response.status_code, 200)
-        token = json.loads(response.content)["data"]["auth_token"]
-        return token
 
     def _create_friendship(self, user1, user2):
         Friend.objects.add_friend(user1, user2).accept()
