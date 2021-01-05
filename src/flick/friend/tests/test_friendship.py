@@ -1,12 +1,9 @@
-import json
-
-from django.test import TestCase
+from api.tests import FlickTests
 from django.urls import reverse
 from rest_framework.test import APIClient
 
 
-class FriendshipTests(TestCase):
-    REGISTER_URL = reverse("register")
+class FriendshipTests(FlickTests):
     FRIEND_LIST_URL = reverse("friend-list")
     FRIEND_REQUEST_URL = reverse("friend-request")
     FRIEND_ACCEPT_URL = reverse("friend-accept")
@@ -14,81 +11,52 @@ class FriendshipTests(TestCase):
     VALID_USER_PROFILE_URL = reverse("user-profile", kwargs={"pk": 2})
     REQUEST_USER_PROFILE_URL = reverse("user-profile", kwargs={"pk": 1})
     INVALID_USER_PROFILE_URL = reverse("user-profile", kwargs={"pk": 10})
-    LOGIN_URL = reverse("login")
-    USERNAMES = ["alanna", "vivi", "olivia"]
-    SOCIAL_ID_TOKENS = ["test1", "test2", "test3"]
+    ME_URL = reverse("me")
 
     def setUp(self):
         self.client = APIClient()
-        for i, name in enumerate(self.USERNAMES):
-            self._create_user(name, self.SOCIAL_ID_TOKENS[i])
-
-    def _create_user(self, username, social_id_token):
-        request_data = {
-            "username": username,
-            "first_name": "test_user",
-            "last_name": "test_user",
-            "profile_pic": "",
-            "social_id_token": social_id_token,
-            "social_id_token_type": "test",
-        }
-        response = self.client.post(self.REGISTER_URL, request_data)
-        self.assertEqual(response.status_code, 200)
-
-    def _login_user(self, username, social_id_token):
-        request_data = {"username": username, "social_id_token": social_id_token}
-        response = self.client.post(self.LOGIN_URL, request_data)
-        self.assertEqual(response.status_code, 200)
-        token = json.loads(response.content)["data"]["auth_token"]
-        self.assertIsNotNone(token)
-        return token
+        self.user1_token = self._create_user_and_login()
+        self.user2_token = self._create_user_and_login()
+        self.user3_token = self._create_user_and_login()
 
     def test_list_friends(self):
-        token = self._login_user("alanna", "test1")
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user1_token)
         response = self.client.get(self.FRIEND_LIST_URL)
         self.assertEqual(response.status_code, 200)
 
     def test_send_friend_request(self):
-        token = self._login_user("alanna", "test1")
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user1_token)
         request_data = {"ids": [2, 3]}
         response = self.client.post(self.FRIEND_REQUEST_URL, request_data, format="json")
         self.assertEqual(response.status_code, 200)
 
     def test_view_out_going_friend_request(self):
-        token = self._login_user("alanna", "test1")
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user1_token)
         response = self.client.get(self.FRIEND_REQUEST_URL)
         self.assertEqual(response.status_code, 200)
 
     def test_view_incoming_friend_request(self):
-        token = self._login_user("vivi", "test2")
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user2_token)
         response = self.client.get(self.FRIEND_ACCEPT_URL)
         self.assertEqual(response.status_code, 200)
 
     def test_accept_incoming_friend_request(self):
-        token = self._login_user("vivi", "test2")
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user2_token)
         request_data = {"ids": [1]}
         response = self.client.post(self.FRIEND_REQUEST_URL, request_data, format="json")
         self.assertEqual(response.status_code, 200)
 
     def test_user_profile_exists(self):
-        token = self._login_user("alanna", "test1")
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user1_token)
         response = self.client.get(self.VALID_USER_PROFILE_URL)
         self.assertEqual(response.status_code, 200)
 
     def test_user_profile_does_not_exist(self):
-        token = self._login_user("alanna", "test1")
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user1_token)
         response = self.client.get(self.INVALID_USER_PROFILE_URL)
         self.assertEqual(response.status_code, 404)
 
     def test_redirect(self):
-        token = self._login_user("alanna", "test1")
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user1_token)
         response = self.client.get(self.REQUEST_USER_PROFILE_URL)
-        self.assertRedirects(response, reverse("me"))
+        self.assertRedirects(response, self.ME_URL)

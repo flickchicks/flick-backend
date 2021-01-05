@@ -20,17 +20,25 @@ class FlickTests(TestCase):
     def setUp(self):
         self.client = APIClient()
 
-    def _create_user_and_login(self):
+    def _create_user_and_login(
+        self,
+        username="",
+        first_name=FIRST_NAME,
+        last_name=LAST_NAME,
+        social_id="",
+        social_id_token="",
+        social_id_token_type="facebook",
+    ):
         """Returns the auth token."""
         random_str = self.get_random_str()
         data = {
-            "username": "",
-            "first_name": self.FIRST_NAME,
-            "last_name": self.LAST_NAME,
+            "username": username,
+            "first_name": first_name,
+            "last_name": last_name,
             "profile_pic": "",
-            "social_id": random_str,
-            "social_id_token": random_str,
-            "social_id_token_type": "facebook",
+            "social_id": social_id or random_str,
+            "social_id_token": social_id_token or random_str,
+            "social_id_token_type": social_id_token_type,
         }
         response = self.client.post(self.AUTHENTICATE_URL, data)
         self.assertEqual(response.status_code, 200)
