@@ -1,6 +1,6 @@
 import json
 
-from api.tests import FlickTests
+from api.tests import FlickTestCase
 from django.contrib.auth.models import User
 from django.urls import reverse
 from friendship.exceptions import AlreadyFriendsError
@@ -8,7 +8,7 @@ from friendship.models import Friend
 from rest_framework.test import APIClient
 
 
-class UserProfileTests(FlickTests):
+class UserProfileTests(FlickTestCase):
     ME_URL = reverse("me")
     USER_ID = 1
     FRIEND_ID = 2

@@ -1,9 +1,9 @@
-from api.tests import FlickTests
+from api.tests import FlickTestCase
 from django.urls import reverse
 from rest_framework.test import APIClient
 
 
-class FriendshipTests(FlickTests):
+class FriendshipTests(FlickTestCase):
     FRIEND_LIST_URL = reverse("friend-list")
     FRIEND_REQUEST_URL = reverse("friend-request")
     FRIEND_ACCEPT_URL = reverse("friend-accept")

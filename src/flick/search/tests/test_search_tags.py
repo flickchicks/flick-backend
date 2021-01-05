@@ -1,12 +1,12 @@
 import json
 
-from api.tests import FlickTests
+from api.tests import FlickTestCase
 from django.urls import reverse
 from rest_framework.test import APIClient
 from tag.models import Tag
 
 
-class SearchTagsTests(FlickTests):
+class SearchTagsTests(FlickTestCase):
     SEARCH_URL = reverse("search")
 
     def setUp(self):

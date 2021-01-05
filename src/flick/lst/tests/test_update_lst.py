@@ -2,7 +2,7 @@ import json
 import random
 import string
 
-from api.tests import FlickTests
+from api.tests import FlickTestCase
 from django.contrib.auth.models import User
 from django.urls import reverse
 from friendship.models import Friend
@@ -11,7 +11,7 @@ from show.models import Show
 from tag.models import Tag
 
 
-class UpdateLstTests(FlickTests):
+class UpdateLstTests(FlickTestCase):
     CREATE_LST_URL = reverse("lst-list")
     NOTIFICATIONS_URL = reverse("notif-list")
     LST_ID = 7  # each user has 2 default lists, and we intend to create 3 test users

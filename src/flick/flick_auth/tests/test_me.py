@@ -1,11 +1,11 @@
 import json
 
-from api.tests import FlickTests
+from api.tests import FlickTestCase
 from django.urls import reverse
 from rest_framework.test import APIClient
 
 
-class MeTests(FlickTests):
+class MeTests(FlickTestCase):
     ME_URL = reverse("me")
 
     def setUp(self):
