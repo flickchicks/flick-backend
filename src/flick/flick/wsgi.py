@@ -11,6 +11,9 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'flick.settings')
+# Uncomment for public server:
+# sys.path.append('/var/www/flick-backend/src/flick')
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "flick.settings")
 
 application = get_wsgi_application()
