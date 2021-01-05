@@ -1,18 +1,14 @@
 import json
-import random
-import string
 
+from api.tests import FlickTests
 from django.contrib.auth.models import User
-from django.test import TestCase
 from django.urls import reverse
 from friendship.exceptions import AlreadyFriendsError
 from friendship.models import Friend
 from rest_framework.test import APIClient
 
 
-class UserProfileTests(TestCase):
-    REGISTER_URL = reverse("register")
-    LOGIN_URL = reverse("login")
+class UserProfileTests(FlickTests):
     ME_URL = reverse("me")
     USER_ID = 1
     FRIEND_ID = 2
@@ -26,28 +22,6 @@ class UserProfileTests(TestCase):
         self.user_token = self._create_user_and_login()
         self.friend_token = self._create_user_and_login()
         self.rando_token = self._create_user_and_login()
-
-    def _create_user_and_login(self):
-        """Returns the auth token."""
-        letters = string.digits
-        random_string = "".join(random.choice(letters) for i in range(10))
-        register_data = {
-            "username": "",
-            "first_name": "Alanna",
-            "last_name": "Zhou",
-            "profile_pic": "",
-            "social_id_token": random_string,
-            "social_id_token_type": "test",
-        }
-        response = self.client.post(self.REGISTER_URL, register_data)
-        self.assertEqual(response.status_code, 200)
-        username = json.loads(response.content)["data"]["username"]
-
-        login_data = {"username": username, "social_id_token": random_string}
-        response = self.client.post(self.LOGIN_URL, login_data)
-        self.assertEqual(response.status_code, 200)
-        token = json.loads(response.content)["data"]["auth_token"]
-        return token
 
     def _request_friendship(self, from_user, to_user):
         try:
