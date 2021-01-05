@@ -1,15 +1,11 @@
 import json
-import random
-import string
 
-from django.test import TestCase
+from api.tests import FlickTestCase
 from django.urls import reverse
 from rest_framework.test import APIClient
 
 
-class FriendshipNotification(TestCase):
-    REGISTER_URL = reverse("register")
-    LOGIN_URL = reverse("login")
+class FriendshipNotification(FlickTestCase):
     NOTIFICATIONS_URL = reverse("notif-list")
     ME_URL = reverse("me")
     FRIEND_REQUEST_URL = reverse("friend-request")
@@ -19,28 +15,6 @@ class FriendshipNotification(TestCase):
         self.client = APIClient()
         self.user_token = self._create_user_and_login()
         self.friend_token = self._create_user_and_login()
-
-    def _create_user_and_login(self):
-        """Returns the auth token."""
-        letters = string.digits
-        random_string = "".join(random.choice(letters) for i in range(10))
-        register_data = {
-            "username": "",
-            "first_name": "Alanna",
-            "last_name": "Zhou",
-            "profile_pic": "",
-            "social_id_token": random_string,
-            "social_id_token_type": "test",
-        }
-        response = self.client.post(self.REGISTER_URL, register_data)
-        self.assertEqual(response.status_code, 200)
-        username = json.loads(response.content)["data"]["username"]
-
-        login_data = {"username": username, "social_id_token": random_string}
-        response = self.client.post(self.LOGIN_URL, login_data)
-        self.assertEqual(response.status_code, 200)
-        token = json.loads(response.content)["data"]["auth_token"]
-        return token
 
     def _send_friend_request(self):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)

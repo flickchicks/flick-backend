@@ -26,7 +26,6 @@ class AuthenticateTests(TestCase):
         self.assertEqual(data["social_id_token_type"], data.get("social_id_token_type"))
 
     def test_authenticate(self):
-        """Returns the auth token."""
         letters = string.digits
         random_string = "".join(random.choice(letters) for i in range(10))
         data = {
