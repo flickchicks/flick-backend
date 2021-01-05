@@ -1,9 +1,7 @@
 import json
-import random
-import string
 
+from api.tests import FlickTestCase
 from django.contrib.auth.models import User
-from django.test import TestCase
 from django.urls import reverse
 from friendship.exceptions import AlreadyFriendsError
 from friendship.models import Friend
@@ -11,9 +9,7 @@ from rest_framework.test import APIClient
 from show.models import Show
 
 
-class PrivateSuggestionTests(TestCase):
-    REGISTER_URL = reverse("register")
-    LOGIN_URL = reverse("login")
+class PrivateSuggestionTests(FlickTestCase):
     SUGGESTION_URL = reverse("private-suggestion")
     ME_URL = reverse("me")
 
@@ -43,28 +39,6 @@ class PrivateSuggestionTests(TestCase):
         show.cast = "alanna"
         show.save()
         return show
-
-    def _create_user_and_login(self):
-        """Returns the auth token."""
-        letters = string.digits
-        random_string = "".join(random.choice(letters) for i in range(10))
-        register_data = {
-            "username": "",
-            "first_name": "Alanna1",
-            "last_name": "Zhou1",
-            "profile_pic": "",
-            "social_id_token": random_string,
-            "social_id_token_type": "test1",
-        }
-        response = self.client.post(self.REGISTER_URL, register_data)
-        self.assertEqual(response.status_code, 200)
-        username = json.loads(response.content)["data"]["username"]
-
-        login_data = {"username": username, "social_id_token": random_string}
-        response = self.client.post(self.LOGIN_URL, login_data)
-        self.assertEqual(response.status_code, 200)
-        token = json.loads(response.content)["data"]["auth_token"]
-        return token
 
     def _suggest_show(self, token, suggest_data):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
