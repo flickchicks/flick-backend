@@ -161,7 +161,8 @@ class UpdateLstController:
             self._modify_shows(show_ids)
             self._modify_tags(tag_ids)
             if not (self._lst.is_saved or self._lst.is_watch_later):
-                self._lst.name = name
+                if name:
+                    self._lst.name = name
                 self._lst.lst_pic = lst_pic
                 self._modify_collaborators(collaborator_ids)
                 if self._user.id != owner_id and Profile.objects.filter(user__id=owner_id):

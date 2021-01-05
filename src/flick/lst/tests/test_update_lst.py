@@ -20,6 +20,7 @@ class UpdateLstTests(TestCase):
     UPDATE_LST_URL = reverse("lst-detail", kwargs={"pk": LST_ID})
     ADD_TO_LST_URL = reverse("lst-detail-add", kwargs={"pk": LST_ID})
     REMOVE_FROM_LST_URL = reverse("lst-detail-remove", kwargs={"pk": LST_ID})
+    OLD_LST_NAME = "Alanna's Kdramas"
 
     def setUp(self):
         self.client = APIClient()
@@ -84,7 +85,7 @@ class UpdateLstTests(TestCase):
     def _create_list(self, collaborators=[], shows=[]):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
         request_data = {
-            "name": "Alanna's Kdramas",
+            "name": self.OLD_LST_NAME,
             "is_private": False,
             "collaborators": collaborators,
             "shows": shows,
@@ -154,6 +155,20 @@ class UpdateLstTests(TestCase):
         data = self._update_list(name=name, is_private=is_private, collaborators=[2], shows=show_ids, tags=tag_ids)
         self.assertEqual(data["id"], self.LST_ID)
         self.assertEqual(data["name"], name)
+        self.assertEqual(data["is_private"], is_private)
+        # regular list update does not allow list-type fields to be modified!
+        self.assertEqual(len(data["collaborators"]), 0)
+        self.assertEqual(len(data["shows"]), 0)
+        self.assertEqual(len(data["tags"]), 0)
+
+    def test_update_lst_no_name(self):
+        self._create_list()
+        show_ids = self._get_created_show_ids(num_shows=2)
+        tag_ids = self._get_created_tag_ids(num_tags=2)
+        is_private = True
+        data = self._update_list(is_private=is_private, collaborators=[2], shows=show_ids, tags=tag_ids)
+        self.assertEqual(data["id"], self.LST_ID)
+        self.assertEqual(data["name"], self.OLD_LST_NAME)
         self.assertEqual(data["is_private"], is_private)
         # regular list update does not allow list-type fields to be modified!
         self.assertEqual(len(data["collaborators"]), 0)
