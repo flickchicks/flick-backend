@@ -24,7 +24,7 @@ crayons==0.3.0
 decorator==4.4.2
 defusedxml==0.6.0
 dill==0.3.2
-Django==3.0.6
+Django==3.0.7
 django-friendship==1.9.1
 django-live-profiler==0.0.9
 django-lrucache-backend==4.0.0
