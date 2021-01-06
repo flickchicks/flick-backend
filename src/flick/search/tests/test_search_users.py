@@ -44,6 +44,5 @@ class SearchUsersTests(FlickTestCase):
         data = content.get("data")[0]
         self.assertEqual(data["id"], self.friend3.id)
         self.assertEqual(data["username"], self.friend3.username)
-        self.assertEqual(data["first_name"], self.friend3.first_name)
-        self.assertEqual(data["last_name"], self.friend3.last_name)
+        self.assertEqual(data["name"], self.friend3.name)
         self.assertEqual(data["num_mutual_friends"], 1)

@@ -7,7 +7,7 @@ class CheckUsernameTests(FlickTestCase):
     CHECK_USERNAME_URL = reverse("check-username")
 
     def setUp(self):
-        User.objects.create(username="alanna", first_name="Alanna", last_name="Zhou")
+        User.objects.create(username="alanna", first_name="Alanna")
 
     def test_username_availability(self):
         data = {"username": "alanna_zhou"}

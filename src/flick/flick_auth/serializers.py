@@ -8,14 +8,14 @@ class AuthenticateSerializer(serializers.ModelSerializer):
     social_id_token = serializers.CharField(source="profile.social_id_token")
     social_id_token_type = serializers.CharField(source="profile.social_id_token_type")
     auth_token = serializers.SerializerMethodField(method_name="get_auth_token")
+    name = serializers.CharField(source="first_name")
 
     class Meta:
         model = User
         fields = (
             "auth_token",
             User.USERNAME_FIELD,
-            "first_name",
-            "last_name",
+            "name",
             "profile_pic",
             "social_id",
             "social_id_token",

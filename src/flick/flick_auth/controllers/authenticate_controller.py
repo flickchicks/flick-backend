@@ -21,8 +21,8 @@ class AuthenticateController:
         self._request = request
         self._data = data
         self._serializer = serializer
-        self._first_name = self._data.get("first_name")
-        self._last_name = self._data.get("last_name")
+        self._name = data.get("name")
+        self._email = data.get("email")
         self._profile_pic = self._data.get("profile_pic")
         self._social_id = self._data.get("social_id")
         self._social_id_token = self._data.get("social_id_token")
@@ -50,7 +50,7 @@ class AuthenticateController:
         return None
 
     def _generate_username(self):
-        username = self._first_name + self._last_name
+        username = self._name.replace(" ", "")
         user_exists = User.objects.filter(username=username)
         if not user_exists:
             return username
@@ -124,15 +124,14 @@ class AuthenticateController:
             )
         if Profile.objects.filter(social_id_token=self._social_id_token):
             return failure_response("Profile already exists with the social_id_token.")
-        if not self._first_name:
-            return failure_response("Must supply a first_name and last_name to get a generated username.")
+        if not self._name:
+            return failure_response("Must supply a name to get a generated username.")
         self._username = self._generate_username()
         user_data = {
             "username": self._username,
-            "first_name": self._first_name,
-            "last_name": self._last_name,
+            "first_name": self._name,
             "password": self._social_id_token,
-            "email": "",
+            "email": self._email,
         }
         user = self._create_user(user_data)
         profile_data = {

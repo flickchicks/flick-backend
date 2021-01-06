@@ -18,8 +18,7 @@ class AuthenticateTests(TestCase):
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)["data"]
         self.assertEqual(data["username"], data.get("username"))
-        self.assertEqual(data["first_name"], data.get("first_name"))
-        self.assertEqual(data["last_name"], data.get("last_name"))
+        self.assertEqual(data["name"], data.get("name"))
         self.assertEqual(data["profile_pic"], data.get("profile_pic"))
         self.assertEqual(data["social_id"], data.get("social_id"))
         self.assertEqual(data["social_id_token"], data.get("social_id_token"))
@@ -30,8 +29,7 @@ class AuthenticateTests(TestCase):
         random_string = "".join(random.choice(letters) for i in range(10))
         data = {
             "username": "",
-            "first_name": "Alanna",
-            "last_name": "Zhou",
+            "name": "Alanna Zhou",
             "profile_pic": "",
             "social_id": random_string,
             "social_id_token": random_string,
