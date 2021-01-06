@@ -10,10 +10,11 @@ from .models import PublicSuggestion
 
 class PrivateSuggestionUserSerializer(serializers.ModelSerializer):
     user_id = serializers.CharField(source="id")
+    name = serializers.CharField(source="first_name")
 
     class Meta:
         model = User
-        fields = (User.USERNAME_FIELD, "user_id", "first_name", "last_name")
+        fields = (User.USERNAME_FIELD, "user_id", "name")
         write_only_fields = fields
 
 

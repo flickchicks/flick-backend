@@ -18,9 +18,8 @@ class MeTests(FlickTestCase):
         content = json.loads(response.content)["data"]
         self.assertEqual(response.status_code, 200)
         self.assertEqual(content.get("id"), 1)
-        self.assertEqual(content.get("username"), self.FIRST_NAME + self.LAST_NAME)
-        self.assertEqual(content.get("first_name"), self.FIRST_NAME)
-        self.assertEqual(content.get("last_name"), self.LAST_NAME)
+        self.assertEqual(content.get("username"), self.NAME.replace(" ", ""))
+        self.assertEqual(content.get("name"), self.NAME)
         self.assertEqual(content.get("num_notifs"), 0)
         self.assertEqual(len(content.get("owner_lsts")), 2)
         self.assertEqual(len(content.get("collab_lsts")), 0)

@@ -21,8 +21,9 @@ class AuthenticateController:
         self._request = request
         self._data = data
         self._serializer = serializer
-        self._first_name = self._data.get("first_name")
-        self._last_name = self._data.get("last_name")
+        self._name = data.get("name")
+        self._username = data.get("username")
+        self._email = data.get("email")
         self._profile_pic = self._data.get("profile_pic")
         self._social_id = self._data.get("social_id")
         self._social_id_token = self._data.get("social_id_token")
@@ -50,7 +51,7 @@ class AuthenticateController:
         return None
 
     def _generate_username(self):
-        username = self._first_name + self._last_name
+        username = self._name.replace(" ", "")
         user_exists = User.objects.filter(username=username)
         if not user_exists:
             return username
@@ -77,7 +78,7 @@ class AuthenticateController:
 
     def _check_token(self, social_id, token, type="facebook"):
         """
-        checks if the token is valid, right now only supports facebook token
+        Check if the token is valid, right now only supports facebook token.
         """
         if not token:
             return False
@@ -123,17 +124,23 @@ class AuthenticateController:
                 f"social_id_token of {self._social_id_token} is invalid or does not match with social_id of {self._social_id}."
             )
         if Profile.objects.filter(social_id_token=self._social_id_token):
-            return failure_response("Profile already exists with the social_id_token.")
-        if not self._first_name:
-            return failure_response("Must supply a first_name and last_name to get a generated username.")
-        self._username = self._generate_username()
+            return failure_response(f"Profile already exists with the social_id_token {self._social_id_token}.")
+        if not self._username:
+            if not self._name:
+                return failure_response("Must supply a name to get a generated username.")
+            self._username = self._generate_username()
+        else:
+            if User.objects.filter(username=self._username):
+                return failure_response(f"Profile already exists with the username {self._username}.")
         user_data = {
             "username": self._username,
-            "first_name": self._first_name,
-            "last_name": self._last_name,
             "password": self._social_id_token,
-            "email": "",
         }
+        # can't set this directly in user_data because self._name could be None
+        if self._name:
+            user_data["first_name"] = self._name
+        if self._email:
+            user_data["email"] = self._email
         user = self._create_user(user_data)
         profile_data = {
             "user": user,

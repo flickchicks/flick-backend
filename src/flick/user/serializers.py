@@ -10,6 +10,7 @@ from rest_framework import serializers
 
 class UserSerializer(serializers.ModelSerializer):
     groups = serializers.SerializerMethodField("get_user_groups")
+    name = serializers.CharField(source="first_name")
 
     def get_user_groups(self, user):
         results = []
@@ -19,28 +20,31 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ("id", User.USERNAME_FIELD, "first_name", "last_name", "groups")
+        fields = ("id", User.USERNAME_FIELD, "name", "groups")
         read_only_fields = fields
 
 
 class UserDetailSerializer(UserSerializer):
+    name = serializers.CharField(source="first_name")
+
     class Meta:
         model = User
-        fields = ("id", User.USERNAME_FIELD, "first_name", "last_name", "email", "groups")
+        fields = ("id", User.USERNAME_FIELD, "name", "email", "groups")
         read_only_fields = fields
 
 
 class UserListSerializer(UserSerializer):
+    name = serializers.CharField(source="first_name")
+
     class Meta:
         model = User
-        fields = ("id", User.USERNAME_FIELD, "first_name", "last_name", "email")
+        fields = ("id", User.USERNAME_FIELD, "name", "email")
         read_only_fields = fields
 
 
 class ProfileSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(source="user.id")
-    first_name = serializers.CharField(source="user.first_name")
-    last_name = serializers.CharField(source="user.last_name")
+    name = serializers.CharField(source="user.first_name")
     username = serializers.CharField(source="user.username")
     profile_pic = AssetBundleDetailSerializer(source="profile_asset_bundle")
     owner_lsts = MeLstSerializer(many=True)
@@ -51,8 +55,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "username",
-            "first_name",
-            "last_name",
+            "name",
             "profile_pic",
             "bio",
             "phone_number",
@@ -68,8 +71,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(source="user.id")
     friend_status = serializers.SerializerMethodField("get_friend_status")
-    first_name = serializers.CharField(source="user.first_name")
-    last_name = serializers.CharField(source="user.last_name")
+    name = serializers.CharField(source="user.first_name")
     username = serializers.CharField(source="user.username")
     profile_pic = AssetBundleDetailSerializer(source="profile_asset_bundle")
     owner_lsts = serializers.SerializerMethodField("get_owner_lsts")
@@ -102,8 +104,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "id",
             "friend_status",
             "username",
-            "first_name",
-            "last_name",
+            "name",
             "profile_pic",
             "bio",
             "collab_lsts",

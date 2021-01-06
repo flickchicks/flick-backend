@@ -10,8 +10,7 @@ from rest_framework.test import APIClient
 
 class FlickTestCase(TestCase):
     AUTHENTICATE_URL = reverse("authenticate")
-    FIRST_NAME = "Alanna"
-    LAST_NAME = "Zhou"
+    NAME = "Alanna Zhou"
 
     def get_random_str(self):
         letters = string.digits
@@ -24,8 +23,7 @@ class FlickTestCase(TestCase):
     def _create_user_and_login(
         self,
         username="",
-        first_name=FIRST_NAME,
-        last_name=LAST_NAME,
+        name=NAME,
         social_id="",
         social_id_token="",
         social_id_token_type="facebook",
@@ -34,8 +32,7 @@ class FlickTestCase(TestCase):
         random_str = self.get_random_str()
         data = {
             "username": username,
-            "first_name": first_name,
-            "last_name": last_name,
+            "name": name,
             "profile_pic": "",
             "social_id": social_id or random_str,
             "social_id_token": social_id_token or random_str,
@@ -49,8 +46,7 @@ class FlickTestCase(TestCase):
 
 class FlickTransactionTestCase(TransactionTestCase):
     AUTHENTICATE_URL = reverse("authenticate")
-    FIRST_NAME = "Alanna"
-    LAST_NAME = "Zhou"
+    NAME = "Alanna Zhou"
 
     def get_random_str(self):
         letters = string.digits
@@ -63,8 +59,7 @@ class FlickTransactionTestCase(TransactionTestCase):
     def _create_user_and_login(
         self,
         username="",
-        first_name=FIRST_NAME,
-        last_name=LAST_NAME,
+        name=NAME,
         social_id="",
         social_id_token="",
         social_id_token_type="facebook",
@@ -73,8 +68,7 @@ class FlickTransactionTestCase(TransactionTestCase):
         random_str = self.get_random_str()
         data = {
             "username": username,
-            "first_name": first_name,
-            "last_name": last_name,
+            "name": name,
             "profile_pic": "",
             "social_id": social_id or random_str,
             "social_id_token": social_id_token or random_str,

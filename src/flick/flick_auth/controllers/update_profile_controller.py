@@ -19,8 +19,7 @@ class UpdateProfileController:
         profile = Profile.objects.get(user=self._user)
 
         username = self._data.get("username")
-        first_name = self._data.get("first_name")
-        last_name = self._data.get("last_name")
+        name = self._data.get("name")
         profile_pic_base64 = self._data.get("profile_pic")
         email = self._data.get("email", "")
         bio = self._data.get("bio")
@@ -34,10 +33,8 @@ class UpdateProfileController:
             if User.objects.filter(username__iexact=username):
                 return failure_response("Username is already taken.")
             self._user.username = username
-        if first_name and self._user.first_name != first_name:
-            self._user.first_name = first_name
-        if last_name and self._user.last_name != last_name:
-            self._user.last_name = last_name
+        if name and self._user.first_name != name:
+            self._user.first_name = name
         if email and self._user.email != email:
             self._user.email = email
         if profile_pic_base64:

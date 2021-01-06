@@ -8,10 +8,9 @@ class ProfileSimpleSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(source="user.id")
     profile_pic = AssetBundleDetailSerializer(source="profile_asset_bundle")
     username = serializers.CharField(source="user.username")
-    first_name = serializers.CharField(source="user.first_name")
-    last_name = serializers.CharField(source="user.last_name")
+    name = serializers.CharField(source="user.first_name")
 
     class Meta:
         model = Profile
-        fields = ("id", "username", "first_name", "last_name", "profile_pic")
+        fields = ("id", "username", "name", "profile_pic")
         read_only_fields = fields
