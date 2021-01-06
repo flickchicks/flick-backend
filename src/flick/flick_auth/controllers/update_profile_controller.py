@@ -2,6 +2,7 @@ from user.models import Profile
 
 from api.utils import failure_response
 from api.utils import success_response
+from django.contrib.auth.models import User
 
 
 class UpdateProfileController:
@@ -28,6 +29,10 @@ class UpdateProfileController:
         social_id_token_type = self._data.get("social_id_token_type")
 
         if username and self._user.username != username:
+            if len(username) > 30 or len(username) < 3:
+                return failure_response("Username must be between 3 and 30 characters.")
+            if User.objects.filter(username__iexact=username):
+                return failure_response("Username is already taken.")
             self._user.username = username
         if first_name and self._user.first_name != first_name:
             self._user.first_name = first_name

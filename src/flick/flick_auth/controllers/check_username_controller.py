@@ -14,6 +14,6 @@ class CheckUsernameController:
             return failure_response("Username must be 30 characters or less.")
         if len(username) < 3:
             return failure_response("Username must be at least three characters.")
-        if User.objects.filter(username=username):
+        if User.objects.filter(username__iexact=username):
             return failure_response("Username is already taken.")
         return success_response("Username is available!")
