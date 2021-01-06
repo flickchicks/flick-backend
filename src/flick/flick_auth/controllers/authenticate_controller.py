@@ -135,11 +135,12 @@ class AuthenticateController:
         user_data = {
             "username": self._username,
             "password": self._social_id_token,
-            "email": self._email,
         }
         # can't set this directly in user_data because self._name could be None
         if self._name:
             user_data["first_name"] = self._name
+        if self._email:
+            user_data["email"] = self._email
         user = self._create_user(user_data)
         profile_data = {
             "user": user,
