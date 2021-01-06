@@ -5,9 +5,9 @@ from asset.views import AssetBundleList
 from discover.views import DiscoverShow
 from django.urls import include
 from django.urls import path
-from flick_auth import urls as auth_urls
 from flick_auth.views import AuthenticateView
 from flick_auth.views import CheckUsernameView
+from flick_auth.views import LogoutView
 from flick_auth.views import UserProfileView
 from flick_auth.views import UserView
 from friend.views import FriendAcceptListAndCreate
@@ -41,7 +41,6 @@ urlpatterns = [
     path("asset-bundles/", AssetBundleList.as_view(), name="asset-bundles-list"),
     path("asset-bundles/<int:pk>/", AssetBundleDetail.as_view(), name="asset-bundles-detail"),
     path("authenticate/", AuthenticateView.as_view(), name="authenticate"),
-    path("auth/", include(auth_urls)),
     path("comment/<int:pk>/like/", LikeView.as_view(), name="like-comment"),
     path("comment/<int:pk>/read/", ReadView.as_view(), name="read-comment"),
     path("discover/", DiscoverShow.as_view(), name="discover"),
@@ -51,6 +50,7 @@ urlpatterns = [
     path("friends/accept/", FriendAcceptListAndCreate.as_view(), name="friend-accept"),
     path("friends/reject/", FriendRejectListAndCreate.as_view(), name="friend-reject"),
     path("friends/remove/", FriendRemoveListAndCreate.as_view(), name="friend-remove"),
+    path("logout/", LogoutView.as_view(), name="logout"),
     path("lsts/", LstList.as_view(), name="lst-list"),
     path("lsts/<int:pk>/", LstDetail.as_view(), name="lst-detail"),
     path("lsts/<int:pk>/add/", LstDetailAdd.as_view(), name="lst-detail-add"),

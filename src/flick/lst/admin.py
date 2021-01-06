@@ -4,7 +4,6 @@ from django.utils.safestring import mark_safe
 from .models import Lst
 
 
-# Register your models here.
 class LstAdmin(admin.ModelAdmin):
 
     # show all assets in this bundle in django admin

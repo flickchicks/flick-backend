@@ -1,10 +1,10 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 
-from .models import Asset, AssetBundle
+from .models import Asset
+from .models import AssetBundle
 
 
-# Register your models here.
 class AssetBundleAdmin(admin.ModelAdmin):
 
     # show all assets in this bundle in django admin
