@@ -22,6 +22,7 @@ class AuthenticateController:
         self._data = data
         self._serializer = serializer
         self._name = data.get("name")
+        self._username = data.get("username")
         self._email = data.get("email")
         self._profile_pic = self._data.get("profile_pic")
         self._social_id = self._data.get("social_id")
@@ -77,7 +78,7 @@ class AuthenticateController:
 
     def _check_token(self, social_id, token, type="facebook"):
         """
-        checks if the token is valid, right now only supports facebook token
+        Check if the token is valid, right now only supports facebook token.
         """
         if not token:
             return False
@@ -123,16 +124,22 @@ class AuthenticateController:
                 f"social_id_token of {self._social_id_token} is invalid or does not match with social_id of {self._social_id}."
             )
         if Profile.objects.filter(social_id_token=self._social_id_token):
-            return failure_response("Profile already exists with the social_id_token.")
-        if not self._name:
-            return failure_response("Must supply a name to get a generated username.")
-        self._username = self._generate_username()
+            return failure_response(f"Profile already exists with the social_id_token {self._social_id_token}.")
+        if not self._username:
+            if not self._name:
+                return failure_response("Must supply a name to get a generated username.")
+            self._username = self._generate_username()
+        else:
+            if User.objects.filter(username=self._username):
+                return failure_response(f"Profile already exists with the username {self._username}.")
         user_data = {
             "username": self._username,
-            "first_name": self._name,
             "password": self._social_id_token,
             "email": self._email,
         }
+        # can't set this directly in user_data because self._name could be None
+        if self._name:
+            user_data["first_name"] = self._name
         user = self._create_user(user_data)
         profile_data = {
             "user": user,
