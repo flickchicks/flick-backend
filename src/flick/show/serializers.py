@@ -4,6 +4,7 @@ from comment.serializers import CommentSerializer
 from django.db.models import Avg
 from django.db.models import Q
 from friendship.models import Friend
+from provider.serializers import ProviderSerializer
 from rest_framework import serializers
 from tag.simple_serializers import TagSimpleSerializer
 
@@ -15,6 +16,7 @@ class ShowSerializer(serializers.ModelSerializer):
     comments = serializers.SerializerMethodField(method_name="get_friends_and_user_comments")
     friends_rating = serializers.SerializerMethodField(method_name="calculate_friends_rating")
     user_rating = serializers.SerializerMethodField(method_name="get_user_rating")
+    providers = ProviderSerializer(read_only=True, many=True)
 
     class Meta:
         model = Show
@@ -25,6 +27,7 @@ class ShowSerializer(serializers.ModelSerializer):
             "directors",
             "is_tv",
             "date_released",
+            "providers",
             "status",
             "language",
             "duration",

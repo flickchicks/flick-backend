@@ -11,6 +11,7 @@ from celery import shared_task
 from django.conf import settings
 from imdb import IMDb
 from PIL import Image
+from provider.models import Provider
 from show.models import Show
 from show.tmdb_api_utils import TMDB_API
 from tag.models import Tag
@@ -104,6 +105,12 @@ def populate_show_details(show_id):
                 )
             except:
                 show.tags.add(Tag.objects.get(name=tag.get("name")))
+    if info.get("providers"):
+        for provider in info.get("providers"):
+            try:
+                show.providers.create(name=provider.get("name"), image=provider.get("image"))
+            except:
+                show.providers.add(Provider.objects.get(name=provider.get("name")))
     imdb_id = info.get("imdb_id")
     if imdb_id:
         imdb_id = imdb_id[2:]

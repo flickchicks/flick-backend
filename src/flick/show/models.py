@@ -1,4 +1,5 @@
 from django.db import models
+from provider.models import Provider
 from rating.models import Rating
 from tag.models import Tag
 
@@ -28,6 +29,7 @@ class Show(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     ratings = models.ManyToManyField(Rating, blank=True)
+    providers = models.ManyToManyField(Provider, blank=True)
 
     class Meta:
         unique_together = ("title", "ext_api_id", "ext_api_source", "poster_pic")
