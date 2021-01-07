@@ -34,7 +34,6 @@ class TMDB_API:
         return providers
 
     def get_providers_from_tv_id(self, tv_id):
-        print("reached here")
         url = f"{settings.TMDB_BASE_URL}/tv/{tv_id}/watch/providers?api_key={tmdb.API_KEY}"
         r = requests.get(url)
         if r.status_code != 200:
