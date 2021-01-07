@@ -22,6 +22,7 @@ class ShowSerializer(serializers.ModelSerializer):
         model = Show
         fields = (
             "id",
+            "ext_api_id",
             "title",
             "poster_pic",
             "directors",

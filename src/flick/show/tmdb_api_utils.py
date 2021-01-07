@@ -13,36 +13,47 @@ class TMDB_API:
     def get_providers_from_movie_id(self, movie_id):
         url = f"{settings.TMDB_BASE_URL}/movie/{movie_id}/watch/providers?api_key={tmdb.API_KEY}"
         r = requests.get(url)
-        # handle case when status is not 200
-        d = json.loads(r.content)
-        results = d.get("results")
-        us = results.get("US")
-        rent = us.get("rent") or []
-        buy = us.get("buy") or []
-        flatrate = us.get("flatrate") or []
-        data = rent + buy + flatrate
-        providers = []
-        for p in data:
-            provider_name = p.get("provider_name")
-            provider_image = settings.TMDB_BASE_IMAGE_URL + p.get("logo_path")
-            providers.append({"name": provider_name, "image": provider_image})
+        if r.status_code != 200:
+            return []
+        try:
+            d = json.loads(r.content)
+            results = d.get("results")
+            us = results.get("US")
+            rent = us.get("rent") or []
+            buy = us.get("buy") or []
+            flatrate = us.get("flatrate") or []
+            data = rent + buy + flatrate
+            providers = []
+            for p in data:
+                provider_name = p.get("provider_name")
+                provider_image = settings.TMDB_BASE_IMAGE_URL + p.get("logo_path")
+                providers.append({"name": provider_name, "image": provider_image})
+        except Exception as e:
+            print("Could not get providers from movie_id", e)
+            return []
         return providers
 
     def get_providers_from_tv_id(self, tv_id):
+        print("reached here")
         url = f"{settings.TMDB_BASE_URL}/tv/{tv_id}/watch/providers?api_key={tmdb.API_KEY}"
         r = requests.get(url)
-        # handle case when status is not 200
-        d = json.loads(r.content)
-        results = d.get("results")
-        us = results.get("US")
-        buy = us.get("buy") or []
-        flatrate = us.get("flatrate") or []
-        data = buy + flatrate
-        providers = []
-        for p in data:
-            provider_name = p.get("provider_name")
-            provider_image = settings.TMDB_BASE_IMAGE_URL + p.get("logo_path")
-            providers.append({"name": provider_name, "image": provider_image})
+        if r.status_code != 200:
+            return []
+        try:
+            d = json.loads(r.content)
+            results = d.get("results")
+            us = results.get("US")
+            buy = us.get("buy") or []
+            flatrate = us.get("flatrate") or []
+            data = buy + flatrate
+            providers = []
+            for p in data:
+                provider_name = p.get("provider_name")
+                provider_image = settings.TMDB_BASE_IMAGE_URL + p.get("logo_path")
+                providers.append({"name": provider_name, "image": provider_image})
+        except Exception as e:
+            print("Could not get providers from tv_id", e)
+            return []
         return providers
 
     def get_show_from_tmdb_info(self, info, is_tv):
