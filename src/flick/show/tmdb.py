@@ -4,7 +4,7 @@ from django.conf import settings
 import requests
 
 
-class tmdb:
+class flicktmdb:
     def get_show(self, tmdb_id, is_tv=False):
         show_type = "tv" if is_tv else "movie"
         url = f"{settings.TMDB_BASE_URL}/{show_type}/{tmdb_id}?api_key={settings.TMDB_API_KEY}"
@@ -75,9 +75,9 @@ class tmdb:
         try:
             results = json.loads(r.content).get("results")
             us = results.get("US")
-            rent = us.get("rent") or []
-            buy = us.get("buy") or []
-            flatrate = us.get("flatrate") or []
+            rent = us.get("rent", [])
+            buy = us.get("buy", [])
+            flatrate = us.get("flatrate", [])
             data = rent + buy + flatrate
             providers = []
             for p in data:
@@ -89,7 +89,8 @@ class tmdb:
             return []
         return providers
 
-    def search_show(self, query, language="en-US", page=1, year=None, include_adult=False, is_tv=False):
+    def search_show(self, query, page=1, tags=[], language="en-US", year=None, include_adult=False, is_tv=False):
+        print("search show", page)
         show_type = "tv" if is_tv else "movie"
         url = f"{settings.TMDB_BASE_URL}/search/{show_type}?query={query}&language={language}&page={page}&api_key={settings.TMDB_API_KEY}"
         if year and is_tv:
@@ -102,6 +103,8 @@ class tmdb:
         results = json.loads(r.content).get("results")
         shows = []
         for result in results:
+            if not set(tags).issubset(set(result.get("genre_ids"))):
+                continue
             backdrop_path = result.get("backdrop_path")
             poster_path = result.get("poster_path")
             show = {

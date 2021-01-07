@@ -42,21 +42,23 @@ class Search(APIView):
                 self.shows.append(show)
 
     # show_type can be "movie", "tv", "anime"
-    def get_shows_by_type_and_query(self, query, show_type, source, tags=[]):
+    def get_shows_by_type_and_query(self, query, show_type, source, page=1, tags=[]):
+        print("get_shows_by_type_and_query", page)
         self.source = source
         self.show_type = show_type
         shows = local_cache.get((query, show_type, tags))
         if not shows:
             ext_api_tags = self.get_ext_api_tags_by_tag_ids(tags)
-            shows = ShowAPI.search_shows_by_name(show_type, query, ext_api_tags)
+            shows = ShowAPI.search_shows_by_name(show_type=show_type, name=query, page=page, tags=ext_api_tags)
             local_cache.set((query, show_type, tags), shows)
         self.shows.extend(shows)
 
-    def get_shows_by_query(self, query, is_movie, is_tv, is_anime, tags):
+    def get_shows_by_query(self, query, is_movie, is_tv, is_anime, page=1, tags=[]):
+        print("get_shows_by_query", page)
         if is_movie:
-            self.get_shows_by_type_and_query(query, "movie", "tmdb", tags)
+            self.get_shows_by_type_and_query(query, "movie", "tmdb", page, tags)
         if is_tv:
-            self.get_shows_by_type_and_query(query, "tv", "tmdb", tags)
+            self.get_shows_by_type_and_query(query, "tv", "tmdb", page, tags)
         if is_anime:
             self.get_shows_by_type_and_query(query, "anime", "animelist")
 
@@ -77,6 +79,8 @@ class Search(APIView):
     def get(self, request, *args, **kwargs):
         self.request = request
         query = request.query_params.get("query")
+        page = request.query_params.get("page", 1)
+        print("page", page)
         tags = request.query_params.getlist("tags", [])
         is_anime = bool(request.query_params.get("is_anime", False))
         is_movie = bool(request.query_params.get("is_movie", False))
@@ -95,7 +99,7 @@ class Search(APIView):
         elif is_tag:
             return success_response_with_query(query=query, data=self.get_tags_by_name(query))
         else:
-            self.get_shows_by_query(query, is_movie, is_tv, is_anime, tags)
+            self.get_shows_by_query(query, is_movie, is_tv, is_anime, page, tags)
 
         serializer_data = []
         serializer_data.extend(ShowAPI.create_show_objects(self.shows))

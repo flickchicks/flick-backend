@@ -1,8 +1,6 @@
 import datetime
-import json
 
 from django.conf import settings
-import requests
 import tmdbsimple as tmdb
 
 # set up the TMDB API access key from .env
@@ -10,51 +8,6 @@ tmdb.API_KEY = settings.TMDB_API_KEY
 
 
 class TMDB_API:
-    def get_providers_from_movie_id(self, movie_id):
-        url = f"{settings.TMDB_BASE_URL}/movie/{movie_id}/watch/providers?api_key={tmdb.API_KEY}"
-        r = requests.get(url)
-        if r.status_code != 200:
-            return []
-        try:
-            d = json.loads(r.content)
-            results = d.get("results")
-            us = results.get("US")
-            rent = us.get("rent") or []
-            buy = us.get("buy") or []
-            flatrate = us.get("flatrate") or []
-            data = rent + buy + flatrate
-            providers = []
-            for p in data:
-                provider_name = p.get("provider_name")
-                provider_image = settings.TMDB_BASE_IMAGE_URL + p.get("logo_path")
-                providers.append({"name": provider_name, "image": provider_image})
-        except Exception as e:
-            print("Could not get providers from movie_id", e)
-            return []
-        return providers
-
-    def get_providers_from_tv_id(self, tv_id):
-        url = f"{settings.TMDB_BASE_URL}/tv/{tv_id}/watch/providers?api_key={tmdb.API_KEY}"
-        r = requests.get(url)
-        if r.status_code != 200:
-            return []
-        try:
-            d = json.loads(r.content)
-            results = d.get("results")
-            us = results.get("US")
-            buy = us.get("buy") or []
-            flatrate = us.get("flatrate") or []
-            data = buy + flatrate
-            providers = []
-            for p in data:
-                provider_name = p.get("provider_name")
-                provider_image = settings.TMDB_BASE_IMAGE_URL + p.get("logo_path")
-                providers.append({"name": provider_name, "image": provider_image})
-        except Exception as e:
-            print("Could not get providers from tv_id", e)
-            return []
-        return providers
-
     def get_show_from_tmdb_info(self, info, is_tv):
         poster_path = info.get("poster_path")
         if is_tv:
@@ -156,37 +109,12 @@ class TMDB_API:
         tv_info_lst = discover.tv(page=page, with_genres=genre)
         return [self.get_tv_info_for_top_rated(tv_info) for tv_info in tv_info_lst.get("results") if tv_info]
 
-    def get_show_ids_from_tmdb_search(self, search, tags):
-        """
-        Given the most recent search, return the show ids.
-        """
-        show_ids = []
-        for show_info in search.results:
-            if set(tags).issubset(set(show_info.get("genre_ids"))):
-                show_ids.append(show_info.get("id"))
-        return show_ids
-
-    def get_shows_from_tmdb_search(self, search, tags, is_tv):
-        shows = []
-        for show_info in search.results:
-            if set(tags).issubset(set(show_info.get("genre_ids"))):
-                shows.append(self.get_show_from_tmdb_info(show_info, is_tv))
-        return shows
-
     def get_movie_info_from_id(self, id):
         try:
             movie = tmdb.Movies(id)
             return self.get_detailed_movie_from_tmdb_info(movie.info(), movie.credits())
         except:
             return None
-
-    def search_movie_by_name(self, name, tags):
-        """
-        Search a movie by name, return a list of show ids.
-        """
-        search = tmdb.Search()
-        search.movie(query=name)
-        return self.get_shows_from_tmdb_search(search, tags, False)
 
     def get_tv_info_from_id(self, id):
         try:
@@ -250,11 +178,3 @@ class TMDB_API:
         tv = tmdb.TV()
         tv_info_lst = tv.airing_today(page=page).get("results")
         return [self.get_tv_info_for_top_rated(tv_info) for tv_info in tv_info_lst if tv_info]
-
-    def search_tv_by_name(self, name, tags):
-        """
-        Search a TV by name, return a list of ext_api_ids.
-        """
-        search = tmdb.Search()
-        search.tv(query=name)
-        return self.get_shows_from_tmdb_search(search, tags, True)

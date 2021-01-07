@@ -78,16 +78,15 @@ class ShowSearchSerializer(serializers.ModelSerializer):
         model = Show
         fields = (
             "id",
+            "ext_api_id",
+            "ext_api_source",
             "title",
             "poster_pic",
+            "backdrop_pic",
             "is_tv",
+            "is_adult",
             "plot",
             "date_released",
-            "status",
             "language",
-            "duration",
-            "seasons",
-            "audience_level",
-            "keywords",
         )
         read_only_fields = fields
