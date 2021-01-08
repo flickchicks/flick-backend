@@ -26,6 +26,7 @@ class ShowSerializer(serializers.ModelSerializer):
             "ext_api_source",
             "title",
             "poster_pic",
+            "backdrop_pic",
             "directors",
             "is_tv",
             "date_released",
