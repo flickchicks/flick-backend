@@ -20,6 +20,7 @@ class flicktmdb:
         poster_path = result.get("poster_path")
         credits = self.get_credits(tmdb_id, is_tv)
         providers = self.get_providers(tmdb_id, is_tv)
+        print("status", result.get("status"))
 
         return {
             "backdrop_pic": settings.TMDB_BASE_IMAGE_URL + backdrop_path if backdrop_path else None,

@@ -19,7 +19,7 @@ class Show(models.Model):
     date_released = models.CharField(max_length=100, blank=True, null=True)  # models.DateField(blank=True, null=True)
     status = models.CharField(max_length=100, blank=True, null=True)
     language = models.CharField(max_length=100, blank=True, null=True)
-    duration = models.DurationField(blank=True, null=True)
+    duration = models.CharField(max_length=20, blank=True, null=True)
     plot = models.TextField(blank=True, null=True)
     tags = models.ManyToManyField(Tag, related_name="shows", blank=True)
     seasons = models.IntegerField(blank=True, null=True)
