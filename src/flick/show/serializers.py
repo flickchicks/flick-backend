@@ -42,7 +42,6 @@ class ShowSerializer(serializers.ModelSerializer):
             "friends_rating",
             "user_rating",
             "comments",
-            "platforms",
             "keywords",
             "cast",
         )
