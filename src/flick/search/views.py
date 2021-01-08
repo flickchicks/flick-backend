@@ -43,7 +43,6 @@ class Search(APIView):
 
     # show_type can be "movie", "tv", "anime"
     def get_shows_by_type_and_query(self, query, show_type, source, page=1, tags=[]):
-        print("get_shows_by_type_and_query", page)
         self.source = source
         self.show_type = show_type
         shows = local_cache.get((query, show_type, page, tags))
@@ -54,7 +53,6 @@ class Search(APIView):
         self.shows.extend(shows)
 
     def get_shows_by_query(self, query, is_movie, is_tv, is_anime, page=1, tags=[]):
-        print("get_shows_by_query", page)
         if is_movie:
             self.get_shows_by_type_and_query(query, "movie", "tmdb", page, tags)
         if is_tv:
@@ -80,7 +78,6 @@ class Search(APIView):
         self.request = request
         query = request.query_params.get("query")
         page = request.query_params.get("page", 1)
-        print("page", page)
         tags = request.query_params.getlist("tags", [])
         is_anime = bool(request.query_params.get("is_anime", False))
         is_movie = bool(request.query_params.get("is_movie", False))

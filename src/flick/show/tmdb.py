@@ -90,7 +90,6 @@ class flicktmdb:
         return providers
 
     def search_show(self, query, page=1, tags=[], language="en-US", year=None, include_adult=False, is_tv=False):
-        print("search show", page)
         show_type = "tv" if is_tv else "movie"
         url = f"{settings.TMDB_BASE_URL}/search/{show_type}?query={query}&language={language}&page={page}&api_key={settings.TMDB_API_KEY}"
         if year and is_tv:
