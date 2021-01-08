@@ -13,13 +13,16 @@ class AnimeList_API:
         Filter information from the API, returns an Anime Object.
         """
         duration = datetime.timedelta(minutes=info.get("duration")) if info.get("duration") else None
+        start_date = info.get("start_date")
+        if start_date:
+            start_date = start_date.split("T")[0]
         anime = {
             "ext_api_id": info.get("mal_id"),
             "ext_api_source": "animelist",
             "title": info.get("title"),
             "poster_pic": info.get("image_url"),
             "is_tv": True,  # assuming
-            "date_released": info.get("start_date"),
+            "date_released": start_date,
             "plot": info.get("synopsis"),
             "status": info.get("status"),
             "duration": duration,
