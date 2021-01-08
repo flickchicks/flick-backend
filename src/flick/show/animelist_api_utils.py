@@ -26,6 +26,7 @@ class AnimeList_API:
             "plot": info.get("synopsis"),
             "status": info.get("status"),
             "duration": duration,
+            "language": "ja",
         }
         return anime
 
@@ -43,8 +44,12 @@ class AnimeList_API:
         """
         Search anime by the mal_id from animelist API, returns a list of anime ids.
         """
-        anime_info_lst = jikan.search("anime", name, page=1).get("results")
-        return [self.get_anime_from_animelist_info(anime) for anime in anime_info_lst]
+        try:
+            search = jikan.search("anime", name, page=1)
+            anime_info_lst = search.get("results")
+            return [self.get_anime_from_animelist_info(anime) for anime in anime_info_lst]
+        except:
+            return []
 
     def search_anime_by_year(self, year, season):
         """
