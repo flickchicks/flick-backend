@@ -60,7 +60,6 @@ INSTALLED_APPS = [
     # own
     "api",
     "asset",
-    "cast",
     "comment",
     "flick_auth",
     "friend",

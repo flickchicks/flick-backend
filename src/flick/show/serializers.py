@@ -23,6 +23,7 @@ class ShowSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "ext_api_id",
+            "ext_api_source",
             "title",
             "poster_pic",
             "directors",
