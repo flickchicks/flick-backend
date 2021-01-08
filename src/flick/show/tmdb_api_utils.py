@@ -1,6 +1,8 @@
 import datetime
+import json
 
 from django.conf import settings
+import requests
 import tmdbsimple as tmdb
 
 # set up the TMDB API access key from .env
@@ -8,6 +10,51 @@ tmdb.API_KEY = settings.TMDB_API_KEY
 
 
 class TMDB_API:
+    def get_providers_from_movie_id(self, movie_id):
+        url = f"{settings.TMDB_BASE_URL}/movie/{movie_id}/watch/providers?api_key={tmdb.API_KEY}"
+        r = requests.get(url)
+        if r.status_code != 200:
+            return []
+        try:
+            d = json.loads(r.content)
+            results = d.get("results")
+            us = results.get("US")
+            rent = us.get("rent") or []
+            buy = us.get("buy") or []
+            flatrate = us.get("flatrate") or []
+            data = rent + buy + flatrate
+            providers = []
+            for p in data:
+                provider_name = p.get("provider_name")
+                provider_image = settings.TMDB_BASE_IMAGE_URL + p.get("logo_path")
+                providers.append({"name": provider_name, "image": provider_image})
+        except Exception as e:
+            print("Could not get providers from movie_id", e)
+            return []
+        return providers
+
+    def get_providers_from_tv_id(self, tv_id):
+        url = f"{settings.TMDB_BASE_URL}/tv/{tv_id}/watch/providers?api_key={tmdb.API_KEY}"
+        r = requests.get(url)
+        if r.status_code != 200:
+            return []
+        try:
+            d = json.loads(r.content)
+            results = d.get("results")
+            us = results.get("US")
+            buy = us.get("buy") or []
+            flatrate = us.get("flatrate") or []
+            data = buy + flatrate
+            providers = []
+            for p in data:
+                provider_name = p.get("provider_name")
+                provider_image = settings.TMDB_BASE_IMAGE_URL + p.get("logo_path")
+                providers.append({"name": provider_name, "image": provider_image})
+        except Exception as e:
+            print("Could not get providers from tv_id", e)
+            return []
+        return providers
+
     def get_show_from_tmdb_info(self, info, is_tv):
         poster_path = info.get("poster_path")
         if is_tv:
@@ -19,7 +66,7 @@ class TMDB_API:
             "ext_api_id": info.get("id"),
             "ext_api_source": "tmdb",
             "title": info.get("original_name" if is_tv else "original_title"),
-            "poster_pic": settings.TMDB_BASE_URL + poster_path if poster_path else None,
+            "poster_pic": settings.TMDB_BASE_IMAGE_URL + poster_path if poster_path else None,
             "ext_api_genres": info.get("genres"),
             "is_tv": is_tv,
             "date_released": info.get("first_air_date" if is_tv else "release_date"),
@@ -44,12 +91,13 @@ class TMDB_API:
         cast_info = ", ".join(cast_info)
 
         poster_path = info.get("poster_path")
+        providers = self.get_providers_from_movie_id(info.get("id"))
 
         movie = {
             "ext_api_id": info.get("id"),
             "ext_api_source": "tmdb",
             "title": info.get("original_title"),
-            "poster_pic": settings.TMDB_BASE_URL + poster_path if poster_path else None,
+            "poster_pic": settings.TMDB_BASE_IMAGE_URL + poster_path if poster_path else None,
             "ext_api_genres": info.get("genres"),
             "is_tv": False,
             "date_released": info.get("release_date"),
@@ -59,6 +107,7 @@ class TMDB_API:
             "directors": directors,
             "cast": cast_info,
             "imdb_id": info.get("imdb_id"),
+            "providers": providers,
         }
         return movie
 
@@ -74,12 +123,13 @@ class TMDB_API:
 
         duration = info.get("episode_run_time")[0] if info.get("episode_run_time") else 0
         poster_path = info.get("poster_path")
+        providers = self.get_providers_from_tv_id(info.get("id"))
 
         tv = {
             "ext_api_id": info.get("id"),
             "ext_api_source": "tmdb",
             "title": info.get("original_name"),
-            "poster_pic": settings.TMDB_BASE_URL + poster_path if poster_path else None,
+            "poster_pic": settings.TMDB_BASE_IMAGE_URL + poster_path if poster_path else None,
             "ext_api_genres": info.get("genres"),
             "is_tv": True,
             "date_released": info.get("first_air_date"),
@@ -90,6 +140,7 @@ class TMDB_API:
             "seasons": info.get("number_of_seasons"),
             "directors": directors,
             "cast": cast_info,
+            "providers": providers,
         }
         return tv
 
