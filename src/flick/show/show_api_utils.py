@@ -97,7 +97,7 @@ class ShowAPI:
         elif show_type == "tv":
             return flicktmdb().search_show(query=name, page=page, tags=tags, is_tv=True)
         if show_type == "anime":
-            return AnimeList_API().search_anime_by_name(name)
+            return AnimeList_API().search_anime_by_name(name=name, page=page)
         return None
 
     @staticmethod

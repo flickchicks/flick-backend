@@ -40,12 +40,12 @@ class AnimeList_API:
         except:
             return None
 
-    def search_anime_by_name(self, name):
+    def search_anime_by_name(self, name, page=1):
         """
         Search anime by the mal_id from animelist API, returns a list of anime ids.
         """
         try:
-            search = jikan.search("anime", name, page=1)
+            search = jikan.search("anime", name, page=page)
             anime_info_lst = search.get("results")
             return [self.get_anime_from_animelist_info(anime) for anime in anime_info_lst]
         except:

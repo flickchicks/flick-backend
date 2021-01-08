@@ -46,7 +46,7 @@ class Search(APIView):
         print("get_shows_by_type_and_query", page)
         self.source = source
         self.show_type = show_type
-        shows = local_cache.get((query, show_type, tags))
+        shows = local_cache.get((query, show_type, page, tags))
         if not shows:
             ext_api_tags = self.get_ext_api_tags_by_tag_ids(tags)
             shows = ShowAPI.search_shows_by_name(show_type=show_type, name=query, page=page, tags=ext_api_tags)
