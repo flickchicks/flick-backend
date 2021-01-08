@@ -52,8 +52,6 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     # third party
     "celery",
-    "django_celery_beat",
-    "django_celery_results",
     "friendship",
     "rest_framework",
     "rest_framework.authtoken",
