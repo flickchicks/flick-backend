@@ -8,19 +8,21 @@ import os
 from asset.models import Asset
 import boto3
 from celery import shared_task
+from celery.utils.log import get_task_logger
 from django.conf import settings
 from imdb import IMDb
 from PIL import Image
 from provider.models import Provider
 from show.models import Show
-from show.tmdb_api_utils import TMDB_API
+from show.tmdb import flicktmdb
 from tag.models import Tag
 import tmdbsimple as tmdb
 
 
 # If you want to print, you need to log these and they will appear in the celery terminal process
-# from celery.utils.log import get_task_logger
-# logger = get_task_logger(__name__)
+
+logger = get_task_logger(__name__)
+logger.info("hello world")
 
 
 def upload_image(asset_id, salt, img, kind, img_ext, width, height):
@@ -80,23 +82,28 @@ def resize_and_upload(asset_id, salt, img_str, kind, img_ext):
 
 @shared_task
 def populate_show_details(show_id):
+    logger.info("entered for show id", show_id)
     show = Show.objects.filter(id=show_id)
     if not show:
         return
     show = Show.objects.get(id=show_id)
     if show.ext_api_source == "animelist":
         return
-    tmdb_api = TMDB_API()
     imdb_api = IMDb()
     info = None
     if show.is_tv:
-        info = tmdb_api.get_tv_info_from_id(show.ext_api_id)
+        info = flicktmdb().get_show(show.ext_api_id, is_tv=True)
     else:
-        info = tmdb_api.get_movie_info_from_id(show.ext_api_id)
+        info = flicktmdb().get_show(show.ext_api_id, is_tv=False)
     if not info:
         return
-    show.directors = info.get("directors")
+    logger.info("info", info)
     show.cast = info.get("cast")
+    show.directors = info.get("directors")
+    show.duration = info.get("duration")
+    show.seasons = info.get("seasons")
+    show.status = info.get("status")
+    logger.info("in celery task", info.get("status"))
     if info.get("ext_api_genres"):
         for tag in info.get("ext_api_genres"):
             try:

@@ -13,16 +13,20 @@ class AnimeList_API:
         Filter information from the API, returns an Anime Object.
         """
         duration = datetime.timedelta(minutes=info.get("duration")) if info.get("duration") else None
+        start_date = info.get("start_date")
+        if start_date:
+            start_date = start_date.split("T")[0]
         anime = {
             "ext_api_id": info.get("mal_id"),
             "ext_api_source": "animelist",
             "title": info.get("title"),
             "poster_pic": info.get("image_url"),
             "is_tv": True,  # assuming
-            "date_released": info.get("start_date"),
+            "date_released": start_date,
             "plot": info.get("synopsis"),
             "status": info.get("status"),
             "duration": duration,
+            "language": "ja",
         }
         return anime
 
@@ -36,12 +40,16 @@ class AnimeList_API:
         except:
             return None
 
-    def search_anime_by_name(self, name):
+    def search_anime_by_name(self, name, page=1):
         """
         Search anime by the mal_id from animelist API, returns a list of anime ids.
         """
-        anime_info_lst = jikan.search("anime", name, page=1).get("results")
-        return [self.get_anime_from_animelist_info(anime) for anime in anime_info_lst]
+        try:
+            search = jikan.search("anime", name, page=page)
+            anime_info_lst = search.get("results")
+            return [self.get_anime_from_animelist_info(anime) for anime in anime_info_lst]
+        except:
+            return []
 
     def search_anime_by_year(self, year, season):
         """
