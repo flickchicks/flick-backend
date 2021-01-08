@@ -27,25 +27,25 @@ class UpdateProfileController:
         social_id_token = self._data.get("social_id_token")
         social_id_token_type = self._data.get("social_id_token_type")
 
-        if username and self._user.username != username:
+        if username is not None and self._user.username != username:
             if len(username) > 30 or len(username) < 3:
                 return failure_response("Username must be between 3 and 30 characters.")
             if User.objects.filter(username__iexact=username):
                 return failure_response("Username is already taken.")
             self._user.username = username
-        if name and self._user.first_name != name:
+        if name is not None and self._user.first_name != name:
             self._user.first_name = name
-        if email and self._user.email != email:
+        if email is not None and self._user.email != email:
             self._user.email = email
-        if profile_pic_base64:
+        if profile_pic_base64 is not None:
             profile.profile_pic = profile_pic_base64
-        if bio and profile.bio != bio:
+        if bio is not None and profile.bio != bio:
             profile.bio = bio
-        if phone_number and profile.phone_number != phone_number:
+        if phone_number is not None and profile.phone_number != phone_number:
             profile.phone_number = phone_number
-        if social_id_token_type and profile.social_id_token_type != social_id_token_type:
+        if social_id_token_type is not None and profile.social_id_token_type != social_id_token_type:
             profile.social_id_token_type = social_id_token_type
-        if social_id_token and profile.social_id_token != social_id_token:
+        if social_id_token is not None and profile.social_id_token != social_id_token:
             profile.social_id_token = social_id_token
             self._user.set_password(social_id_token)
 
