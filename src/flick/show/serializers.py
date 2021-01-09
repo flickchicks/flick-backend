@@ -29,6 +29,7 @@ class ShowSerializer(serializers.ModelSerializer):
             "backdrop_pic",
             "directors",
             "is_tv",
+            "is_adult",
             "date_released",
             "providers",
             "status",
