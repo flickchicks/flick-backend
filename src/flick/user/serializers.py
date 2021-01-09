@@ -1,6 +1,5 @@
 from user.models import Profile
 
-from asset.serializers import AssetBundleDetailSerializer
 from django.contrib.auth.models import User
 from django.db.models import Q
 from friendship.models import Friend
@@ -46,7 +45,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(source="user.id")
     name = serializers.CharField(source="user.first_name")
     username = serializers.CharField(source="user.username")
-    profile_pic = AssetBundleDetailSerializer(source="profile_asset_bundle")
+    # profile_pic = AssetBundleDetailSerializer(source="profile_asset_bundle")
     owner_lsts = MeLstSerializer(many=True)
     collab_lsts = MeLstSerializer(many=True)
 
@@ -74,7 +73,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     friend_status = serializers.SerializerMethodField("get_friend_status")
     name = serializers.CharField(source="user.first_name")
     username = serializers.CharField(source="user.username")
-    profile_pic = AssetBundleDetailSerializer(source="profile_asset_bundle")
+    # profile_pic = AssetBundleDetailSerializer(source="profile_asset_bundle")
     owner_lsts = serializers.SerializerMethodField("get_owner_lsts")
     collab_lsts = serializers.SerializerMethodField("get_collab_lsts")
 
