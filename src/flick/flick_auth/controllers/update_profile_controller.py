@@ -38,7 +38,10 @@ class UpdateProfileController:
         if email is not None and self._user.email != email:
             self._user.email = email
         if profile_pic_base64 is not None:
-            profile.profile_pic = profile_pic_base64
+            if profile_pic_base64 == "":
+                profile.remove_profile_pic()
+            else:
+                profile.profile_pic = profile_pic_base64
         if bio is not None and profile.bio != bio:
             profile.bio = bio
         if phone_number is not None and profile.phone_number != phone_number:
