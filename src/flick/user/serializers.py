@@ -59,6 +59,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             "profile_pic",
             "bio",
             "phone_number",
+            "social_id",
             "social_id_token_type",
             "social_id_token",
             "num_notifs",

@@ -24,6 +24,7 @@ class UpdateProfileController:
         email = self._data.get("email", "")
         bio = self._data.get("bio")
         phone_number = self._data.get("phone_number")
+        social_id = self._data.get("social_id")
         social_id_token = self._data.get("social_id_token")
         social_id_token_type = self._data.get("social_id_token_type")
 
@@ -46,6 +47,8 @@ class UpdateProfileController:
             profile.bio = bio
         if phone_number is not None and profile.phone_number != phone_number:
             profile.phone_number = phone_number
+        if social_id is not None and profile.social_id != social_id:
+            profile.social_id = social_id
         if social_id_token_type is not None and profile.social_id_token_type != social_id_token_type:
             profile.social_id_token_type = social_id_token_type
         if social_id_token is not None and profile.social_id_token != social_id_token:

@@ -48,6 +48,7 @@ class MeTests(FlickTestCase):
             "name": "",
             "bio": "",
             "phone_number": "",
+            "social_id": "",
             "social_id_token_type": "",
             "social_id_token": "",
         }
@@ -61,6 +62,7 @@ class MeTests(FlickTestCase):
         self.assertEqual(data.get("bio"), "")
         self.assertEqual(data.get("name"), "")
         self.assertEqual(data.get("phone_number"), "")
+        self.assertEqual(data.get("social_id"), "")
         self.assertEqual(data.get("social_id_token_type"), "")
         self.assertEqual(data.get("social_id_token"), "")
         self.assertEqual(data.get("num_notifs"), 0)
