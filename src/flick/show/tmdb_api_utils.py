@@ -28,8 +28,7 @@ class TMDB_API:
                 provider_name = p.get("provider_name")
                 provider_image = settings.TMDB_BASE_IMAGE_URL + p.get("logo_path")
                 providers.append({"name": provider_name, "image": provider_image})
-        except Exception as e:
-            print("Could not get providers from movie_id", e)
+        except:
             return []
         return providers
 
@@ -50,8 +49,7 @@ class TMDB_API:
                 provider_name = p.get("provider_name")
                 provider_image = settings.TMDB_BASE_IMAGE_URL + p.get("logo_path")
                 providers.append({"name": provider_name, "image": provider_image})
-        except Exception as e:
-            print("Could not get providers from tv_id", e)
+        except:
             return []
         return providers
 
