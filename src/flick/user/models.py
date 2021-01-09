@@ -35,6 +35,11 @@ class Profile(models.Model):
             + PrivateSuggestion.objects.filter(to_user=self.user).count()
         )
 
+    def remove_profile_pic(self):
+        self.profile_pic = ""
+        self.profile_asset_bundle = None
+        super(Profile, self).save()
+
     def upload_profile_pic(self):
         from upload.utils import upload_image
 
