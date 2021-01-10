@@ -1,4 +1,3 @@
-from asset.serializers import AssetBundleDetailSerializer
 from django.contrib.auth.models import User
 from friendship.models import Friend
 from friendship.models import FriendshipRequest
@@ -7,7 +6,7 @@ from rest_framework import serializers
 
 class FriendUserSerializer(serializers.ModelSerializer):
     bio = serializers.CharField(source="profile.bio")
-    profile_pic = AssetBundleDetailSerializer(source="profile.profile_asset_bundle")
+    # profile_pic = AssetBundleDetailSerializer(source="profile.profile_asset_bundle")
     name = serializers.CharField(source="first_name")
 
     class Meta:

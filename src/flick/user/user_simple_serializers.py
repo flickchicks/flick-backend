@@ -1,11 +1,10 @@
-from asset.serializers import AssetBundleDetailSerializer
 from django.contrib.auth.models import User
 from friendship.models import Friend
 from rest_framework import serializers
 
 
 class UserSimpleSerializer(serializers.ModelSerializer):
-    profile_pic = AssetBundleDetailSerializer(source="profile.profile_asset_bundle")
+    # profile_pic = AssetBundleDetailSerializer(source="profile.profile_asset_bundle")
     num_mutual_friends = serializers.SerializerMethodField(method_name="get_num_mutual_friends")
     name = serializers.CharField(source="first_name")
 
