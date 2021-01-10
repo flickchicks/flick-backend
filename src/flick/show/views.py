@@ -1,9 +1,12 @@
+import datetime
 import json
 from user.models import Profile
 
 from api import settings as api_settings
 from api.utils import failure_response
 from api.utils import success_response
+from flick.tasks import populate_show_details
+import pytz
 from rest_framework import generics
 from rest_framework import mixins
 from rest_framework import viewsets
@@ -35,6 +38,14 @@ class ShowDetail(generics.GenericAPIView):
         if not Show.objects.filter(pk=pk):
             return failure_response(f"Show of id {pk} does not exist.")
         show = Show.objects.get(pk=pk)
+        utc = pytz.utc
+        if show.last_updated:
+            delta = datetime.datetime.now(tz=utc) - show.last_updated
+            minutes = (delta.total_seconds() % 3600) // 60
+            if minutes > 30:
+                populate_show_details(show.id)
+        else:
+            populate_show_details(show.id)
         return success_response(self.serializer_class(show, context={"request": request}).data)
 
     def post(self, request, pk):
@@ -45,7 +56,7 @@ class ShowDetail(generics.GenericAPIView):
 
         user = request.user
         if not Profile.objects.filter(user=user):
-            return failure_response(f"User must be logged in.")
+            return failure_response("User must be logged in.")
         profile = Profile.objects.get(user=user)
         data = json.loads(request.body)
         score = data.get("user_rating")
