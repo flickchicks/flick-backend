@@ -8,6 +8,7 @@ class Show(models.Model):
     EXT_API_SOURCE_CHOICES = (("tmdb", "TMDB"), ("animelist", "Animelist"))
 
     title = models.CharField(max_length=100, null=False, blank=False)
+    last_updated = models.DateTimeField(null=True, blank=True)
     ext_api_id = models.IntegerField(blank=True, null=True)
     ext_api_source = models.CharField(max_length=20, choices=EXT_API_SOURCE_CHOICES, default=None)
     poster_pic = models.URLField(blank=True, null=True)
