@@ -55,6 +55,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             "id",
             "username",
             "name",
+            "notif_time_viewed",
             "profile_pic",
             "bio",
             "phone_number",
