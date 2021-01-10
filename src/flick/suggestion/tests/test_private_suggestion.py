@@ -3,8 +3,6 @@ import json
 from api.tests import FlickTestCase
 from django.contrib.auth.models import User
 from django.urls import reverse
-from friendship.exceptions import AlreadyFriendsError
-from friendship.models import Friend
 from rest_framework.test import APIClient
 from show.models import Show
 
@@ -48,12 +46,6 @@ class PrivateSuggestionTests(FlickTestCase):
         self.assertEqual(len(data), 2)
         self.assertEqual(data[-1]["show"]["id"], suggest_data.get("show_id"))
         self.assertEqual(data[-1]["message"], suggest_data.get("message"))
-
-    def _create_friendship(self, user1, user2):
-        try:
-            Friend.objects.add_friend(user1, user2).accept()
-        except AlreadyFriendsError:
-            return
 
     def _check_suggestion(self, friend_token, suggest_data):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + friend_token)

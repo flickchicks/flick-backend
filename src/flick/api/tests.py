@@ -5,6 +5,7 @@ import string
 from django.test import TestCase
 from django.test import TransactionTestCase
 from django.urls import reverse
+from friendship.exceptions import AlreadyFriendsError
 from friendship.models import Friend
 from rest_framework.test import APIClient
 
@@ -45,7 +46,10 @@ class FlickTestCase(TestCase):
         return token
 
     def _create_friendship(self, user1, user2):
-        Friend.objects.add_friend(user1, user2).accept()
+        try:
+            Friend.objects.add_friend(user1, user2).accept()
+        except AlreadyFriendsError:
+            return
 
 
 class FlickTransactionTestCase(TransactionTestCase):
@@ -84,4 +88,7 @@ class FlickTransactionTestCase(TransactionTestCase):
         return token
 
     def _create_friendship(self, user1, user2):
-        Friend.objects.add_friend(user1, user2).accept()
+        try:
+            Friend.objects.add_friend(user1, user2).accept()
+        except AlreadyFriendsError:
+            return

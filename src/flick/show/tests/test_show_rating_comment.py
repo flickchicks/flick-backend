@@ -3,8 +3,6 @@ import json
 from api.tests import FlickTestCase
 from django.contrib.auth.models import User
 from django.urls import reverse
-from friendship.exceptions import AlreadyFriendsError
-from friendship.models import Friend
 from rest_framework.test import APIClient
 from show.models import Show
 
@@ -63,12 +61,6 @@ class ShowRatingsAndCommentTests(FlickTestCase):
         comment = json.loads(response.content)["data"]["comments"][-1]
         self.assertEqual(response.status_code, 200)
         self.assertEqual(comment["message"], comment_data.get("comment").get("message"))
-
-    def _create_friendship(self, user1, user2):
-        try:
-            Friend.objects.add_friend(user1, user2).accept()
-        except AlreadyFriendsError:
-            return
 
     def _check_friends_rating(self, rating):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)

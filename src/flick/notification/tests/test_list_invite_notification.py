@@ -3,7 +3,6 @@ import json
 from api.tests import FlickTestCase
 from django.contrib.auth.models import User
 from django.urls import reverse
-from friendship.models import Friend
 from rest_framework.test import APIClient
 
 
@@ -18,9 +17,6 @@ class ListInviteNotificationTests(FlickTestCase):
         self.user_token = self._create_user_and_login()
         self.friend_token = self._create_user_and_login()
         self._create_friendship(user1=User.objects.get(id=1), user2=User.objects.get(id=2))
-
-    def _create_friendship(self, user1, user2):
-        Friend.objects.add_friend(user1, user2).accept()
 
     def _create_list(self):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
