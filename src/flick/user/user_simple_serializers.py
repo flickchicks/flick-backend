@@ -4,6 +4,7 @@ from rest_framework import serializers
 
 
 class UserSimpleSerializer(serializers.ModelSerializer):
+    profile_pic = serializers.CharField(source="profile.profile_pic")
     # profile_pic = AssetBundleDetailSerializer(source="profile.profile_asset_bundle")
     num_mutual_friends = serializers.SerializerMethodField(method_name="get_num_mutual_friends")
     name = serializers.CharField(source="first_name")

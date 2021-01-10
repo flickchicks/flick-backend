@@ -6,6 +6,7 @@ from rest_framework import serializers
 
 class FriendUserSerializer(serializers.ModelSerializer):
     bio = serializers.CharField(source="profile.bio")
+    profile_pic = serializers.CharField(source="profile.profile_pic")
     # profile_pic = AssetBundleDetailSerializer(source="profile.profile_asset_bundle")
     name = serializers.CharField(source="first_name")
 
