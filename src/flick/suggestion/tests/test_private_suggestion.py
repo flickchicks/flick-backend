@@ -71,3 +71,11 @@ class PrivateSuggestionTests(FlickTestCase):
         self._check_suggestion(self.friend2_token, suggest_data)
         self._check_me_has_num_notifs(self.friend1_token, 1)
         self._check_me_has_num_notifs(self.friend2_token, 1)
+
+        # test suggestion already sent failure
+        suggest_data = {"users": [2, 3], "message": "Great film", "show_id": self.show.pk}
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
+        response = self.client.post(self.SUGGEST_URL, suggest_data, format="json")
+        self.assertEqual(response.status_code, 404)
+        error = json.loads(response.content)["error"]
+        self.assertEqual(error, "Suggestion has already been sent!")

@@ -40,6 +40,10 @@ class CreateSuggestion(generics.GenericAPIView):
                 friend = User.objects.get(id=friend_id)
                 if not Friend.objects.are_friends(user, friend):
                     raise Exception(f"Unable to suggest to non-friend user {friend_id}")
+                if PrivateSuggestion.objects.filter(
+                    from_user=profile, to_user=friend, show=show, message=data.get("message")
+                ):
+                    return failure_response("Suggestion has already been sent!")
                 pri_suggestion = PrivateSuggestion()
                 pri_suggestion.from_user = profile
                 pri_suggestion.to_user = friend
