@@ -32,12 +32,12 @@ class FriendshipNotification(FlickTestCase):
         self.assertEqual(data[0]["from_user"]["id"], 1)
 
     def _get_notification(self):
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.friend_token)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
         response = self.client.get(self.NOTIFICATIONS_URL)
         return json.loads(response.content)["data"]
 
     def _check_me_has_num_notifs(self, num_notifs):
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.friend_token)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
         response = self.client.get(self.ME_URL)
         content = json.loads(response.content)["data"]
         self.assertEqual(response.status_code, 200)
@@ -50,8 +50,8 @@ class FriendshipNotification(FlickTestCase):
         self._check_me_has_num_notifs(num_notifs=0)
         self._accept_user_friend_request()
         data = self._get_notification()[0]
-        self.assertEqual(data["notif_type"], "friend_request")
-        self.assertEqual(data["from_user"]["id"], 1)
-        self.assertEqual(data["to_user"]["id"], 2)
+        self.assertEqual(data["notif_type"], "accepted_request")
+        self.assertEqual(data["from_user"]["id"], 2)
+        self.assertEqual(data["to_user"]["id"], 1)
         self.assertEqual(data["friend_request_accepted"], True)
         self._check_me_has_num_notifs(num_notifs=1)

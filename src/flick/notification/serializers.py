@@ -28,5 +28,6 @@ class NotificationSerializer(serializers.ModelSerializer):
             "collaborators_added",
             "collaborators_removed",
             "created_at",
+            "updated_at",
         )
         ready_only_fields = fields

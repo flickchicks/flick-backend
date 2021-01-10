@@ -108,6 +108,16 @@ class FriendAcceptListAndCreate(generics.ListCreateAPIView):
         notif.friend_request_accepted = True
         notif.save()
 
+    def _create_accepted_notification(self, from_user, to_user):
+        from_user = Profile.objects.get(user=from_user)
+        to_user = Profile.objects.get(user=to_user)
+        notif = Notification()
+        notif.notif_type = "accepted_request"
+        notif.from_user = from_user
+        notif.to_user = to_user
+        notif.friend_request_accepted = True
+        notif.save()
+
     def get(self, request, format=None):
         friend_requests = Friend.objects.unrejected_requests(user=request.user)
         serializer = IncomingRequestSerializer(friend_requests, many=True)
@@ -124,6 +134,7 @@ class FriendAcceptListAndCreate(generics.ListCreateAPIView):
                 friend_request.accept()
                 friends_accepted.append(friend_request)
                 self._update_notification(from_user=request.user, to_user=friend)
+                self._create_accepted_notification(from_user=friend, to_user=request.user)
             except Exception as e:
                 print(str(e))
                 continue
