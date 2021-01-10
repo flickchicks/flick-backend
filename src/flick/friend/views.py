@@ -105,9 +105,16 @@ class FriendAcceptListAndCreate(generics.ListCreateAPIView):
         if not notif_exists:
             return
         notif = Notification.objects.get(notif_type="friend_request", from_user=from_user_old, to_user=to_user_old)
-        notif.from_user = to_user_old
-        notif.to_user = from_user_old
+        notif.friend_request_accepted = True
+        notif.save()
+
+    def _create_accepted_notification(self, from_user, to_user):
+        from_user = Profile.objects.get(user=from_user)
+        to_user = Profile.objects.get(user=to_user)
+        notif = Notification()
         notif.notif_type = "accepted_request"
+        notif.from_user = from_user
+        notif.to_user = to_user
         notif.friend_request_accepted = True
         notif.save()
 
@@ -127,6 +134,7 @@ class FriendAcceptListAndCreate(generics.ListCreateAPIView):
                 friend_request.accept()
                 friends_accepted.append(friend_request)
                 self._update_notification(from_user=request.user, to_user=friend)
+                self._create_accepted_notification(from_user=friend, to_user=request.user)
             except Exception as e:
                 print(str(e))
                 continue
