@@ -27,7 +27,8 @@ from rest_framework import routers
 from search.views import Search
 from show.views import ShowDetail
 from show.views import ShowViewSet
-from suggestion.views import PrivateSuggestionView
+from suggestion.views import CreateSuggestion
+from suggestion.views import SuggestionList
 from tag.views import TagDetail
 from tag.views import TagList
 from upload.views import UploadImage
@@ -60,7 +61,8 @@ urlpatterns = [
     path("media/image/", UploadImage.as_view(), name="upload"),
     path("search/", Search.as_view(), name="search"),
     path("show/<int:pk>/", ShowDetail.as_view(), name="show-detail"),
-    path("suggest/", PrivateSuggestionView.as_view(), name="private-suggestion"),
+    path("suggest/", CreateSuggestion.as_view(), name="private-suggestion"),
+    path("suggestions/", SuggestionList.as_view(), name="private-suggestion-list"),
     path("tags/", TagList.as_view(), name="tag-list"),
     path("tags/<int:pk>/", TagDetail.as_view(), name="tag-detail"),
     path("user/<int:pk>/", UserProfileView.as_view(), name="user-profile"),

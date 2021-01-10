@@ -20,6 +20,7 @@ class Profile(models.Model):
     social_id_token_type = models.TextField(blank=True, null=True)
     social_id_token = models.TextField(blank=True, null=True)
     notif_time_viewed = models.DateTimeField(blank=True, null=True)
+    suggest_time_viewed = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.user.username}, {self.user.first_name}"
@@ -33,8 +34,11 @@ class Profile(models.Model):
             Q(to_user=self) & ~(Q(notif_type="friend_request") & Q(friend_request_accepted=False))
         )
         unviewed_notifs = notifs.filter(Q(created_at__gt=self.notif_time_viewed)) if self.notif_time_viewed else notifs
-
-        return unviewed_notifs.count() + PrivateSuggestion.objects.filter(to_user=self.user).count()
+        suggests = PrivateSuggestion.objects.filter(to_user=self.user)
+        unviewed_suggests = (
+            suggests.filter(Q(created_at__gt=self.suggest_time_viewed)) if self.suggest_time_viewed else suggests
+        )
+        return unviewed_notifs.count() + unviewed_suggests.count()
 
     def remove_profile_pic(self):
         self.profile_pic = ""

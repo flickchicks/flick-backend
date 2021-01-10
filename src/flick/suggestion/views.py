@@ -5,6 +5,7 @@ from api import settings as api_settings
 from api.utils import failure_response
 from api.utils import success_response
 from django.contrib.auth.models import User
+from django.utils.dateparse import parse_datetime
 from friendship.models import Friend
 from rest_framework import generics
 from show.models import Show
@@ -13,16 +14,11 @@ from .models import PrivateSuggestion
 from .serializers import PrivateSuggestionSerializer
 
 
-class PrivateSuggestionView(generics.GenericAPIView):
+class CreateSuggestion(generics.GenericAPIView):
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
-    def get(self, request):
-        user = request.user
-        suggestions = user.suggestions_received.all()
-        suggestion_data = PrivateSuggestionSerializer(suggestions, many=True)
-        return success_response(suggestion_data.data)
-
     def post(self, request):
+        """Suggest a show to another user."""
         data = json.loads(request.body)
         user = request.user
         if not Profile.objects.filter(user=user):
@@ -57,3 +53,25 @@ class PrivateSuggestionView(generics.GenericAPIView):
 
         suggestion_data = PrivateSuggestionSerializer(suggestions, many=True).data
         return success_response(suggestion_data)
+
+
+class SuggestionList(generics.GenericAPIView):
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
+
+    def get(self, request):
+        """See all suggestions."""
+        user = request.user
+        suggestions = user.suggestions_received.all()
+        suggestion_data = PrivateSuggestionSerializer(suggestions, many=True)
+        return success_response(suggestion_data.data)
+
+    def post(self, request):
+        """Update the last viewed suggestion time."""
+        data = json.loads(request.body)
+        suggest_time_viewed = data.get("suggest_time_viewed")
+        if not Profile.objects.filter(user=request.user):
+            return failure_response(f"No user to be found with id of {request.user.id}.")
+        profile = Profile.objects.get(user=request.user)
+        profile.suggest_time_viewed = parse_datetime(suggest_time_viewed)
+        profile.save()
+        return success_response({"suggest_time_viewed": profile.suggest_time_viewed})
