@@ -2,7 +2,6 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import base64
-import datetime
 from io import BytesIO
 import os
 
@@ -13,7 +12,6 @@ from django.conf import settings
 from imdb import IMDb
 from PIL import Image
 from provider.models import Provider
-import pytz
 from show.models import Show
 from show.tmdb import flicktmdb
 from tag.models import Tag
@@ -102,7 +100,6 @@ def populate_show_details(show_id):
     show.duration = info.get("duration")
     show.seasons = info.get("seasons")
     show.status = info.get("status")
-    show.last_updated = datetime.datetime.now(tz=pytz.utc)
     if info.get("ext_api_genres"):
         for tag in info.get("ext_api_genres"):
             try:

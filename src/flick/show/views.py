@@ -39,12 +39,9 @@ class ShowDetail(generics.GenericAPIView):
             return failure_response(f"Show of id {pk} does not exist.")
         show = Show.objects.get(pk=pk)
         utc = pytz.utc
-        if show.last_updated:
-            delta = datetime.datetime.now(tz=utc) - show.last_updated
-            minutes = (delta.total_seconds() % 3600) // 60
-            if minutes > 30:
-                populate_show_details(show.id)
-        else:
+        delta = datetime.datetime.now(tz=utc) - show.updated_at
+        minutes = (delta.total_seconds() % 3600) // 60
+        if minutes > 30:
             populate_show_details(show.id)
         return success_response(self.serializer_class(show, context={"request": request}).data)
 
