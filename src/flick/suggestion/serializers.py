@@ -25,7 +25,7 @@ class PrivateSuggestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PrivateSuggestion
-        fields = ("to_user", "from_user", "show", "message", "created_at")
+        fields = ("to_user", "from_user", "show", "message", "created_at", "updated_at")
         read_only_fields = fields
 
 
@@ -35,5 +35,5 @@ class PublicSuggestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PublicSuggestion
-        fields = ("author", "show", "message", "created_at")
+        fields = ("author", "show", "message", "created_at", "updated_at")
         read_only_fields = fields

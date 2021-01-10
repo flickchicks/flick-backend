@@ -8,7 +8,8 @@ from show.models import Show
 
 
 class PrivateSuggestionTests(FlickTestCase):
-    SUGGESTION_URL = reverse("private-suggestion")
+    SUGGEST_URL = reverse("private-suggestion")
+    SUGGESTIONS_URL = reverse("private-suggestion-list")
     ME_URL = reverse("me")
 
     def setUp(self):
@@ -40,7 +41,7 @@ class PrivateSuggestionTests(FlickTestCase):
 
     def _suggest_show(self, token, suggest_data):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
-        response = self.client.post(self.SUGGESTION_URL, suggest_data, format="json")
+        response = self.client.post(self.SUGGEST_URL, suggest_data, format="json")
         data = json.loads(response.content)["data"]
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(data), 2)
@@ -49,7 +50,7 @@ class PrivateSuggestionTests(FlickTestCase):
 
     def _check_suggestion(self, friend_token, suggest_data):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + friend_token)
-        response = self.client.get(self.SUGGESTION_URL)
+        response = self.client.get(self.SUGGESTIONS_URL)
         data = json.loads(response.content)["data"]
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(data), 1)
@@ -70,3 +71,11 @@ class PrivateSuggestionTests(FlickTestCase):
         self._check_suggestion(self.friend2_token, suggest_data)
         self._check_me_has_num_notifs(self.friend1_token, 1)
         self._check_me_has_num_notifs(self.friend2_token, 1)
+
+        # test suggestion already sent failure
+        suggest_data = {"users": [2, 3], "message": "Great film", "show_id": self.show.pk}
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
+        response = self.client.post(self.SUGGEST_URL, suggest_data, format="json")
+        self.assertEqual(response.status_code, 404)
+        error = json.loads(response.content)["error"]
+        self.assertEqual(error, "Suggestion has already been sent!")
