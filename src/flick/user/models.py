@@ -30,7 +30,7 @@ class Profile(models.Model):
 
         return (
             Notification.objects.filter(
-                Q(to_user=self) & ~(Q(notif_type="friend_request") & Q(friend_request_accepted=False))
+                Q(to_user=self) & ~(Q(notif_type="friend_request") & Q(friend_request_accepted=True))
             ).count()
             + PrivateSuggestion.objects.filter(to_user=self.user).count()
         )

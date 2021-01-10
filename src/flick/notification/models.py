@@ -9,6 +9,7 @@ class Notification(models.Model):
         ("list_invite", "List Invite"),
         ("list_edit", "List Edit"),
         ("friend_request", "Friend Request"),
+        ("accepted_request", "Accepted Request"),
     )
 
     notif_type = models.CharField(max_length=20, choices=NOTIF_TYPE_CHOICES, default=None)
