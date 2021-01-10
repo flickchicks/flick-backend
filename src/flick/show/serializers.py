@@ -38,7 +38,6 @@ class ShowSerializer(serializers.ModelSerializer):
             "plot",
             "tags",
             "seasons",
-            "audience_level",
             "imdb_rating",
             "tomato_rating",
             "friends_rating",
