@@ -5,7 +5,6 @@ import string
 from api.tests import FlickTestCase
 from django.contrib.auth.models import User
 from django.urls import reverse
-from friendship.models import Friend
 from rest_framework.test import APIClient
 from show.models import Show
 from tag.models import Tag
@@ -55,9 +54,6 @@ class UpdateLstTests(FlickTestCase):
 
     def _get_created_tag_ids(self, num_tags):
         return [Tag.objects.create(name=self._get_random_string()).id for n in range(num_tags)]
-
-    def _create_friendship(self, user1, user2):
-        Friend.objects.add_friend(user1, user2).accept()
 
     def _create_list(self, collaborators=[], shows=[]):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)

@@ -15,6 +15,7 @@ from friend.views import FriendList
 from friend.views import FriendRejectListAndCreate
 from friend.views import FriendRemoveListAndCreate
 from friend.views import FriendRequestListAndCreate
+from friend.views import UserFriendList
 from like.views import LikeView
 from lst.views import LstDetail
 from lst.views import LstDetailAdd
@@ -63,6 +64,7 @@ urlpatterns = [
     path("tags/", TagList.as_view(), name="tag-list"),
     path("tags/<int:pk>/", TagDetail.as_view(), name="tag-detail"),
     path("user/<int:pk>/", UserProfileView.as_view(), name="user-profile"),
+    path("user/<int:pk>/friends/", UserFriendList.as_view(), name="user-friend-list"),
     path("username/", CheckUsernameView.as_view(), name="check-username"),
     path("notifications/", NotificationList.as_view(), name="notif-list"),
 ]

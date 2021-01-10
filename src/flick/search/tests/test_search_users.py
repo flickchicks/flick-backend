@@ -3,8 +3,6 @@ import json
 from api.tests import FlickTestCase
 from django.contrib.auth.models import User
 from django.urls import reverse
-from friendship.exceptions import AlreadyFriendsError
-from friendship.models import Friend
 from rest_framework.test import APIClient
 
 
@@ -22,12 +20,6 @@ class SearchUsersTests(FlickTestCase):
         self.friend2 = User.objects.get(id=3)
         # user and friend3 should have one mutual friend: friend1
         self.friend3 = User.objects.get(id=4)
-
-    def _create_friendship(self, user1, user2):
-        try:
-            Friend.objects.add_friend(user1, user2).accept()
-        except AlreadyFriendsError:
-            return
 
     # Known to fail when running `python manage.py test` likely due to concurrency
     def test_search_user(self):

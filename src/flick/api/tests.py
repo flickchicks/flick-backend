@@ -5,6 +5,8 @@ import string
 from django.test import TestCase
 from django.test import TransactionTestCase
 from django.urls import reverse
+from friendship.exceptions import AlreadyFriendsError
+from friendship.models import Friend
 from rest_framework.test import APIClient
 
 
@@ -43,6 +45,12 @@ class FlickTestCase(TestCase):
         token = json.loads(response.content)["data"]["auth_token"]
         return token
 
+    def _create_friendship(self, user1, user2):
+        try:
+            Friend.objects.add_friend(user1, user2).accept()
+        except AlreadyFriendsError:
+            return
+
 
 class FlickTransactionTestCase(TransactionTestCase):
     AUTHENTICATE_URL = reverse("authenticate")
@@ -78,3 +86,9 @@ class FlickTransactionTestCase(TransactionTestCase):
         self.assertEqual(response.status_code, 200)
         token = json.loads(response.content)["data"]["auth_token"]
         return token
+
+    def _create_friendship(self, user1, user2):
+        try:
+            Friend.objects.add_friend(user1, user2).accept()
+        except AlreadyFriendsError:
+            return

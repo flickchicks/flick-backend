@@ -62,3 +62,10 @@ class UserProfileTests(FlickTestCase):
         Friend.objects.remove_friend(from_user, to_user)
         self._check_friend_status(self.user_token, self.RANDO_PROFILE_URL, self.RANDO_ID, "not friends")
         self._check_friend_status(self.rando_token, self.USER_PROFILE_URL, self.USER_ID, "not friends")
+
+    def test_view_own_profile_redirects(self):
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
+        response = self.client.get(self.USER_PROFILE_URL)
+        self.assertRedirects(
+            response, self.ME_URL, status_code=302, target_status_code=200, msg_prefix="", fetch_redirect_response=True
+        )
