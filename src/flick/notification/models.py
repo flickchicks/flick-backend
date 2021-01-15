@@ -8,11 +8,11 @@ class Notification(models.Model):
     NOTIF_TYPE_CHOICES = (
         ("list_invite", "List Invite"),
         ("list_edit", "List Edit"),
-        ("friend_request", "Friend Request"),
-        ("accepted_request", "Accepted Request"),
+        ("incoming_friend_request_accepted", "Incoming Friend Request Accepted"),
+        ("outgoing_friend_request_accepted", "Outoing Friend Request Accepted"),
     )
 
-    notif_type = models.CharField(max_length=20, choices=NOTIF_TYPE_CHOICES, default=None)
+    notif_type = models.CharField(max_length=50, choices=NOTIF_TYPE_CHOICES, default=None)
     from_user = models.ForeignKey(
         Profile, on_delete=models.CASCADE, blank=True, null=True, related_name="sent_notification"
     )
@@ -24,7 +24,8 @@ class Notification(models.Model):
     num_shows_removed = models.IntegerField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    friend_request_accepted = models.BooleanField(blank=True, null=True)
+    incoming_friend_request_accepted = models.BooleanField(blank=True, null=True)
+    outgoing_friend_request_accepted = models.BooleanField(blank=True, null=True)
     new_owner = models.ForeignKey(
         Profile, on_delete=models.CASCADE, blank=True, null=True, related_name="newly_owned_lst_notification"
     )

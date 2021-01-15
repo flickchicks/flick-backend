@@ -22,9 +22,7 @@ class NotificationList(generics.GenericAPIView):
         if not Profile.objects.filter(user=request.user):
             return failure_response(f"No user to be found with id of {request.user.id}.")
         profile = Profile.objects.get(user=request.user)
-        notifs = Notification.objects.filter(
-            Q(to_user=profile) & ~(Q(notif_type="friend_request") & Q(friend_request_accepted=True))
-        )
+        notifs = Notification.objects.filter(Q(to_user=profile))
         serializer = self.serializer_class(notifs, many=True)
         return success_response(serializer.data)
 

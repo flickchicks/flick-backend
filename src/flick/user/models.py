@@ -30,9 +30,7 @@ class Profile(models.Model):
         from notification.models import Notification
         from suggestion.models import PrivateSuggestion
 
-        notifs = Notification.objects.filter(
-            Q(to_user=self) & ~(Q(notif_type="friend_request") & Q(friend_request_accepted=True))
-        )
+        notifs = Notification.objects.filter(Q(to_user=self))
         unviewed_notifs = notifs.filter(Q(created_at__gt=self.notif_time_viewed)) if self.notif_time_viewed else notifs
         suggests = PrivateSuggestion.objects.filter(to_user=self.user)
         unviewed_suggests = (
