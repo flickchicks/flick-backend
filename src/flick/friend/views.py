@@ -90,7 +90,6 @@ class FriendAcceptListAndCreate(generics.ListCreateAPIView):
         notif.notif_type = "incoming_friend_request_accepted"
         notif.from_user = from_user
         notif.to_user = to_user
-        notif.incoming_friend_request_accepted = True
         notif.save()
 
     def _create_outgoing_friend_request_accepted_for_from_user(self, from_user, to_user):
@@ -100,7 +99,6 @@ class FriendAcceptListAndCreate(generics.ListCreateAPIView):
         notif.notif_type = "outgoing_friend_request_accepted"
         notif.from_user = to_user
         notif.to_user = from_user
-        notif.outgoing_friend_request_accepted = True
         notif.save()
 
     def get(self, request, format=None):

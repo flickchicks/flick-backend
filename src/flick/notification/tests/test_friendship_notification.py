@@ -31,27 +31,44 @@ class FriendshipNotification(FlickTestCase):
         data = json.loads(response.content)["data"]
         self.assertEqual(data[0]["from_user"]["id"], 1)
 
-    def _get_notification(self):
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
+    def _get_notification(self, token):
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
         response = self.client.get(self.NOTIFICATIONS_URL)
         return json.loads(response.content)["data"]
 
-    def _check_me_has_num_notifs(self, num_notifs):
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
+    def _check_me_has_num_notifs(self, num_notifs, token):
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token)
         response = self.client.get(self.ME_URL)
         content = json.loads(response.content)["data"]
         self.assertEqual(response.status_code, 200)
         self.assertEqual(content.get("num_notifs"), num_notifs)
 
-    def test_friend_request_notif_shows_once_accepted(self):
+    def test_incoming_friend_request_accepted(self):
+        # user 1 sends friend request to user 2
         self._send_friend_request()
-        data = self._get_notification()
+
+        # notifications only appear when requests have been accepted
+        # so, so far no notifications yet on either side
+        data = self._get_notification(self.user_token)
         self.assertEqual(len(data), 0)
-        self._check_me_has_num_notifs(num_notifs=0)
+        data = self._get_notification(self.friend_token)
+        self.assertEqual(len(data), 0)
+        self._check_me_has_num_notifs(num_notifs=0, token=self.user_token)
+        self._check_me_has_num_notifs(num_notifs=0, token=self.friend_token)
+
+        # user 2 accepts friend request from user 1
         self._accept_user_friend_request()
-        data = self._get_notification()[0]
-        self.assertEqual(data["notif_type"], "accepted_request")
+
+        # user 1 checks notifications
+        data = self._get_notification(self.user_token)[0]
+        self.assertEqual(data["notif_type"], "outgoing_friend_request_accepted")
         self.assertEqual(data["from_user"]["id"], 2)
         self.assertEqual(data["to_user"]["id"], 1)
-        self.assertEqual(data["friend_request_accepted"], True)
-        self._check_me_has_num_notifs(num_notifs=1)
+        self._check_me_has_num_notifs(num_notifs=1, token=self.user_token)
+
+        # user 2 checks notifications
+        data = self._get_notification(self.friend_token)[0]
+        self.assertEqual(data["notif_type"], "incoming_friend_request_accepted")
+        self.assertEqual(data["from_user"]["id"], 1)
+        self.assertEqual(data["to_user"]["id"], 2)
+        self._check_me_has_num_notifs(num_notifs=1, token=self.friend_token)

@@ -24,8 +24,6 @@ class NotificationSerializer(serializers.ModelSerializer):
             "new_owner",
             "num_shows_added",
             "num_shows_removed",
-            "incoming_friend_request_accepted",
-            "outgoing_friend_request_accepted",
             "collaborators_added",
             "collaborators_removed",
             "created_at",
