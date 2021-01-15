@@ -113,8 +113,8 @@ class FriendAcceptListAndCreate(generics.ListCreateAPIView):
         to_user = Profile.objects.get(user=to_user)
         notif = Notification()
         notif.notif_type = "accepted_request"
-        notif.from_user = from_user
-        notif.to_user = to_user
+        notif.from_user = to_user
+        notif.to_user = from_user
         notif.friend_request_accepted = True
         notif.save()
 
