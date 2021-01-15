@@ -161,7 +161,6 @@ class UpdateLstTests(FlickTestCase):
         self.assertEqual(data["new_owner"]["id"], 2)
         self.assertEqual(data["num_shows_added"], None)
         self.assertEqual(data["num_shows_removed"], None)
-        self.assertEqual(data["friend_request_accepted"], None)
 
     def test_shows_added_to_lst_edit_notification(self):
         self._create_list(collaborators=[2])

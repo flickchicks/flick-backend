@@ -43,7 +43,7 @@ class FriendshipNotification(FlickTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(content.get("num_notifs"), num_notifs)
 
-    def test_incoming_friend_request_accepted(self):
+    def test_incoming_and_outgoing_friend_request_accepted(self):
         # user 1 sends friend request to user 2
         self._send_friend_request()
 
