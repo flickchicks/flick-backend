@@ -12,6 +12,8 @@ from lst.models import Lst
 import requests
 from rest_framework.authtoken.models import Token
 
+from .appleOAuth import AppleAuth
+
 
 class AuthenticateController:
     PASSWORD_SALT = auth_settings.AUTH_PASSWORD_SALT
@@ -76,7 +78,7 @@ class AuthenticateController:
         profile.save()
         return profile
 
-    def _check_token(self, social_id, token, type="facebook"):
+    def _check_facebook_token(self, social_id, token, type="facebook"):
         """
         Check if the token is valid, right now only supports facebook token.
         """
@@ -88,6 +90,11 @@ class AuthenticateController:
             data = requests.get(url=url).json()
             return not data.get("error") and data.get("id") == social_id
         return True
+
+    def _check_apple_token(self, access_code, token):
+        appleAuth_controller = AppleAuth()
+        res = appleAuth_controller.retreive_token(access_code)
+        print(res)
 
     def process(self):
         response = self.login()
@@ -119,10 +126,16 @@ class AuthenticateController:
         return success_response(self._serializer(user, context={"auth_token": auth_token}).data)
 
     def register(self):
-        if not self._check_token(self._social_id, self._social_id_token):
+        if self._social_id_token_type == "facebook" and not self._check_facebook_token(
+            self._social_id, self._social_id_token
+        ):
             return failure_response(
                 f"social_id_token of {self._social_id_token} is invalid or does not match with social_id of {self._social_id}."
             )
+        if self._social_id_token_type == "apple" and not self._check_apple_token(
+            self._social_id_token, self._social_id
+        ):
+            return failure_response("apple social_id_token invalid")
         if Profile.objects.filter(social_id_token=self._social_id_token):
             return failure_response(f"Profile already exists with the social_id_token {self._social_id_token}.")
         if not self._username:

@@ -15,6 +15,10 @@ import os
 from decouple import config
 
 TMDB_API_KEY = config("TMDB_API_KEY")
+APPLE_KEY_ID = config("APPLE_KEY_ID")
+APPLE_TEAM_ID = config("APPLE_TEAM_ID")
+APPLE_BUNDLE_ID = config("APPLE_BUNDLE_ID")
+APPLE_PRIVATE_KEY = config("APPLE_PRIVATE_KEY")
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -34,6 +38,7 @@ VALIDATE_SOCIAL_TOKEN = False
 # URL for validate Facebook Token
 VALIDATE_FACEBOOK_TOKEN_URL = "https://graph.facebook.com/me"
 VALIDATE_FACEBOOK_ID_AND_TOKEN_URL = "https://graph.facebook.com/me?fields=id&access_token="
+VALIDATE_APPLE_OKEN_URL = "https://appleid.apple.com/auth/token"
 
 # 'DJANGO_ALLOWED_HOSTS' should be a single string of hosts with a space between each.
 # For example: 'DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]'
