@@ -4,7 +4,6 @@ from django.conf import settings
 from django.utils import timezone
 import jwt
 import requests
-from social_core.utils import handle_http_errors
 
 
 class AppleAuth:
@@ -15,7 +14,6 @@ class AppleAuth:
     SCOPE_SEPARATOR = ","
     ID_KEY = "uid"
 
-    @handle_http_errors
     def retreive_token(self, access_token):
         """
         Finish the auth process once the access_token was retrieved
