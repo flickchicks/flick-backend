@@ -40,7 +40,7 @@ class flicktmdb:
             "seasons": result.get("number_of_seasons"),
             "status": result.get("status"),
             "tagline": result.get("tagline"),
-            "title": result.get("original_name" if is_tv else "original_title"),
+            "title": result.get("name" if is_tv else "title"),
         }
 
     def get_credits(self, tmdb_id, is_tv=False):
@@ -116,7 +116,7 @@ class flicktmdb:
                 "language": result.get("original_language"),
                 "plot": result.get("overview"),
                 "poster_pic": settings.TMDB_BASE_IMAGE_URL + poster_path if poster_path else None,
-                "title": result.get("original_name" if is_tv else "original_title"),
+                "title": result.get("name" if is_tv else "title"),
             }
             shows.append(show)
         return shows

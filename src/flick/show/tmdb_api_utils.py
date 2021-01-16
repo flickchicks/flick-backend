@@ -63,7 +63,7 @@ class TMDB_API:
         show = {
             "ext_api_id": info.get("id"),
             "ext_api_source": "tmdb",
-            "title": info.get("original_name" if is_tv else "original_title"),
+            "title": info.get("name" if is_tv else "title"),
             "poster_pic": settings.TMDB_BASE_IMAGE_URL + poster_path if poster_path else None,
             "ext_api_genres": info.get("genres"),
             "is_tv": is_tv,
@@ -126,7 +126,7 @@ class TMDB_API:
         tv = {
             "ext_api_id": info.get("id"),
             "ext_api_source": "tmdb",
-            "title": info.get("original_name"),
+            "title": info.get("name"),
             "poster_pic": settings.TMDB_BASE_IMAGE_URL + poster_path if poster_path else None,
             "ext_api_genres": info.get("genres"),
             "is_tv": True,
