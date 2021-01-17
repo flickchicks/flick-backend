@@ -19,7 +19,7 @@ class AppleAuth:
         Finish the auth process once the access_token was retrieved
         Get the email from ID token received from apple
         """
-        response_data = {}
+        # response_data = {}
         client_id, client_secret = self.get_key_and_secret()
 
         headers = {"content-type": "application/x-www-form-urlencoded"}
@@ -31,15 +31,16 @@ class AppleAuth:
         }
 
         res = requests.post(AppleAuth.ACCESS_TOKEN_URL, data=data, headers=headers)
+        print(res.content)
         response_dict = res.json()
         id_token = response_dict.get("id_token", None)
 
-        if id_token:
-            decoded = jwt.decode(id_token, "", verify=False)
-            response_data.update({"email": decoded["email"]}) if "email" in decoded else None
-            response_data.update({"uid": decoded["sub"]}) if "sub" in decoded else None
-
-        return response_data
+        # if id_token:
+        # decoded = jwt.decode(id_token, "", verify=False, algorithms="")
+        # print(f"decoded{decoded}")
+        # response_data.update({"email": decoded["email"]}) if "email" in decoded else None
+        # response_data.update({"uid": decoded["sub"]}) if "sub" in decoded else None
+        return id_token
 
     def get_key_and_secret(self):
         headers = {"kid": settings.APPLE_KEY_ID}
@@ -51,9 +52,7 @@ class AppleAuth:
             "aud": "https://appleid.apple.com",
             "sub": settings.APPLE_BUNDLE_ID,
         }
-
-        client_secret = jwt.encode(payload, settings.APPLE_PRIVATE_KEY, algorithm="ES256", headers=headers).decode(
-            "utf-8"
-        )
+        # print(settings.APPLE_PRIVATE_KEY.replace(r'\n', "\n"))
+        client_secret = jwt.encode(payload, settings.APPLE_PRIVATE_KEY, algorithm="ES256", headers=headers)
 
         return settings.APPLE_BUNDLE_ID, client_secret

@@ -217,3 +217,7 @@ CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
+
+# read in the APPLE_PRIVATE_KEY
+with open("apple_private.p8", mode="rb") as key_file:
+    APPLE_PRIVATE_KEY = key_file.read()
