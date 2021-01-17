@@ -38,6 +38,7 @@ class flicktmdb:
             "poster_pic": settings.TMDB_BASE_IMAGE_URL + poster_path if poster_path else None,
             "providers": providers,
             "seasons": result.get("number_of_seasons"),
+            "episodes": result.get("number_of_episodes"),
             "status": result.get("status"),
             "tagline": result.get("tagline"),
             "title": result.get("name" if is_tv else "title"),
