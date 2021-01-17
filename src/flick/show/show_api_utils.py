@@ -110,7 +110,7 @@ class ShowAPI:
         elif show_type == "tv":
             return flicktmdb().get_show(tmdb_id=id, is_tv=True)
         elif show_type == "anime":
-            return AnimeList_API().get_anime_info_from_id(id)
+            return flickanimelist().get_anime(animelist_id=id)
         print("Only movie, tv, and anime show types are supported!")
         return None
 

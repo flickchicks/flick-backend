@@ -41,6 +41,7 @@ class flicktmdb:
             "episodes": result.get("number_of_episodes"),
             "status": result.get("status"),
             "tagline": result.get("tagline"),
+            "imdb_id": result.get("imdb_id"),
             "title": result.get("name" if is_tv else "title"),
         }
 

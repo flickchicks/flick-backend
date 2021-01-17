@@ -12,6 +12,7 @@ from django.conf import settings
 from imdb import IMDb
 from PIL import Image
 from provider.models import Provider
+from show.animelist import flickanimelist
 from show.models import Show
 from show.tmdb import flicktmdb
 from tag.models import Tag
@@ -85,14 +86,14 @@ def populate_show_details(show_id):
     if not show:
         return
     show = Show.objects.get(id=show_id)
-    if show.ext_api_source == "animelist":
-        return
     imdb_api = IMDb()
     info = None
-    if show.is_tv:
+    if show.ext_api_source == "tmdb" and show.is_tv is True:
         info = flicktmdb().get_show(show.ext_api_id, is_tv=True)
-    else:
+    elif show.ext_api_source == "tmdb" and show.is_tv is False:
         info = flicktmdb().get_show(show.ext_api_id, is_tv=False)
+    elif show.ext_api_source == "animelist":
+        info = flickanimelist().get_anime(show.ext_api_id)
     if not info:
         return
     show.cast = info.get("cast")
@@ -100,14 +101,22 @@ def populate_show_details(show_id):
     show.duration = info.get("duration")
     show.seasons = info.get("seasons")
     show.status = info.get("status")
-    if info.get("ext_api_genres"):
+    show.episodes = info.get("episodes")
+    show.date_released = info.get("date_released")
+    show.animelist_rating = info.get("animelist_rating")
+    show.animelist_rank = info.get("animelist_rank")
+    show.save()
+
+    if info.get("ext_api_genres") and show.ext_api_source == "tmdb":
         for tag in info.get("ext_api_genres"):
             try:
                 show.tags.create(
-                    name=tag.get("name"), ext_api_genre_id=tag.get("id"), ext_api_source=info.get("ext_api_source")
+                    name=tag.get("name") or tag,
+                    ext_api_genre_id=tag.get("id"),
+                    ext_api_source=info.get("ext_api_source"),
                 )
             except:
-                show.tags.add(Tag.objects.get(name=tag.get("name")))
+                show.tags.add(Tag.objects.get(name=tag.get("name") or tag))
     if info.get("providers"):
         for provider in info.get("providers"):
             try:
