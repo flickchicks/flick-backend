@@ -54,17 +54,13 @@ class Search(APIView):
 
     def get_shows_by_query(self, query, is_movie, is_tv, is_multi, is_anime, page=1, tags=[]):
         if is_multi:
-            print("Is multi")
             self.get_shows_by_type_and_query(query, "multi", "tmdb", page, tags)
             return
         if is_movie:
-            print("is movie")
             self.get_shows_by_type_and_query(query, "movie", "tmdb", page, tags)
         if is_tv:
-            print("is tv")
             self.get_shows_by_type_and_query(query, "tv", "tmdb", page, tags)
         if is_anime:
-            print("is anime")
             self.get_shows_by_type_and_query(query, "anime", "animelist")
 
     def get_users_by_username(self, query):
@@ -93,7 +89,6 @@ class Search(APIView):
         is_lst = bool(request.query_params.get("is_lst", False))
         is_tag = bool(request.query_params.get("is_tag", False))
         is_multi = bool(request.query_params.get("is_multi", False))
-        print("is_multi", is_multi)
 
         self.shows = []
         self.known_shows = []
