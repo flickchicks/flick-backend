@@ -96,6 +96,8 @@ class ShowAPI:
             return flicktmdb().search_show(query=name, page=page, tags=tags, is_tv=False)
         elif show_type == "tv":
             return flicktmdb().search_show(query=name, page=page, tags=tags, is_tv=True)
+        elif show_type == "multi":
+            return flicktmdb().search_general_show(query=name, page=page, tags=tags)
         if show_type == "anime":
             return AnimeList_API().search_anime_by_name(name=name, page=page)
         return None
