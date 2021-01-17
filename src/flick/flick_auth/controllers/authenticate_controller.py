@@ -132,7 +132,9 @@ class AuthenticateController:
         return success_response(self._serializer(user, context={"auth_token": auth_token}).data)
 
     def register(self):
-        if self._check_token(self._social_id, self._social_id_token, self._social_id_token_type):
+        if settings.VALIDATE_SOCIAL_TOKEN and not self._check_token(
+            self._social_id, self._social_id_token, self._social_id_token_type
+        ):
             return failure_response(
                 f"social_id_token of {self._social_id_token} is invalid or does not match with social_id of {self._social_id}."
             )
