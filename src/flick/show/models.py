@@ -27,6 +27,7 @@ class Show(models.Model):
     imdb_rating = models.IntegerField(blank=True, null=True)
     tomato_rating = models.CharField(max_length=10, blank=True, null=True)
     animelist_rating = models.IntegerField(blank=True, null=True)
+    animelist_rank = models.IntegerField(blank=True, null=True)
     keywords = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
