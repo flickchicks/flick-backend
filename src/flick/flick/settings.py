@@ -38,7 +38,7 @@ VALIDATE_SOCIAL_TOKEN = False
 # URL for validate Facebook Token
 VALIDATE_FACEBOOK_TOKEN_URL = "https://graph.facebook.com/me"
 VALIDATE_FACEBOOK_ID_AND_TOKEN_URL = "https://graph.facebook.com/me?fields=id&access_token="
-VALIDATE_APPLE_OKEN_URL = "https://appleid.apple.com/auth/token"
+VALIDATE_APPLE_TOKEN_URL = "https://appleid.apple.com/auth/token"
 
 # 'DJANGO_ALLOWED_HOSTS' should be a single string of hosts with a space between each.
 # For example: 'DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]'

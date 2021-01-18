@@ -6,13 +6,8 @@ import jwt
 import requests
 
 
-class AppleAuth:
-    """apple authentication backend"""
-
-    name = "apple"
-    ACCESS_TOKEN_URL = "https://appleid.apple.com/auth/token"
-    SCOPE_SEPARATOR = ","
-    ID_KEY = "uid"
+class AppleAuthController:
+    """Apple authentication backend"""
 
     def retreive_token(self, access_token):
         """
@@ -30,11 +25,14 @@ class AppleAuth:
             "grant_type": "authorization_code",
         }
 
-        res = requests.post(AppleAuth.ACCESS_TOKEN_URL, data=data, headers=headers)
+        res = requests.post(settings.VALIDATE_APPLE_TOKEN_URL, data=data, headers=headers)
         print(res.content)
         response_dict = res.json()
         id_token = response_dict.get("id_token", None)
 
+        """
+        This section is used to retrieve information from the token apple returns, and is temporarily commented out
+        """
         # if id_token:
         # decoded = jwt.decode(id_token, "", verify=False, algorithms="")
         # print(f"decoded{decoded}")
@@ -52,7 +50,6 @@ class AppleAuth:
             "aud": "https://appleid.apple.com",
             "sub": settings.APPLE_BUNDLE_ID,
         }
-        # print(settings.APPLE_PRIVATE_KEY.replace(r'\n', "\n"))
-        client_secret = jwt.encode(payload, settings.APPLE_PRIVATE_KEY, algorithm="ES256", headers=headers)
 
+        client_secret = jwt.encode(payload, settings.APPLE_PRIVATE_KEY, algorithm="ES256", headers=headers)
         return settings.APPLE_BUNDLE_ID, client_secret

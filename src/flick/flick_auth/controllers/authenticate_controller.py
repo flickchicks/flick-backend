@@ -12,7 +12,7 @@ from lst.models import Lst
 import requests
 from rest_framework.authtoken.models import Token
 
-from .appleOAuth import AppleAuth
+from .apple_oauth import AppleAuthController
 
 
 class AuthenticateController:
@@ -92,8 +92,8 @@ class AuthenticateController:
         return True
 
     def _check_apple_token(self, access_code, token):
-        appleAuth_controller = AppleAuth()
-        res = appleAuth_controller.retreive_token(access_code)
+        apple_auth_controller = AppleAuthController()
+        res = apple_auth_controller.retreive_token(access_code)
         return res
 
     def _check_token(self, social_id, social_token, type):
