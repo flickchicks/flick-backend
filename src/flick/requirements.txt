@@ -107,3 +107,4 @@ Werkzeug==1.0.1
 wordnet==0.0.1b2
 yarl==1.4.2
 zipp==3.0.0
+mal-api==0.3.7

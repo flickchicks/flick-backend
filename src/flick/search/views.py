@@ -52,7 +52,10 @@ class Search(APIView):
             local_cache.set((query, show_type, tags), shows)
         self.shows.extend(shows)
 
-    def get_shows_by_query(self, query, is_movie, is_tv, is_anime, page=1, tags=[]):
+    def get_shows_by_query(self, query, is_movie, is_tv, is_multi, is_anime, page=1, tags=[]):
+        if is_multi:
+            self.get_shows_by_type_and_query(query, "multi", "tmdb", page, tags)
+            return
         if is_movie:
             self.get_shows_by_type_and_query(query, "movie", "tmdb", page, tags)
         if is_tv:
@@ -85,6 +88,7 @@ class Search(APIView):
         is_user = bool(request.query_params.get("is_user", False))
         is_lst = bool(request.query_params.get("is_lst", False))
         is_tag = bool(request.query_params.get("is_tag", False))
+        is_multi = bool(request.query_params.get("is_multi", False))
 
         self.shows = []
         self.known_shows = []
@@ -96,7 +100,7 @@ class Search(APIView):
         elif is_tag:
             return success_response_with_query(query=query, data=self.get_tags_by_name(query))
         else:
-            self.get_shows_by_query(query, is_movie, is_tv, is_anime, page, tags)
+            self.get_shows_by_query(query, is_movie, is_tv, is_multi, is_anime, page, tags)
 
         serializer_data = []
         serializer_data.extend(ShowAPI.create_show_objects(self.shows))

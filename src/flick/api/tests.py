@@ -12,7 +12,7 @@ from rest_framework.test import APIClient
 
 class FlickTestCase(TestCase):
     AUTHENTICATE_URL = reverse("authenticate")
-    NAME = "Alanna Zhou"
+    NAME = "alanna zhou"
 
     def get_random_str(self):
         letters = string.digits
@@ -54,7 +54,7 @@ class FlickTestCase(TestCase):
 
 class FlickTransactionTestCase(TransactionTestCase):
     AUTHENTICATE_URL = reverse("authenticate")
-    NAME = "Alanna Zhou"
+    NAME = "alanna zhou"
 
     def get_random_str(self):
         letters = string.digits

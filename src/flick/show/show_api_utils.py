@@ -1,6 +1,7 @@
 from flick.tasks import populate_show_details
 import tmdbsimple as tmdb
 
+from .animelist import flickanimelist
 from .animelist_api_utils import AnimeList_API
 from .models import Show
 from .serializers import ShowSearchSerializer
@@ -96,8 +97,10 @@ class ShowAPI:
             return flicktmdb().search_show(query=name, page=page, tags=tags, is_tv=False)
         elif show_type == "tv":
             return flicktmdb().search_show(query=name, page=page, tags=tags, is_tv=True)
+        elif show_type == "multi":
+            return flicktmdb().search_general_show(query=name, page=page, tags=tags)
         if show_type == "anime":
-            return AnimeList_API().search_anime_by_name(name=name, page=page)
+            return flickanimelist().search_anime(query=name)
         return None
 
     @staticmethod
@@ -107,7 +110,7 @@ class ShowAPI:
         elif show_type == "tv":
             return flicktmdb().get_show(tmdb_id=id, is_tv=True)
         elif show_type == "anime":
-            return AnimeList_API().get_anime_info_from_id(id)
+            return flickanimelist().get_anime(animelist_id=id)
         print("Only movie, tv, and anime show types are supported!")
         return None
 

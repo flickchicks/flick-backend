@@ -9,7 +9,7 @@ class CheckUsernameController:
         self._data = data
 
     def process(self):
-        username = self._data.get("username")
+        username = self._data.get("username").lower() if self._data.get("username") else ""
         if len(username) > 30:
             return failure_response("Username must be 30 characters or less.")
         if len(username) < 3:

@@ -24,7 +24,7 @@ class AuthenticateController:
         self._data = data
         self._serializer = serializer
         self._name = data.get("name")
-        self._username = data.get("username")
+        self._username = data.get("username").lower() if data.get("username") else None
         self._email = data.get("email")
         self._profile_pic = self._data.get("profile_pic")
         self._social_id = self._data.get("social_id")
@@ -53,7 +53,7 @@ class AuthenticateController:
         return None
 
     def _generate_username(self):
-        username = self._name.replace(" ", "")
+        username = self._name.replace(" ", "").lower()
         user_exists = User.objects.filter(username=username)
         if not user_exists:
             return username

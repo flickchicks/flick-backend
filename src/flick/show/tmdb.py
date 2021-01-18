@@ -38,9 +38,11 @@ class flicktmdb:
             "poster_pic": settings.TMDB_BASE_IMAGE_URL + poster_path if poster_path else None,
             "providers": providers,
             "seasons": result.get("number_of_seasons"),
+            "episodes": result.get("number_of_episodes"),
             "status": result.get("status"),
             "tagline": result.get("tagline"),
-            "title": result.get("original_name" if is_tv else "original_title"),
+            "imdb_id": result.get("imdb_id"),
+            "title": result.get("name" if is_tv else "title"),
         }
 
     def get_credits(self, tmdb_id, is_tv=False):
@@ -116,7 +118,38 @@ class flicktmdb:
                 "language": result.get("original_language"),
                 "plot": result.get("overview"),
                 "poster_pic": settings.TMDB_BASE_IMAGE_URL + poster_path if poster_path else None,
-                "title": result.get("original_name" if is_tv else "original_title"),
+                "title": result.get("name" if is_tv else "title"),
+            }
+            shows.append(show)
+        return shows
+
+    def search_general_show(self, query, page=1, tags=[]):
+        """Includes movies and tv."""
+        url = f"{settings.TMDB_BASE_URL}/search/multi?query={query}&page={page}&api_key={settings.TMDB_API_KEY}"
+        r = requests.get(url)
+        if r.status_code != 200:
+            return []
+        results = json.loads(r.content).get("results")
+        shows = []
+        for result in results:
+            if result.get("media_type") not in ["tv", "movie"]:
+                continue
+            if not set(tags).issubset(set(result.get("genre_ids"))):
+                continue
+            backdrop_path = result.get("backdrop_path")
+            poster_path = result.get("poster_path")
+            is_tv = True if result.get("media_type") == "tv" else False
+            show = {
+                "backdrop_pic": settings.TMDB_BASE_IMAGE_URL + backdrop_path if backdrop_path else None,
+                "date_released": result.get("first_air_date" if is_tv else "release_date"),
+                "ext_api_id": result.get("id"),
+                "ext_api_source": "tmdb",
+                "is_adult": result.get("adult"),
+                "is_tv": is_tv,
+                "language": result.get("original_language"),
+                "plot": result.get("overview"),
+                "poster_pic": settings.TMDB_BASE_IMAGE_URL + poster_path if poster_path else None,
+                "title": result.get("name" if is_tv else "title"),
             }
             shows.append(show)
         return shows
