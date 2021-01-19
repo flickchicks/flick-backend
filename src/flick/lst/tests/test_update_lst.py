@@ -18,6 +18,7 @@ class UpdateLstTests(FlickTestCase):
     ADD_TO_LST_URL = reverse("lst-detail-add", kwargs={"pk": LST_ID})
     REMOVE_FROM_LST_URL = reverse("lst-detail-remove", kwargs={"pk": LST_ID})
     OLD_LST_NAME = "Alanna's Kdramas"
+    LST_DESCR = "Hello this is a random descr"
 
     def setUp(self):
         self.client = APIClient()
@@ -60,6 +61,7 @@ class UpdateLstTests(FlickTestCase):
         request_data = {
             "name": self.OLD_LST_NAME,
             "is_private": False,
+            "description": self.LST_DESCR,
             "collaborators": collaborators,
             "shows": shows,
             "tags": [],
@@ -68,6 +70,7 @@ class UpdateLstTests(FlickTestCase):
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)["data"]
         self.assertEqual(data["is_private"], False)
+        self.assertEqual(data["description"], self.LST_DESCR)
         self.assertEqual(len(data["collaborators"]), len(collaborators))
         self.assertEqual(len(data["tags"]), 0)
         self.assertEqual(len(data["shows"]), len(shows))
@@ -78,6 +81,7 @@ class UpdateLstTests(FlickTestCase):
         self,
         token=None,
         name="",
+        description="",
         is_private=False,
         collaborators=[],
         shows=[],
@@ -91,6 +95,7 @@ class UpdateLstTests(FlickTestCase):
         request_data = {
             "name": name,
             "is_private": is_private,
+            "description": description,
             "collaborators": collaborators,
             "shows": shows,
             "tags": tags,
@@ -124,11 +129,15 @@ class UpdateLstTests(FlickTestCase):
         show_ids = self._get_created_show_ids(num_shows=2)
         tag_ids = self._get_created_tag_ids(num_tags=2)
         name = "Updated kdramaz"
+        descr = "updated descr"
         is_private = True
-        data = self._update_list(name=name, is_private=is_private, collaborators=[2], shows=show_ids, tags=tag_ids)
+        data = self._update_list(
+            name=name, is_private=is_private, description=descr, collaborators=[2], shows=show_ids, tags=tag_ids
+        )
         self.assertEqual(data["id"], self.LST_ID)
         self.assertEqual(data["name"], name)
         self.assertEqual(data["is_private"], is_private)
+        self.assertEqual(data["description"], descr)
         # regular list update does not allow list-type fields to be modified!
         self.assertEqual(len(data["collaborators"]), 0)
         self.assertEqual(len(data["shows"]), 0)
@@ -232,23 +241,38 @@ class UpdateLstTests(FlickTestCase):
         show_ids = self._get_created_show_ids(num_shows=2)
         tag_ids = self._get_created_tag_ids(num_tags=2)
         name = "Updated kdramaz"
+        descr = "updated descr"
         is_private = True
         data = self._update_list(
-            name=name, is_private=is_private, collaborators=[2], shows=show_ids, tags=tag_ids, is_add=True
+            name=name,
+            is_private=is_private,
+            description=descr,
+            collaborators=[2],
+            shows=show_ids,
+            tags=tag_ids,
+            is_add=True,
         )
         self.assertEqual(data["id"], self.LST_ID)
         self.assertEqual(data["name"], name)
         self.assertEqual(data["is_private"], is_private)
+        self.assertEqual(data["description"], descr)
         self.assertEqual(len(data["collaborators"]), 1)
         self.assertEqual(len(data["shows"]), 2)
         self.assertEqual(len(data["tags"]), 2)
 
         data = self._update_list(
-            name=name, is_private=is_private, collaborators=[2], shows=show_ids, tags=tag_ids, is_remove=True
+            name=name,
+            is_private=is_private,
+            description=descr,
+            collaborators=[2],
+            shows=show_ids,
+            tags=tag_ids,
+            is_remove=True,
         )
         self.assertEqual(data["id"], self.LST_ID)
         self.assertEqual(data["name"], name)
         self.assertEqual(data["is_private"], is_private)
+        self.assertEqual(data["description"], descr)
         self.assertEqual(len(data["collaborators"]), 0)
         self.assertEqual(len(data["shows"]), 0)
         self.assertEqual(len(data["tags"]), 0)

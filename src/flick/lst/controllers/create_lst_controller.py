@@ -28,6 +28,7 @@ class CreateLstController:
     def process(self):
         name = self._data.get("name")
         pic = self._data.get("pic")
+        description = self._data.get("description")
         is_private = self._data.get("is_private", False)
         collaborator_ids = self._data.get("collaborators", [])
         show_ids = self._data.get("shows", [])
@@ -36,6 +37,7 @@ class CreateLstController:
         lst = Lst()
         lst.name = name
         lst.pic = pic
+        lst.description = description
         lst.is_private = is_private
         self._profile = Profile.objects.get(user=self._request.user)
         lst.owner = self._profile
