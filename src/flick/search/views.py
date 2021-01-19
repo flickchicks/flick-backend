@@ -64,7 +64,8 @@ class Search(APIView):
             self.get_shows_by_type_and_query(query, "anime", "animelist")
 
     def get_users_by_username(self, query):
-        users = User.objects.filter(Q(username__icontains=query) & Q(is_superuser=False))
+        non_superusers = User.objects.filter(Q(is_superuser=False))
+        users = non_superusers.filter(Q(first_name__icontains=query) | Q(username__icontains=query))
         serializer = UserSimpleSerializer(instance=users, many=True, context={"request": self.request})
         return serializer.data
 
