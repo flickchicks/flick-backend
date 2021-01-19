@@ -14,7 +14,6 @@ class AppleAuthController:
         Finish the auth process once the access_token was retrieved
         Get the email from ID token received from apple
         """
-        # response_data = {}
         client_id, client_secret = self.get_key_and_secret()
 
         headers = {"content-type": "application/x-www-form-urlencoded"}
@@ -28,11 +27,12 @@ class AppleAuthController:
         res = requests.post(settings.VALIDATE_APPLE_TOKEN_URL, data=data, headers=headers)
         print(res.content)
         response_dict = res.json()
-        id_token = response_dict.get("id_token", None)
+        id_token = response_dict.get("id_token")
 
         """
         This section is used to retrieve information from the token apple returns, and is temporarily commented out
         """
+        # response_data = {}
         # if id_token:
         # decoded = jwt.decode(id_token, "", verify=False, algorithms="")
         # print(f"decoded{decoded}")
