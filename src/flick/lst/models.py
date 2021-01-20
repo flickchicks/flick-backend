@@ -16,7 +16,7 @@ class Lst(models.Model):
     owner = models.ForeignKey(Profile, related_name="owner_lsts", on_delete=models.CASCADE)
     shows = models.ManyToManyField(Show, blank=True)
     custom_tags = models.ManyToManyField(Tag, related_name="lsts", blank=True)
-    description = models.CharField(max_length=150, blank=True, null=True)
+    description = models.CharField(max_length=150, default="", blank=True, null=True)
 
     @property
     def tags(self):
