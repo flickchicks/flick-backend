@@ -1,103 +1,115 @@
 # flick-backend
+
 Backend for flick app that handles users, lists, and movies.
 
-# Setup Virtual Environment
-If running for the first time, run where `manage.py` is:
+## Install
+
 ```
-virtualenv venv
-. venv/bin/activate
-pip3 install -r requirements.txt
+git clone https://github.com/flickchicks/flick-backend.git
+cd flick-backend
 ```
 
-# Setup Environment Variables 
-## .env With Slack
-There is a `.env` file pinned in the backend channel of the Slack, and you
-must put this file in the project.
+## Environment Variables
 
-## .env Manually
-For devs other than those on the Flick team, here is how you can set the
-environment variables up.
+If you are a developer on on the team, there is a `.env` file pinned in the
+backend channel of the Slack, and you can put this file where `manage.py` is.
+For other developers you can create your own `.env` file by copying the template:
 
-Make sure to create your own `.env` file by running:
 ```
 cp env.template .env
 ```
 
-## .aws 
-Make sure to create your own `.aws` credentials folder in your home directory 
-(your computer's home directory, not in this project!), with two files 
-`credentials` and `config` in them:
+## Run
 
-`~/.aws/credentials`:
-```
-[default]
-aws_access_key_id=<YOUR_ACCESS_KEY_ID>
-aws_secret_access_key=<YOUR_SECRET_ACCESS_KEY>
-```
-`~/.aws/config`:
-```
-[default]
-region=us-west-1
-```
-The access key ID and secret access key can be found in the "Security 
-Credentials" section of your AWS account (or, find it pinned in our backend
-slack channel!)
+Because this is a Django, RabbitMQ, Celery, PostgreSQL application, the backend
+is containerized and orchestrated with [Docker](https://www.docker.com/get-started)
+and Docker Swarm. Before we start, download [Docker](https://docs.docker.com/get-docker/)
+and [Docker Compose](https://docs.docker.com/compose/install/).
 
-# Setup Django
-```
-python manage.py makemigrations
-python manage.py migrate
-```
-The development database file, sqlite3.db, should appear with the migrated models.
+Depending on if you are running in development mode or production mode, update
+`.env` with `DEBUG=1` for the former and `DEBUG=0` for the latter.
+Note that production mode will include things like checking against Facebook
+tokens, which will make it difficult to use in development.
 
-To access Django admin, you will have to create an "account" for yourself as 
-an administrator, so use this command and follow the prompts:
+You may encounter an error with a celery worker exiting out with 137 error code.
+This simply means that there is a memory cap on the Docker settings on your
+computer, and you can update increase this in Docker > Preferences > Advanced > Memory.
+You may also need to increase the Swap size.
+
+### Compose
+
+The app can be run in development mode using Django's built in web server with
+
 ```
-python manage.py createsuperuser
+docker-compose up
 ```
 
-# Setup Celery & Redis
-To help us manage asynchronous tasks, we use a Celery, and as a result, use
-Redis as our cache for saving those future tasks. 
+or
 
-Ensure you have Redis installed and that your server is running:
 ```
-brew install redis
-brew services start redis
-```
-Open the Redis server:
-```
-redis_server
-```
-or if that doesn't work,
-```
-redis-server
-```
-Now, try pinging the server
-```
-redis-cli ping
-```
-You should get `PONG` back!
-
-Start the celery worker:
-```
-celery -A flick worker -l info
-```
-Now you should be able to run the backend with asynchronous tasks!
-Our current use case with this is to upload images while we send the AWS S3
-urls to the client.
-
-
-# Run
-To run the Django backend, run where `manage.py` is:
-```
-python manage.py runserver
+docker-compose up --build
 ```
 
-# Style
+To remove all containers in the cluster use
+
+```
+docker-compose down
+```
+
+To run the app in production mode, using gunicorn as a web server and nginx as a proxy, use
+
+```
+docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml up
+docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml down
+```
+
+You can check running containers with
+
+```
+docker ps
+```
+
+And you can completely clear cached Docker images with
+
+```
+docker system prune -a
+```
+
+### Swarm
+
+We can also use the same `docker-compose.yaml` files to run the services using
+Docker Swarm, which enables the creation of multi-container clusters running in
+a multi-host environment with inter-service communication across hosts via overlay
+networks.
+
+```
+docker swarm init --advertise-addr 127.0.0.1:2377
+docker stack deploy -c docker-compose.yaml -c docker-compose.prod.yaml proj
+
+```
+
+It should be noted that the app will not be accessible via `localhost` in Chrome/Chromium.
+Instead use `127.0.0.1` in Chrome/Chromium.
+
+To bring down the project or stack and remove the host from the swarm
+
+```
+docker stack rm proj
+docker swarm leave --force
+
+```
+
+## Description
+
+The setup here defines distinct development and production environments for the app.
+Running the app using Django's built in web server with `DEBUG=True` allows for
+quick and easy development; however, relying on Django's web server in a production
+environment is discouraged in the Django docs for security reasons. Additionally,
+serving large files in production should be handled by a proxy such as nginx to
+prevent the app from blocking.
+
+## Style
+
 The `requirements.txt` already includes the pre-commit formatting, so making
-commits in your virtual environment will ensure that your code is formatted 
+commits in your virtual environment will ensure that your code is formatted
 by [black](https://github.com/psf/black) standards.
-
-# API Spec
-You can check out the work in progress [API spec here](https://stoplight.io/p/studio/gh/alanna-zhou/flick-backend)!
