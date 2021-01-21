@@ -40,7 +40,6 @@ identify==1.4.11
 idna==2.8
 IMDbPY==6.8
 importlib-metadata==1.5.0
-ipython-genutils==0.2.0
 itsdangerous==0.24
 jedi==0.17.2
 jikanpy==4.1.0
@@ -72,7 +71,6 @@ python-decouple==3.3
 python3-openid==3.1.0
 pytz==2020.1
 PyYAML==5.3
-# pyzmq==21.0.1
 redis==3.5.2
 regex==2020.4.4
 requests==2.23.0
