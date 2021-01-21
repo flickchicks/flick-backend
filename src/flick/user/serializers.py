@@ -51,9 +51,9 @@ class ProfileSerializer(serializers.ModelSerializer):
     collab_lsts = MeLstSerializer(many=True)
     user_friends = serializers.SerializerMethodField("get_friend_profiles")
 
-    def get_friend_profiles(self, profile):
+    def get_friends_profiles(self, profile):
         friends = [User.objects.get(id=friend.id) for friend in Friend.objects.friends(user=profile.user)]
-        return FriendUserSerializer(friends, many=True).data
+        return FriendUserSerializer(friends[:7], many=True).data
 
     class Meta:
         model = Profile
