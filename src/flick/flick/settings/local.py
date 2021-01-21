@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     # own
+    "asset",
     "api",
     "comment",
     "friend",
@@ -157,6 +158,9 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATIC_ROOT = "/static"
+
+S3_BUCKET = "flick"
+S3_BASE_URL = f"https://{S3_BUCKET}.s3-us-west-1.amazonaws.com/"
 
 # Celery config
 CELERY_BROKER_URL = "pyamqp://rabbitmq:5672"
