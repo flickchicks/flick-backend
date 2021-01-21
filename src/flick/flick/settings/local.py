@@ -26,10 +26,10 @@ SECRET_KEY = "=#+sttn&auyxnqins-zvm@eql6s9z+riv*@5ipyw)5z1oszzvg"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+PRODUCTION = False
 
 ALLOWED_HOSTS = config("DJANGO_ALLOWED_HOSTS").split(" ")
 
-PRODUCTION = False
 
 # Application definition
 
@@ -174,6 +174,11 @@ TMDB_BASE_IMAGE_URL = "http://image.tmdb.org/t/p/w400"
 VALIDATE_SOCIAL_TOKEN = False
 VALIDATE_FACEBOOK_TOKEN_URL = "https://graph.facebook.com/me"
 VALIDATE_FACEBOOK_ID_AND_TOKEN_URL = "https://graph.facebook.com/me?fields=id&access_token="
+APPLE_KEY_ID = config("APPLE_KEY_ID")
+APPLE_TEAM_ID = config("APPLE_TEAM_ID")
+APPLE_BUNDLE_ID = config("APPLE_BUNDLE_ID")
+APPLE_PRIVATE_KEY = config("APPLE_PRIVATE_KEY")
+VALIDATE_APPLE_TOKEN_URL = "https://appleid.apple.com/auth/token"
 
 # Testing
 TEST_RUNNER = "django_slowtests.testrunner.DiscoverSlowestTestsRunner"
@@ -194,3 +199,7 @@ CACHES = {
         "NAME": "optional-name",
     },
 }
+
+# read in the APPLE_PRIVATE_KEY
+with open("apple_private.p8", mode="rb") as key_file:
+    APPLE_PRIVATE_KEY = key_file.read()

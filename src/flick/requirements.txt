@@ -14,6 +14,7 @@ click==7.1.2
 click-didyoumean==0.0.3
 click-plugins==1.1.1
 click-repl==0.1.6
+cryptography==3.1
 distlib==0.3.1
 Django==3.1.5
 boto3==1.13.16
@@ -40,6 +41,7 @@ nodeenv==1.5.0
 pre-commit==2.9.3
 prompt-toolkit==3.0.11
 psycopg2-binary==2.8.6
+PyJWT==2.0.0
 python-crontab==2.5.1
 python-dateutil==2.8.1
 pytz==2020.5
