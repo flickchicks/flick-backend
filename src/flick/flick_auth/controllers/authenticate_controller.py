@@ -12,6 +12,8 @@ from lst.models import Lst
 import requests
 from rest_framework.authtoken.models import Token
 
+from .apple_oauth import AppleAuthController
+
 
 class AuthenticateController:
     PASSWORD_SALT = auth_settings.AUTH_PASSWORD_SALT
@@ -76,7 +78,7 @@ class AuthenticateController:
         profile.save()
         return profile
 
-    def _check_token(self, social_id, token, type="facebook"):
+    def _check_facebook_token(self, social_id, token):
         """
         Check if the token is valid, right now only supports facebook token.
         """
@@ -88,6 +90,17 @@ class AuthenticateController:
             data = requests.get(url=url).json()
             return not data.get("error") and data.get("id") == social_id
         return True
+
+    def _check_apple_token(self, access_code, token):
+        apple_auth_controller = AppleAuthController()
+        res = apple_auth_controller.retreive_token(access_code)
+        return res
+
+    def _check_token(self, social_id, social_token, type):
+        if type == "apple":
+            return self._check_apple_token(social_token, social_id)
+        if type == "facebook":
+            return self._check_facebook_token(social_id, social_token)
 
     def process(self):
         response = self.login()
@@ -108,7 +121,7 @@ class AuthenticateController:
         if not user_exists_with_social_id_token:
             # token might have expired, let's see if the social_id_token is correct
             # if so, we update their "password"
-            if self._check_token(self._social_id, self._social_id_token):
+            if self._check_token(self._social_id, self._social_id_token, self._social_id_token_type):
                 user.set_password(self._social_id_token)
             else:
                 return failure_response(
@@ -119,7 +132,9 @@ class AuthenticateController:
         return success_response(self._serializer(user, context={"auth_token": auth_token}).data)
 
     def register(self):
-        if not self._check_token(self._social_id, self._social_id_token):
+        if settings.VALIDATE_SOCIAL_TOKEN and not self._check_token(
+            self._social_id, self._social_id_token, self._social_id_token_type
+        ):
             return failure_response(
                 f"social_id_token of {self._social_id_token} is invalid or does not match with social_id of {self._social_id}."
             )
