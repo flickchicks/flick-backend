@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # 'django_celery_beat',
+    "celery",
     "django_celery_results",
     "friendship",
     "rest_framework",
@@ -165,6 +166,10 @@ S3_BASE_URL = f"https://{S3_BUCKET}.s3-us-west-1.amazonaws.com/"
 # Celery config
 CELERY_BROKER_URL = "pyamqp://rabbitmq:5672"
 CELERY_RESULT_BACKEND = "django-db"
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = TIME_ZONE
 # CELERY_BEAT_SCHEDULE = {
 #     'queue_every_five_mins': {
 #         'task': 'polls.tasks.query_every_five_mins',
