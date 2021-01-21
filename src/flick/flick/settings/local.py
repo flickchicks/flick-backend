@@ -40,13 +40,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # 'django_celery_beat',
     "celery",
     "django_celery_results",
     "friendship",
     "rest_framework",
     "rest_framework.authtoken",
-    # own
     "asset",
     "api",
     "comment",
@@ -62,16 +60,6 @@ INSTALLED_APPS = [
     "suggestion",
     "tag",
     "user",
-    # 'like.apps.LikeConfig',
-    # 'notification.apps.NotificationConfig',
-    # 'provider.apps.ProviderConfig',
-    # 'rating.apps.RatingConfig',
-    # 'read.apps.ReadConfig',
-    # 'search.apps.SearchConfig',
-    # 'show.apps.ShowConfig',
-    # 'suggestion.apps.SuggestionConfig',
-    # 'tag.apps.TagConfig',
-    # 'user.apps.UserConfig',
 ]
 
 MIDDLEWARE = [

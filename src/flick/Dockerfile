@@ -4,9 +4,6 @@ FROM python:3-alpine
 RUN apk update && apk add libpq
 RUN apk update && apk add --virtual .build-deps gcc build-base python3-dev musl-dev postgresql-dev 
 RUN apk update && apk add libxml2-dev libxslt-dev py-lxml
-# RUN python -m pip install --upgrade pip
-# RUN pip install --upgrade pip setuptools wheel && pip install --no-use-pep517 pyzmq
-
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
