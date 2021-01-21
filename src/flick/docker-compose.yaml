@@ -1,0 +1,76 @@
+version: "3.4"
+
+services:
+    rabbitmq:
+        container_name: rabbitmq
+        hostname: rabbitmq
+        image: rabbitmq:latest
+        networks:
+            - main
+        ports:
+            - "5672:5672"
+        restart: on-failure
+
+    postgres:
+        container_name: postgres
+        hostname: postgres
+        image: postgres:latest
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+            - POSTGRES_DB=postgres
+        networks:
+            - main
+        ports:
+            - "5432:5432"
+        restart: on-failure
+        volumes:
+            - postgresql-data:/var/lib/postgresql/data
+
+    app:
+        build: .
+        command: sh -c "wait-for postgres:5432 && python manage.py collectstatic --no-input && python manage.py migrate && gunicorn flick.wsgi -b 0.0.0.0:8000"
+        environment:
+            - DJANGO_SETTINGS_MODULE=flick.settings
+            - SECRET_KEY
+        container_name: app
+        depends_on:
+            - postgres
+            - rabbitmq
+        expose:
+            - "8000"
+        hostname: app
+        image: app-image
+        networks:
+            - main
+        restart: on-failure
+
+    celery_worker:
+        command: sh -c "wait-for rabbitmq:5672 && wait-for app:8000 -- celery -A flick worker -l info"
+        # container_name: celery_worker
+        depends_on:
+            - app
+            - postgres
+            - rabbitmq
+        deploy:
+            replicas: 2
+            restart_policy:
+                condition: on-failure
+            resources:
+                limits:
+                    cpus: "0.50"
+                    memory: 50M
+                reservations:
+                    cpus: "0.25"
+                    memory: 20M
+        hostname: celery_worker
+        image: app-image
+        networks:
+            - main
+        restart: on-failure
+
+networks:
+    main:
+
+volumes:
+    postgresql-data:
