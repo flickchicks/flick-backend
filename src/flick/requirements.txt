@@ -20,6 +20,7 @@ boto3==1.13.16
 botocore>=1.16.16
 django-celery-results==2.0.1
 django-friendship==1.9.1
+django-lrucache-backend==4.0.0
 django-rest-framework==0.1.0
 django-slowtests==1.1.1
 django-timezone-field==4.1.1
