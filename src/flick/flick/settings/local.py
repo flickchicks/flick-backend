@@ -160,12 +160,6 @@ CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
-# CELERY_BEAT_SCHEDULE = {
-#     'queue_every_five_mins': {
-#         'task': 'polls.tasks.query_every_five_mins',
-#         'schedule': crontab(minute=5),
-#     },
-# }
 
 # Third party APIs
 TMDB_API_KEY = os.environ.get("TMDB_API_KEY")

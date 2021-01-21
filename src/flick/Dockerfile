@@ -4,6 +4,15 @@ FROM python:3-alpine
 RUN apk update && apk add libpq
 RUN apk update && apk add --virtual .build-deps gcc build-base python3-dev musl-dev postgresql-dev 
 RUN apk update && apk add libxml2-dev libxslt-dev py-lxml
+RUN apk add --no-cache \
+        libressl-dev \
+        musl-dev \
+        libffi-dev && \
+    pip install --no-cache-dir cryptography==2.1.4 && \
+    apk del \
+        libressl-dev \
+        musl-dev \
+        libffi-dev
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app

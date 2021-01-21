@@ -17,6 +17,8 @@ If you are a developer on on the team, there is a `.env` file pinned in the back
 cp env.template .env
 ```
 
+Another file that you will need is an `apple_private.p8` RSA private key file, which we've pinned in the backend Slack channel. Put this in `flick-backend/src/flick` so that Apple Access Tokens can be verified.
+
 ## Run
 
 Because this is a Django, RabbitMQ, Celery, PostgreSQL application, the backend is containerized and orchestrated with [Docker](https://www.docker.com/get-started) and Docker Swarm. Before we start, download [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/).
