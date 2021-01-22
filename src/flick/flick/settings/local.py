@@ -22,11 +22,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "=#+sttn&auyxnqins-zvm@eql6s9z+riv*@5ipyw)5z1oszzvg"
+SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-PRODUCTION = False
 
 ALLOWED_HOSTS = config("DJANGO_ALLOWED_HOSTS").split(" ")
 
@@ -162,7 +161,7 @@ CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
 
 # Third party APIs
-TMDB_API_KEY = os.environ.get("TMDB_API_KEY")
+TMDB_API_KEY = config("TMDB_API_KEY")
 TMDB_BASE_URL = "https://api.themoviedb.org/3"
 TMDB_BASE_IMAGE_URL = "http://image.tmdb.org/t/p/w400"
 VALIDATE_SOCIAL_TOKEN = False
