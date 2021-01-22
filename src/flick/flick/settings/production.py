@@ -24,7 +24,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config("SECRET_KEY")
 
-DEBUG = False
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
 
 ALLOWED_HOSTS = config("DJANGO_ALLOWED_HOSTS").split(" ")
 
@@ -43,6 +44,7 @@ INSTALLED_APPS = [
     "friendship",
     "rest_framework",
     "rest_framework.authtoken",
+    "push_notifications",
     "asset",
     "api",
     "comment",
@@ -59,6 +61,12 @@ INSTALLED_APPS = [
     "tag",
     "user",
 ]
+
+PUSH_NOTIFICATIONS_SETTINGS = {
+    "FCM_API_KEY": config("FCM_API_KEY"),
+    "APNS_CERTIFICATE": config("APNS_CERTIFICATE"),
+    "APNS_TOPIC": config("APPLE_BUNDLE_ID"),
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -96,17 +104,19 @@ WSGI_APPLICATION = "flick.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "postgres",
-        "USER": "postgres",
-        "PASSWORD": "postgres",
-        "HOST": "postgres",
-        "PORT": "5432",
+if config("SQLITE3"):
+    DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": os.path.join(BASE_DIR, "db.sqlite3")}}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql_psycopg2",
+            "NAME": "postgres",
+            "USER": "postgres",
+            "PASSWORD": "postgres",
+            "HOST": "postgres",
+            "PORT": "5432",
+        }
     }
-}
 
 
 # Password validation
@@ -163,7 +173,7 @@ CELERY_TIMEZONE = TIME_ZONE
 TMDB_API_KEY = config("TMDB_API_KEY")
 TMDB_BASE_URL = "https://api.themoviedb.org/3"
 TMDB_BASE_IMAGE_URL = "http://image.tmdb.org/t/p/w400"
-VALIDATE_SOCIAL_TOKEN = True
+VALIDATE_SOCIAL_TOKEN = False
 VALIDATE_FACEBOOK_TOKEN_URL = "https://graph.facebook.com/me"
 VALIDATE_FACEBOOK_ID_AND_TOKEN_URL = "https://graph.facebook.com/me?fields=id&access_token="
 APPLE_KEY_ID = config("APPLE_KEY_ID")
