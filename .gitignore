@@ -2,7 +2,6 @@
 *.log
 *.pot
 *.pyc
-*.p8
 __pycache__
 db.sqlite3
 media
@@ -123,3 +122,9 @@ GitHub.sublime-settings
 !.vscode/launch.json 
 !.vscode/extensions.json 
 .history
+
+# Private keys
+*.p8
+*.p12
+*.pem
+*.cer
