@@ -27,6 +27,13 @@ Depending on if you are running in development mode or production mode, update `
 
 You may encounter an error with a celery worker exiting out with 137 error code. This simply means that there is a memory cap on the Docker settings on your computer, and you can update increase this in Docker > Preferences > Advanced > Memory. You may also need to increase the Swap size.
 
+You may also encounter migrations issues (likely once you make this transition from `db.sqlite3` to PostgreSQL), and you can run the following two commands to clear migrations in `flick-backend/src/flick`:
+
+```
+find . -path "*/migrations/*.py" -not -name "__init__.py" -delete
+find . -path "*/migrations/*.pyc"  -delete
+```
+
 ### Compose
 
 The app can be run in development mode using Django's built in web server with (not cached)
