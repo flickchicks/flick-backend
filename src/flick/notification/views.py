@@ -59,11 +59,11 @@ class NotificationTest(generics.GenericAPIView):
         if device_type == "ios":
             device = APNSDevice.objects.create(registration_id=device_token, user=request.user)
             device.send_message(message={"title": "Test Flick APNS Notification", "body": "Success!"})
-            return success_response("Should have recieved a notification with title 'Test Flick Notification'")
+            return success_response("Should have received a notification with title 'Test Flick Notification'")
         if device_type == "android":
             device = GCMDevice.objects.create(registration_id=device_token, cloud_message_type="FCM", user=request.user)
             device.send_message(message={"title": "Test Flick FCM Notification", "body": "Success!"})
-            return success_response("Should have recieved a notification with title 'Test Flick Notification'")
+            return success_response("Should have received a notification with title 'Test Flick Notification'")
         return failure_response("Could not send a notification.")
 
 
