@@ -17,7 +17,7 @@ If you are a developer on on the team, there is a `.env` file pinned in the back
 cp env.template .env
 ```
 
-Another file that you will need is an `apple_private.p8` RSA private key file, which we've pinned in the backend Slack channel. Put this in `flick-backend/src/flick` so that Apple Access Tokens can be verified.
+You will also need the private key files `apple_private.p8` (verify Apple Access Tokens during authentication) and `aps.pem` (connect with APNS to send push notifications to iOS devices) which we've pinned in the backend Slack channel. Put these in `flick-backend/src/flick` so that the settings can be properly onfigured.
 
 ## Run
 
