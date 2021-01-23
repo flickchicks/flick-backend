@@ -1,6 +1,7 @@
 import json
 
 from api.tests import FlickTransactionTestCase
+from django.test import tag
 from django.urls import reverse
 from rest_framework.test import APIClient
 
@@ -11,6 +12,7 @@ class DiscoverTests(FlickTransactionTestCase):
     def setUp(self):
         self.client = APIClient()
 
+    @tag("flakey")
     def test_search_show(self):
         response = self.client.get(self.DISCOVER_URL, format="json")
         content = json.loads(response.content)

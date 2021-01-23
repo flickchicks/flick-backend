@@ -2,6 +2,7 @@ import json
 
 from api.tests import FlickTestCase
 from django.contrib.auth.models import User
+from django.test import tag
 from django.urls import reverse
 from rest_framework.test import APIClient
 
@@ -22,6 +23,7 @@ class SearchUsersTests(FlickTestCase):
         self.friend3 = User.objects.get(id=4)
 
     # Known to fail when running `python manage.py test` likely due to concurrency
+    @tag("flakey")
     def test_search_user(self):
         self._create_friendship(user1=self.user, user2=self.friend1)
         self._create_friendship(user1=self.user, user2=self.friend2)

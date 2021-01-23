@@ -2,6 +2,7 @@ import json
 
 from api.tests import FlickTestCase
 from django.contrib.auth.models import User
+from django.test import tag
 from django.urls import reverse
 from rest_framework.test import APIClient
 
@@ -22,6 +23,8 @@ class UserFriendsTests(FlickTestCase):
     def _friend_list_url(self, id):
         return reverse("user-friend-list", kwargs={"pk": id})
 
+    # Known to fail when running `python manage.py test` likely due to concurrency
+    @tag("flakey")
     def test_user_sees_friends_of_friend1_and_friend2(self):
         self._create_friendship(User.objects.get(id=self.FRIEND1_ID), User.objects.get(id=self.FRIEND2_ID))
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
