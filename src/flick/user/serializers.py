@@ -2,6 +2,7 @@ from user.models import Profile
 
 from django.contrib.auth.models import User
 from django.db.models import Q
+from friend.serializers import FriendUserSerializer
 from friendship.models import Friend
 from lst.simple_serializers import MeLstSerializer
 from rest_framework import serializers
@@ -48,6 +49,11 @@ class ProfileSerializer(serializers.ModelSerializer):
     # profile_pic = AssetBundleDetailSerializer(source="profile_asset_bundle")
     owner_lsts = MeLstSerializer(many=True)
     collab_lsts = MeLstSerializer(many=True)
+    friends = serializers.SerializerMethodField("get_friends_profiles")
+
+    def get_friends_profiles(self, profile):
+        friends = [User.objects.get(id=friend.id) for friend in Friend.objects.friends(user=profile.user)]
+        return FriendUserSerializer(friends[:7], many=True).data
 
     class Meta:
         model = Profile
@@ -65,6 +71,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             "num_notifs",
             "owner_lsts",
             "collab_lsts",
+            "friends",
         )
         read_only_fields = fields
 
