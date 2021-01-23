@@ -90,21 +90,21 @@ class FriendAcceptListAndCreate(generics.ListCreateAPIView):
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
     def _create_incoming_friend_request_accepted_for_to_user(self, from_user, to_user):
-        from_user = Profile.objects.get(user=from_user)
-        to_user = Profile.objects.get(user=to_user)
+        from_profile = Profile.objects.get(user=from_user)
+        to_profile = Profile.objects.get(user=to_user)
         notif = Notification()
         notif.notif_type = "incoming_friend_request_accepted"
-        notif.from_user = from_user
-        notif.to_user = to_user
+        notif.from_user = from_profile
+        notif.to_user = to_profile
         notif.save()
 
     def _create_outgoing_friend_request_accepted_for_from_user(self, from_user, to_user):
-        from_user = Profile.objects.get(user=from_user)
-        to_user = Profile.objects.get(user=to_user)
+        from_profile = Profile.objects.get(user=from_user)
+        to_profile = Profile.objects.get(user=to_user)
         notif = Notification()
         notif.notif_type = "outgoing_friend_request_accepted"
-        notif.from_user = to_user
-        notif.to_user = from_user
+        notif.from_user = to_profile
+        notif.to_user = from_profile
         notif.save()
         ios_devices = APNSDevice.objects.filter(user=to_user, active=True)
         android_devices = GCMDevice.objects.filter(user=to_user, active=True)

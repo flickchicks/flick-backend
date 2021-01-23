@@ -51,6 +51,7 @@ class ListInviteNotificationTests(FlickTestCase):
     def _check_notification(self):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.friend_token)
         response = self.client.get(self.NOTIFICATIONS_URL)
+        data = json.loads(response.content)["data"]
         data = json.loads(response.content)["data"][0]
         self.assertEqual(data["notif_type"], "list_invite")
         self.assertEqual(data["from_user"]["id"], 1)

@@ -3,7 +3,6 @@ from user.models import Profile
 from api.utils import failure_response
 from api.utils import success_response
 from django.contrib.auth.models import User
-from django.db.models import Q
 from friendship.models import Friend
 from lst.models import Lst
 from notification.models import Notification
@@ -113,10 +112,10 @@ class UpdateLstController:
             return
         modified_collaborators = []
         for c_id in collaborator_ids:
-            if not (User.objects.filter(id=c_id) or Profile.objects.filter(user__id=c_id)):
+            if not User.objects.filter(id=c_id):
                 continue
             c = User.objects.get(id=c_id)
-            c_is_friend = Friend.objects.filter(Q(to_user=self._user, from_user=c) | Q(to_user=c, from_user=self._user))
+            c_is_friend = Friend.objects.are_friends(self._user, c)
             c = Profile.objects.get(user__id=c_id)
             if self._is_remove and c in self._old_collaborators:
                 self._lst.collaborators.remove(c)
