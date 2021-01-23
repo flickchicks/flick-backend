@@ -112,7 +112,7 @@ class UpdateLstController:
             return
         modified_collaborators = []
         for c_id in collaborator_ids:
-            if not User.objects.filter(id=c_id):
+            if not (User.objects.filter(id=c_id) or Profile.objects.filter(user__id=c_id)):
                 continue
             c = User.objects.get(id=c_id)
             c_is_friend = Friend.objects.are_friends(self._user, c)
