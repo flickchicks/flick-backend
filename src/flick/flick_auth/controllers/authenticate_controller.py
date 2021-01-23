@@ -78,29 +78,25 @@ class AuthenticateController:
         profile.save()
         return profile
 
-    def _check_facebook_token(self, social_id, token):
-        """
-        Check if the token is valid, right now only supports facebook token.
-        """
-        if not token:
-            return False
-        # only validate if VALIDATE_SOCIAL_TOKEN is turned on from settings, helps with easier development
-        if settings.VALIDATE_SOCIAL_TOKEN:
-            url = settings.VALIDATE_FACEBOOK_ID_AND_TOKEN_URL + token
-            data = requests.get(url=url).json()
-            return not data.get("error") and data.get("id") == social_id
-        return True
+    def _check_facebook_token(self, social_id, social_id_token):
+        url = settings.VALIDATE_FACEBOOK_ID_AND_TOKEN_URL + social_id_token
+        data = requests.get(url=url).json()
+        return not data.get("error") and data.get("id") == social_id
 
-    def _check_apple_token(self, access_code, token):
+    def _check_apple_token(self, social_id, social_id_token):
         apple_auth_controller = AppleAuthController()
-        res = apple_auth_controller.retreive_token(access_code)
-        return res
+        res = apple_auth_controller.retrieve_token(social_id_token)
+        return res is not None
 
-    def _check_token(self, social_id, social_token, type):
+    def _check_token(self, social_id, social_id_token, type):
+        if social_id is None or social_id_token is None:
+            return False
+        if settings.VALIDATE_SOCIAL_TOKEN is False:
+            return True
         if type == "apple":
-            return self._check_apple_token(social_token, social_id)
+            return self._check_apple_token(social_id, social_id_token)
         if type == "facebook":
-            return self._check_facebook_token(social_id, social_token)
+            return self._check_facebook_token(social_id, social_id_token)
 
     def process(self):
         response = self.login()
@@ -132,9 +128,7 @@ class AuthenticateController:
         return success_response(self._serializer(user, context={"auth_token": auth_token}).data)
 
     def register(self):
-        if settings.VALIDATE_SOCIAL_TOKEN and not self._check_token(
-            self._social_id, self._social_id_token, self._social_id_token_type
-        ):
+        if not self._check_token(self._social_id, self._social_id_token, self._social_id_token_type):
             return failure_response(
                 f"social_id_token of {self._social_id_token} is invalid or does not match with social_id of {self._social_id}."
             )

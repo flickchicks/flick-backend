@@ -9,7 +9,7 @@ import requests
 class AppleAuthController:
     """Apple authentication backend"""
 
-    def retreive_token(self, access_token):
+    def retrieve_token(self, access_token):
         """
         Finish the auth process once the access_token was retrieved
         Get the email from ID token received from apple
