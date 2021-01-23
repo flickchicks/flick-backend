@@ -21,7 +21,9 @@ from lst.views import LstDetail
 from lst.views import LstDetailAdd
 from lst.views import LstDetailRemove
 from lst.views import LstList
+from notification.views import NotificationEnable
 from notification.views import NotificationList
+from notification.views import NotificationTest
 from read.views import ReadView
 from rest_framework import routers
 from search.views import Search
@@ -69,4 +71,6 @@ urlpatterns = [
     path("user/<int:pk>/friends/", UserFriendList.as_view(), name="user-friend-list"),
     path("username/", CheckUsernameView.as_view(), name="check-username"),
     path("notifications/", NotificationList.as_view(), name="notif-list"),
+    path("notifications/enable/", NotificationEnable.as_view(), name="notif-enable"),
+    path("notiftest/", NotificationTest.as_view(), name="notif-test"),
 ]

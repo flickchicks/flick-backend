@@ -14,6 +14,8 @@ from friend.serializers import IncomingRequestSerializer
 from friendship.models import Friend
 from friendship.models import FriendshipRequest
 from notification.models import Notification
+from push_notifications.models import APNSDevice
+from push_notifications.models import GCMDevice
 from rest_framework import generics
 from rest_framework.views import APIView
 
@@ -66,12 +68,16 @@ class FriendRequestListAndCreate(generics.ListCreateAPIView):
         friend_requests = []
         for friend_id in data.get("ids"):
             try:
-                user = User.objects.get(id=friend_id)
-                friend_requests.append(Friend.objects.add_friend(request.user, user))
+                friend = User.objects.get(id=friend_id)
+                friend_requests.append(Friend.objects.add_friend(request.user, friend))
+                ios_devices = APNSDevice.objects.filter(user=friend, active=True)
+                android_devices = GCMDevice.objects.filter(user=friend, active=True)
+                message_body = f"({friend.username}): {request.user.first_name} (@{request.user.username}) sent you a friend request."
+                ios_devices.send_message(message={"body": message_body})
+                android_devices.send_message(message={"body": message_body})
             except Exception as e:
                 print(str(e))
                 continue
-
         serializer = FriendRequestSerializer(friend_requests, many=True)
         return success_response(serializer.data)
 
@@ -100,6 +106,13 @@ class FriendAcceptListAndCreate(generics.ListCreateAPIView):
         notif.from_user = to_user
         notif.to_user = from_user
         notif.save()
+        ios_devices = APNSDevice.objects.filter(user=to_user, active=True)
+        android_devices = GCMDevice.objects.filter(user=to_user, active=True)
+        message_body = (
+            f"({to_user.username}): {from_user.first_name} (@{from_user.username}) accepted your friend request."
+        )
+        ios_devices.send_message(message={"body": message_body})
+        android_devices.send_message(message={"body": message_body})
 
     def get(self, request, format=None):
         friend_requests = Friend.objects.unrejected_requests(user=request.user)
