@@ -1,6 +1,7 @@
 import json
 
 from api.tests import FlickTransactionTestCase
+from django.test import tag
 from django.urls import reverse
 from rest_framework.test import APIClient
 
@@ -12,6 +13,7 @@ class SearchShowsTests(FlickTransactionTestCase):
         self.client = APIClient()
         self.user_token = self._create_user_and_login()
 
+    @tag("flakey")
     def test_search_show(self):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
         query = "Maleficent"

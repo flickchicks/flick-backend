@@ -59,6 +59,7 @@ class UserProfileTests(FlickTestCase):
         self._check_friend_status(self.friend_token, self.USER_PROFILE_URL, self.USER_ID, "friends")
 
     # Known to fail when running `python manage.py test` likely due to concurrency
+    @tag("flakey")
     def test_view_rando_profile(self):
         from_user = User.objects.get(id=self.USER_ID)
         to_user = User.objects.get(id=self.RANDO_ID)
