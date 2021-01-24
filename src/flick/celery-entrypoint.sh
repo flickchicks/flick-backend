@@ -1,0 +1,1 @@
+wait-for rabbitmq:5672 && wait-for app:8000 -- celery -A flick worker -l info
