@@ -28,7 +28,7 @@ services:
             - postgresql-data:/var/lib/postgresql/data
 
     app:
-        image: alannazhou/django:latest
+        image: alannazhou/django
         command: sh -c "wait-for postgres:5432 && python manage.py collectstatic --no-input && python manage.py migrate && gunicorn flick.wsgi -b 0.0.0.0:8000"
         environment:
             - DJANGO_SETTINGS_MODULE=flick.settings.production
@@ -47,7 +47,7 @@ services:
             - static:/static
 
     celery_worker:
-        image: alannazhou/django:latest
+        image: alannazhou/django
         command: sh -c "wait-for rabbitmq:5672 && wait-for app:8000 -- celery -A flick worker -l info"
         depends_on:
             - app
@@ -70,18 +70,19 @@ services:
         restart: on-failure
 
     nginx:
-        container_name: nginx
-        command: wait-for app:8000 -- nginx -g "daemon off;"
+        # container_name: nginx
+        # command: wait-for app:8000 -- nginx -g "daemon off;"
+        image: alannazhou/nginx
         depends_on:
             - app
-        image: nginx:alpine
         networks:
             - main
         ports:
             - "80:80"
         restart: on-failure
         volumes:
-            - ./nginx.conf:/etc/nginx/nginx.conf
+            # - ./nginx.conf:/etc/nginx/nginx.conf
+            - ./nginx/default.conf:/etc/nginx/conf.d
             - ./wait-for:/bin/wait-for
             - static:/var/www/app/static
 
