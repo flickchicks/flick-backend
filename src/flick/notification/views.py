@@ -57,11 +57,22 @@ class NotificationTest(generics.GenericAPIView):
                 "Must supply device_token field, for android this is the Firebase Cloud Messaging (FCM) registration id or the Apple Push Notification Service (APNS) token for the device."
             )
         if device_type == "ios":
-            device = APNSDevice.objects.create(registration_id=device_token, user=request.user)
+            # filter includes non-active devices as well
+            # even if filter result is none, .first() will not raise exception
+            device = APNSDevice.objects.filter(registration_id=device_token, user=request.user).first()
+            # if the queryset is empty, `not` is correct
+            if not device:
+                device = APNSDevice.objects.create(registration_id=device_token, user=request.user)
             device.send_message(message={"title": "Test Flick APNS Notification", "body": "Success!"})
             return success_response("Should have received a notification with title 'Test Flick Notification'")
         if device_type == "android":
-            device = GCMDevice.objects.create(registration_id=device_token, cloud_message_type="FCM", user=request.user)
+            device = GCMDevice.objects.filter(
+                registration_id=device_token, cloud_message_type="FCM", user=request.user
+            ).first()
+            if not device:
+                device = GCMDevice.objects.create(
+                    registration_id=device_token, cloud_message_type="FCM", user=request.user
+                )
             device.send_message(message={"title": "Test Flick FCM Notification", "body": "Success!"})
             return success_response("Should have received a notification with title 'Test Flick Notification'")
         return failure_response("Could not send a notification.")
@@ -84,11 +95,23 @@ class NotificationEnable(generics.GenericAPIView):
                 "Must supply device_token field, for android this is the Firebase Cloud Messaging (FCM) registration id or the Apple Push Notification Service (APNS) token for the device."
             )
         if device_type == "ios":
-            APNSDevice.objects.create(registration_id=device_token, user=request.user, active=True)
+            # for each device, we assume registration_id and user are unique together
+            # filter includes non-active devices as well
+            # even if filter result is none, .first() will not raise exception
+            device = APNSDevice.objects.filter(registration_id=device_token, user=request.user).first()
+            # if the queryset is empty, `not` is correct
+            if not device:
+                device = APNSDevice.objects.create(registration_id=device_token, user=request.user)
+            device.active = True
             return success_response(f"Enabled notifications for user {request.user}")
         if device_type == "android":
-            GCMDevice.objects.create(
-                registration_id=device_token, cloud_message_type="FCM", user=request.user, active=True
-            )
+            device = GCMDevice.objects.filter(
+                registration_id=device_token, cloud_message_type="FCM", user=request.user
+            ).first()
+            if not device:
+                device = GCMDevice.objects.create(
+                    registration_id=device_token, cloud_message_type="FCM", user=request.user
+                )
+            device.active = True
             return success_response(f"Enabled notifications for user {request.user}")
         return failure_response(f"Could not enable notifications for user {request.user}.")
