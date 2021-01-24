@@ -106,10 +106,10 @@ class FriendAcceptListAndCreate(generics.ListCreateAPIView):
         notif.from_user = to_profile
         notif.to_user = from_profile
         notif.save()
-        ios_devices = APNSDevice.objects.filter(user=to_user, active=True)
-        android_devices = GCMDevice.objects.filter(user=to_user, active=True)
+        ios_devices = APNSDevice.objects.filter(user=from_user, active=True)
+        android_devices = GCMDevice.objects.filter(user=from_user, active=True)
         message_body = (
-            f"({to_user.username}): {from_user.first_name} (@{from_user.username}) accepted your friend request."
+            f"({from_user.username}): {to_user.first_name} (@{to_user.username}) accepted your friend request."
         )
         ios_devices.send_message(message={"body": message_body})
         android_devices.send_message(message={"body": message_body})
