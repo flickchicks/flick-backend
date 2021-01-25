@@ -70,7 +70,9 @@ class Search(APIView):
         return serializer.data
 
     def get_lsts_by_name(self, query):
-        lsts = Lst.objects.filter(Q(name__icontains=query) & Q(is_private=False))
+        lsts = Lst.objects.filter(
+            Q(name__icontains=query) & Q(is_private=False) & ~Q(name="Saved") & ~Q(name="Watch Later")
+        )
         serializer = LstSerializer(lsts, many=True)
         return serializer.data
 
