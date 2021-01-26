@@ -19,6 +19,15 @@ class NotificationList(generics.GenericAPIView):
 
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
+    def _create_comment_like_notification(self, from_user, to_user):
+        from_profile = Profile.objects.get(user=from_user)
+        to_profile = Profile.objects.get(user=to_user)
+        notif = Notification()
+        notif.notif_type = "comment_like"
+        notif.from_user = from_profile
+        notif.to_user = to_profile
+        notif.save()
+
     def get(self, request):
         """See all notifications."""
         if not Profile.objects.filter(user=request.user):

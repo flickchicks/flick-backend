@@ -41,3 +41,12 @@ class CommentSerializer(serializers.ModelSerializer):
 
         is_readable = instance.reads.filter(reader=profile).exists()
         return is_readable
+
+
+class SimpleCommentSerializer(serializers.ModelSerializer):
+    owner = ProfileSimpleSerializer(many=False)
+
+    class Meta:
+        model = Comment
+        fields = ("created_at", "id", "is_spoiler", "num_likes", "owner", "message")
+        read_only_fields = fields
