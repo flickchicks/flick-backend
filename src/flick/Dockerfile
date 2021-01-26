@@ -26,8 +26,8 @@ RUN apk del .build-deps
 
 EXPOSE 8000
 
-RUN ["chmod", "+x", "app-entrypoint.sh"]
+# RUN ["chmod", "+x", "app-entrypoint.sh"]
 
-ENTRYPOINT ["sh", "app-entrypoint.sh"]
+# ENTRYPOINT ["sh", "app-entrypoint.sh"]
 
 CMD ["gunicorn", "flick.wsgi", "0:8000"]

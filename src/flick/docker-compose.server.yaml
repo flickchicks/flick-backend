@@ -28,7 +28,7 @@ services:
     app:
         image: alannazhou/app
         hostname: app
-        # command: sh -c "python manage.py migrate && gunicorn flick.wsgi -b 0.0.0.0:8000"
+        command: sh -c "wait-for postgres:5432 && python manage.py migrate && gunicorn flick.wsgi -b 0.0.0.0:8000"
         depends_on:
             - postgres
             - rabbitmq
@@ -41,9 +41,9 @@ services:
             - static:/static
 
     celery_worker:
-        image: alannazhou/celery
+        image: alannazhou/app
         hostname: celery_worker
-        # command: celery -A flick worker -l info
+        command: sh -c "wait-for rabbitmq:5672 && wait-for app:8000 -- celery -A flick worker -l info"
         depends_on:
             - app
             - postgres
