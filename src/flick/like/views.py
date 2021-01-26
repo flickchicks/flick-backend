@@ -40,6 +40,7 @@ class LikeView(generics.GenericAPIView):
             existing_like.delete()
 
         comment.save(update_fields=["num_likes"])
-        self._create_comment_like_notification(user, comment.owner, comment)
+        if request.user.id != comment.owner.user.id:
+            self._create_comment_like_notification(user, comment.owner, comment)
         comment_data = CommentSerializer(comment, context={"request": request}).data
         return success_response(comment_data)
