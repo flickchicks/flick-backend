@@ -11,7 +11,7 @@ class Notification(models.Model):
         ("list_edit", "List Edit"),
         ("incoming_friend_request_accepted", "Incoming Friend Request Accepted"),
         ("outgoing_friend_request_accepted", "Outoing Friend Request Accepted"),
-        ("comment_like", "comment_like"),
+        ("comment_like", "Comment Like"),
     )
 
     notif_type = models.CharField(max_length=50, choices=NOTIF_TYPE_CHOICES, default=None)
