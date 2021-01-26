@@ -29,3 +29,5 @@ EXPOSE 8000
 RUN ["chmod", "+x", "celery-entrypoint.sh"]
 
 ENTRYPOINT ["sh", "celery-entrypoint.sh"]
+
+CMD ["celery", "-A", "flick", "worker", "-l", "info"]
