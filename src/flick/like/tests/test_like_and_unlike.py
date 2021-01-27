@@ -74,4 +74,3 @@ class LikeTests(FlickTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(data["num_likes"], 0)
         self.assertFalse(data["has_liked"])
-        # print('ok')
