@@ -1,7 +1,7 @@
 FROM python:3-alpine
 
 # Install dependencies required for psycopg2 python package
-RUN apk update && apk add libpq
+RUN apk update && apk add libpq && apk add bash
 RUN apk update && apk add --virtual .build-deps gcc build-base python3-dev musl-dev postgresql-dev 
 RUN apk update && apk add libxml2-dev libxslt-dev py-lxml
 RUN apk add --no-cache \

@@ -1,0 +1,1 @@
+./wait-for app:8000 -- nginx -g "daemon off;"
