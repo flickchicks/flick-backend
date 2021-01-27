@@ -1,1 +1,0 @@
-wait-for postgres:5432 && python manage.py collectstatic --no-input && python manage.py migrate && gunicorn flick.wsgi -b 0.0.0.0:8000

@@ -65,7 +65,6 @@ services:
 
     nginx:
         image: alannazhou/nginx
-        # command: nginx -g "daemon off;"
         depends_on:
             - app
         networks:
@@ -74,7 +73,6 @@ services:
             - "80:80"
         restart: always
         volumes:
-            # - ./nginx.conf:/etc/nginx/nginx.conf
             - ./wait-for:/bin/wait-for
             - static:/var/www/app/static
 
