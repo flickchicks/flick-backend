@@ -66,7 +66,6 @@ PUSH_NOTIFICATIONS_SETTINGS = {
     "FCM_API_KEY": config("FCM_API_KEY"),
     "APNS_CERTIFICATE": config("APNS_CERTIFICATE"),
     "APNS_TOPIC": config("APPLE_BUNDLE_ID"),
-    "APNS_USE_SANDBOX": False,
 }
 
 MIDDLEWARE = [
@@ -105,19 +104,16 @@ WSGI_APPLICATION = "flick.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
-if config("SQLITE3"):
-    DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": os.path.join(BASE_DIR, "db.sqlite3")}}
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql_psycopg2",
-            "NAME": "postgres",
-            "USER": "postgres",
-            "PASSWORD": "postgres",
-            "HOST": "postgres",
-            "PORT": "5432",
-        }
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": config("POSTGRES_NAME"),
+        "USER": config("POSTGRES_USER"),
+        "PASSWORD": config("POSTGRES_PASSWORD"),
+        "HOST": config("POSTGRES_HOST"),
+        "PORT": "5432",
     }
+}
 
 
 # Password validation

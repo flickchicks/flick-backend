@@ -1,8 +1,8 @@
 from decouple import config
 
-is_debug = config("DEBUG")
+DEBUG = config("DEBUG", default=False, cast=bool)
 
-if is_debug is False:
+if DEBUG is False:
     from .production import *
 else:
     from .local import *
