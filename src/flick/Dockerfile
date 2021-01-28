@@ -16,19 +16,32 @@
 
 # FROM ubuntu:latest
 # FROM python:3.7.6-slim-buster
+
 FROM python:3.7-buster
+
 
 # ENV DEBIAN_FRONTEND=noninteractive
 # ENV PYTHONUNBUFFERED 1
 
 RUN apt-get update \
   && pip3 install --upgrade pip
+RUN apt-get -q update && apt-get -qy install netcat
+
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
-RUN chmod +x wait-for-it.sh
+# RUN ["chmod", "+x", "wait-for-it.sh"]
+
 COPY . .
-RUN chmod +x /usr/src/app/wait-for-it.sh
+
+# RUN chmod +x wait-for-it.sh
+# RUN mv wait-for-it.sh /bin/wait-for-it.sh
+# USER root 
+# RUN chmod 755 /usr/src/app/wait-for-it.sh
+# RUN chmod +x /usr/src/app/wait-for-it.sh
+# COPY wait-for-it.sh /wait-for-it.sh
+# RUN chmod +x /wait-for-it.sh
+RUN ["chmod", "+x", "/usr/src/app/wait-for-it.sh"]
 
 RUN pip install --no-cache-dir -r requirements.txt
 
