@@ -27,7 +27,7 @@ services:
     celery_worker:
         image: alannazhou/app:latest
         hostname: celery_worker
-        command: sh -c "wait-for redis:6379 && wait-for app:8000 -- celery -A flick worker -l info"
+        command: sh -c "./wait-for-it.sh redis:6379 && ./wait-for-it.sh app:8000 -- celery -A flick worker -l info"
         depends_on:
             - app
             - redis
@@ -56,7 +56,7 @@ services:
             - "80:80"
         restart: always
         volumes:
-            - ./wait-for:/bin/wait-for
+            - ././wait-for-it.sh:/bin/./wait-for-it.sh
             - static:/var/www/app/static
 
 networks:
