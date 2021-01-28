@@ -29,9 +29,7 @@ DEBUG = True
 
 SQLITE3 = config("SQLITE3", default=False, cast=bool)
 
-
 ALLOWED_HOSTS = config("DJANGO_ALLOWED_HOSTS").split(" ")
-
 
 # Application definition
 
