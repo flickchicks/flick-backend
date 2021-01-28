@@ -45,6 +45,7 @@ PyJWT==2.0.0
 python-crontab==2.5.1
 python-dateutil==2.8.1
 pytz==2020.5
+redis==3.5.2
 regex==2020.11.13
 requests==2.25.1
 simplejson==3.17.2

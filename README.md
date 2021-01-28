@@ -1,6 +1,6 @@
 # flick-backend
 
-A Django, RabbitMQ, Celery, PostgreSQL backend for the iOS and Android Flick app that handles users, lists, and movies.
+A Django, Redis, Celery, PostgreSQL backend for the iOS and Android Flick app that handles users, lists, and movies.
 
 ## Install
 
@@ -21,7 +21,7 @@ You will also need the private key files `apple_private.p8` (verify Apple Access
 
 ## Run
 
-Because this is a Django, RabbitMQ, Celery, PostgreSQL application, the backend is containerized and orchestrated with [Docker](https://www.docker.com/get-started) and Docker Swarm. Before we start, download [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/). Once you've installed Docker, check that it is running by seeing if there is a whale at the top menu toolbar with `Docker Desktop is running`.
+Because this is a Django, Redis, Celery, PostgreSQL application, the backend is containerized and orchestrated with [Docker](https://www.docker.com/get-started) and Docker Swarm. Before we start, download [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/). Once you've installed Docker, check that it is running by seeing if there is a whale at the top menu toolbar with `Docker Desktop is running`.
 
 Depending on if you are running in development mode or production mode, update `.env` with `DEBUG=1` for the former and `DEBUG=0` for the latter. Note that production mode will include things like checking against Facebook tokens, which will make it difficult to use in development.
 
@@ -46,24 +46,17 @@ flick-backend/src/flick> $ . venv/bin/activate
 flick-backend/src/flick> (venv) $ python3 -m pip install -r requirements.txt
 ```
 
-3. Install RabbitMQ
+3. Install Redis
 
 ```
 brew update
-brew install rabbitmq
+brew install redis
 ```
 
-4. Start RabbitMQ
-   To run in the foreground,
+4. Start Redis
 
 ```
-rabbitmq-server
-```
-
-To run in the background,
-
-```
-brew services start rabbitmq
+redis-server # or redis_server
 ```
 
 5. Start Celery worker

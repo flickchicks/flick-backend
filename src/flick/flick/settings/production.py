@@ -160,8 +160,8 @@ S3_BUCKET = "flick"
 S3_BASE_URL = f"https://{S3_BUCKET}.s3-us-west-1.amazonaws.com/"
 
 # Celery config
-CELERY_BROKER_URL = "pyamqp://rabbitmq:5672"
-CELERY_RESULT_BACKEND = "django-db"
+CELERY_BROKER_URL = "redis://redis:6379"  # "redis://redis:6379"
+CELERY_RESULT_BACKEND = "redis://redis:6379"  # "redis://redis:6379/0"
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"

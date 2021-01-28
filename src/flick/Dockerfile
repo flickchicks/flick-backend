@@ -1,4 +1,4 @@
-FROM python:3-alpine
+FROM python:3.7-alpine
 
 # Install dependencies required for psycopg2 python package
 RUN apk update && apk add libpq && apk add bash
