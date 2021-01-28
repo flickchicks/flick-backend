@@ -1,13 +1,13 @@
 version: "3.4"
 
 services:
-    rabbitmq:
-        image: rabbitmq:latest
-        hostname: rabbitmq
+    redis:
+        image: redis:latest
+        hostname: redis
         networks:
             - main
         ports:
-            - "5672:5672"
+            - "6379:6379"
         restart: always
 
     app:
@@ -15,7 +15,7 @@ services:
         hostname: app
         command: sh -c "python manage.py migrate && gunicorn flick.wsgi -b 0.0.0.0:8000"
         depends_on:
-            - rabbitmq
+            - redis
         expose:
             - "8000"
         networks:
@@ -27,10 +27,10 @@ services:
     celery_worker:
         image: alannazhou/app:latest
         hostname: celery_worker
-        command: sh -c "wait-for rabbitmq:5672 && wait-for app:8000 -- celery -A flick worker -l info"
+        command: sh -c "wait-for redis:6379 && wait-for app:8000 -- celery -A flick worker -l info"
         depends_on:
             - app
-            - rabbitmq
+            - redis
         deploy:
             replicas: 2
             restart_policy:
