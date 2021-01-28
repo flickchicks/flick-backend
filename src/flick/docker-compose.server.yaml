@@ -10,27 +10,11 @@ services:
             - "5672:5672"
         restart: always
 
-    postgres:
-        image: postgres:latest
-        hostname: postgres
-        environment:
-            - POSTGRES_USER=postgres
-            - POSTGRES_PASSWORD=postgres
-            - POSTGRES_DB=postgres
-        networks:
-            - main
-        ports:
-            - "5432:5432"
-        restart: always
-        volumes:
-            - postgresql-data:/var/lib/postgresql/data
-
     app:
-        image: alannazhou/app
+        image: alannazhou/app:latest
         hostname: app
-        command: sh -c "wait-for postgres:5432 && python manage.py migrate && gunicorn flick.wsgi -b 0.0.0.0:8000"
+        command: sh -c "python manage.py migrate && gunicorn flick.wsgi -b 0.0.0.0:8000"
         depends_on:
-            - postgres
             - rabbitmq
         expose:
             - "8000"
@@ -41,12 +25,11 @@ services:
             - static:/static
 
     celery_worker:
-        image: alannazhou/app
+        image: alannazhou/app:latest
         hostname: celery_worker
         command: sh -c "wait-for rabbitmq:5672 && wait-for app:8000 -- celery -A flick worker -l info"
         depends_on:
             - app
-            - postgres
             - rabbitmq
         deploy:
             replicas: 2
@@ -64,7 +47,7 @@ services:
         restart: always
 
     nginx:
-        image: alannazhou/nginx
+        image: alannazhou/nginx:latest
         depends_on:
             - app
         networks:
@@ -80,5 +63,4 @@ networks:
     main:
 
 volumes:
-    postgresql-data:
     static:

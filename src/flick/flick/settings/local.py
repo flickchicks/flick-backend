@@ -27,8 +27,9 @@ SECRET_KEY = config("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = config("DJANGO_ALLOWED_HOSTS").split(" ")
+SQLITE3 = config("SQLITE3", default=False, cast=bool)
 
+ALLOWED_HOSTS = config("DJANGO_ALLOWED_HOSTS").split(" ")
 
 # Application definition
 
@@ -66,6 +67,7 @@ PUSH_NOTIFICATIONS_SETTINGS = {
     "FCM_API_KEY": config("FCM_API_KEY"),
     "APNS_CERTIFICATE": config("APNS_CERTIFICATE"),
     "APNS_TOPIC": config("APPLE_BUNDLE_ID"),
+    "APNS_USE_SANDBOX": False,
 }
 
 MIDDLEWARE = [
@@ -104,7 +106,7 @@ WSGI_APPLICATION = "flick.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
-if config("SQLITE3"):
+if SQLITE3:
     DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": os.path.join(BASE_DIR, "db.sqlite3")}}
 else:
     DATABASES = {
@@ -117,7 +119,6 @@ else:
             "PORT": "5432",
         }
     }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
