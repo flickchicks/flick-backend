@@ -2,6 +2,7 @@ from user.models import Profile
 from user.profile_simple_serializers import ProfileSimpleSerializer
 
 from rest_framework import serializers
+from show.simple_serializers import ShowSimpleSerializer
 
 from .models import Comment
 
@@ -41,3 +42,13 @@ class CommentSerializer(serializers.ModelSerializer):
 
         is_readable = instance.reads.filter(reader=profile).exists()
         return is_readable
+
+
+class SimpleCommentSerializer(serializers.ModelSerializer):
+    owner = ProfileSimpleSerializer(many=False)
+    show = ShowSimpleSerializer(many=False)
+
+    class Meta:
+        model = Comment
+        fields = ("created_at", "id", "is_spoiler", "num_likes", "owner", "message", "show")
+        read_only_fields = fields

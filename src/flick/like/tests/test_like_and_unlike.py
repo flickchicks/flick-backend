@@ -11,9 +11,11 @@ class LikeTests(FlickTestCase):
         self.client = APIClient()
         self.show = self._create_show()
         self.user_token = self._create_user_and_login()
+        self.friend_token = self._create_user_and_login()
         self.SHOW_DETAIL_URL = reverse("show-detail", kwargs={"pk": self.show.pk})
         self.comment_pk = self._comment_show(self.user_token)
         self.LIKE_COMMENT_URL = reverse("like-comment", kwargs={"pk": self.comment_pk})
+        self.NOTIFICATION_URL = reverse("notif-list")
 
     def _create_show(self):
         show = Show()
@@ -43,7 +45,7 @@ class LikeTests(FlickTestCase):
         return comment["id"]
 
     def test_like_and_cancel(self):
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.friend_token)
 
         # test like
         response = self.client.post(self.LIKE_COMMENT_URL)
@@ -51,6 +53,20 @@ class LikeTests(FlickTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(data["num_likes"], 1)
         self.assertTrue(data["has_liked"])
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
+
+        # test notification is recieved
+        response = self.client.get(self.NOTIFICATION_URL)
+        data = json.loads(response.content)["data"]
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(data), 1)
+        notification = data[0]
+        self.assertEqual(notification["from_user"]["id"], 2)
+        self.assertEqual(notification["to_user"]["id"], 1)
+        self.assertEqual(notification["notif_type"], "comment_like")
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.friend_token)
 
         # test cancel like
         response = self.client.post(self.LIKE_COMMENT_URL)
