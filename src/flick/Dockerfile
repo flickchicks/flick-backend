@@ -7,7 +7,6 @@ RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 COPY . .
 
-# COPY wait-for-it.sh /wait-for-it.sh
 RUN ["chmod", "+x", "/usr/src/app/wait-for-it.sh"]
 
 RUN pip install --no-cache-dir -r requirements.txt

@@ -49,7 +49,6 @@ services:
             - "80:80"
         restart: always
         volumes:
-            # - ./wait-for-it.sh:/bin/wait-for-it.sh
             - static:/var/www/app/static
 
 networks:
