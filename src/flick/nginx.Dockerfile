@@ -1,10 +1,8 @@
-FROM nginx:alpine
-
-RUN apk update && apk add bash
+FROM nginx
 
 ADD nginx.conf /etc/nginx/nginx.conf
 COPY /static/ /var/www/app/static/
-COPY ./wait-for ./wait-for
+COPY ./wait-for-it.sh ./wait-for-it.sh
 COPY ./nginx-entrypoint.sh ./nginx-entrypoint.sh
 
 EXPOSE 80

@@ -1,1 +1,1 @@
-./wait-for app:8000 -- nginx -g "daemon off;"
+./wait-for-it.sh app:8000 -- nginx -g "daemon off;"

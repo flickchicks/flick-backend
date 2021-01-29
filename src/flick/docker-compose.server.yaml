@@ -27,7 +27,7 @@ services:
     celery_worker:
         image: alannazhou/app:latest
         hostname: celery_worker
-        command: sh -c "wait-for redis:6379 && wait-for app:8000 -- celery -A flick worker -l info"
+        command: sh -c "./wait-for-it.sh redis:6379 && ./wait-for-it.sh app:8000 -- celery -A flick worker -l info"
         depends_on:
             - app
             - redis
@@ -35,13 +35,6 @@ services:
             replicas: 2
             restart_policy:
                 condition: on-failure
-            resources:
-                limits:
-                    cpus: "0.50"
-                    memory: 50M
-                reservations:
-                    cpus: "0.25"
-                    memory: 20M
         networks:
             - main
         restart: always
@@ -56,7 +49,6 @@ services:
             - "80:80"
         restart: always
         volumes:
-            - ./wait-for:/bin/wait-for
             - static:/var/www/app/static
 
 networks:
