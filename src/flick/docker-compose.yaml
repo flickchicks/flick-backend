@@ -29,7 +29,7 @@ services:
 
     app:
         build: .
-        command: sh -c "bash wait-for-it.sh postgres:5432 && python manage.py collectstatic --no-input && python manage.py migrate && gunicorn flick.wsgi -b 0.0.0.0:8000"
+        command: sh -c "./wait-for-it.sh postgres:5432 && python manage.py migrate && gunicorn flick.wsgi -b 0.0.0.0:8000"
         container_name: app
         depends_on:
             - postgres
