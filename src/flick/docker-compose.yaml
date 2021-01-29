@@ -29,21 +29,21 @@ services:
 
     app:
         build: .
-        command:
-            [
-                "/wait-for-it.sh",
-                "postgres:5432",
-                "&&",
-                "python",
-                "manage.py",
-                "migrate",
-                "&&",
-                "gunicorn",
-                "flick.wsgi",
-                "-b",
-                "0.0.0.0:8000",
-            ]
-        # command: sh -c "./wait-for-it.sh postgres:5432 && python manage.py collectstatic --no-input && python manage.py migrate && gunicorn flick.wsgi -b 0.0.0.0:8000"
+        # command:
+        #     [
+        #         "/wait-for-it.sh",
+        #         "postgres:5432",
+        #         "&&",
+        #         "python",
+        #         "manage.py",
+        #         "migrate",
+        #         "&&",
+        #         "gunicorn",
+        #         "flick.wsgi",
+        #         "-b",
+        #         "0.0.0.0:8000",
+        #     ]
+        command: sh -c "bash wait-for-it.sh postgres:5432 && python manage.py collectstatic --no-input && python manage.py migrate && gunicorn flick.wsgi -b 0.0.0.0:8000"
         container_name: app
         depends_on:
             - postgres
@@ -55,8 +55,8 @@ services:
         networks:
             - main
         restart: on-failure
-        volumes:
-            - ./wait-for-it.sh:/usr/bin/wait-for-it.sh
+        # volumes:
+        #     - ./wait-for-it.sh:/usr/bin/wait-for-it.sh
 
     celery_worker:
         command: sh -c "./wait-for-it.sh redis:6379 && ./wait-for-it.sh app:8000 -- celery -A flick worker -l info"
@@ -80,8 +80,8 @@ services:
         networks:
             - main
         restart: on-failure
-        volumes:
-            - ./wait-for-it.sh:/usr/bin/wait-for-it.sh
+        # volumes:
+        #     - ./wait-for-it.sh:/usr/bin/wait-for-it.sh
 
 networks:
     main:

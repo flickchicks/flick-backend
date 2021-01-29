@@ -31,6 +31,8 @@ RUN apt-get -q update && apt-get -qy install netcat
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 # RUN ["chmod", "+x", "wait-for-it.sh"]
+# RUN ["sudo", "chmod", "a+x", "wait-for-it.sh"]
+
 
 COPY . .
 
@@ -39,9 +41,11 @@ COPY . .
 # USER root 
 # RUN chmod 755 /usr/src/app/wait-for-it.sh
 # RUN chmod +x /usr/src/app/wait-for-it.sh
-# COPY wait-for-it.sh /wait-for-it.sh
-# RUN chmod +x /wait-for-it.sh
+COPY wait-for-it.sh /wait-for-it.sh
+# RUN chmod a+x /usr/src/app/wait-for-it.sh
+# RUN ["sudo", "chmod", "a+x", "/usr/src/app/wait-for-it.sh"]
 RUN ["chmod", "+x", "/usr/src/app/wait-for-it.sh"]
+
 
 RUN pip install --no-cache-dir -r requirements.txt
 
