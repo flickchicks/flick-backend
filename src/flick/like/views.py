@@ -43,7 +43,6 @@ class LikeView(generics.GenericAPIView):
             like.type = "comment_like"
             like.liker = profile
             like.save()
-            # comment.likers.create(liker=profile)
         else:
             comment.num_likes -= 1
             existing_like.delete()
