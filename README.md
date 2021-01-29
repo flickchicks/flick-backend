@@ -19,13 +19,21 @@ cp env.template .env
 
 You will also need the private key files `apple_private.p8` (verify Apple Access Tokens during authentication) and `aps.pem` (connect with APNS to send push notifications to iOS devices) which we've pinned in the backend Slack channel. Put these in `flick-backend/src/flick` so that the settings can be properly configured.
 
+You may be wondering about how the development environment differs from the production environment and if we use a separate `.env` file. For now, we only have one `.env`, but simply changing `DEBUG` and `SQLITE3` is enough to determine which environment you will be using. As a summary,
+
+-   Local development with a local Sqlite3 database: `DEBUG=True` and `SQLITE3=True`
+-   Local development with a local PostgreSQL database: `DEBUG=True` and `SQLITE3=False`
+-   Production with a remote AWS RDS PostgreSQL database: `DEBUG=False`
+
+As long as `DEBUG=False`, `flick/settings/init.py` will redirect `flick.settings` to `production.py` instead of `local.py`. Because `production.py` does not read in `SQLITE3`, it will only run with the remote PostgreSQL database.
+
 ## Run
 
 Because this is a Django, Redis, Celery, PostgreSQL application, the backend is containerized and orchestrated with [Docker](https://www.docker.com/get-started) and Docker Swarm. Before we start, download [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/). Once you've installed Docker, check that it is running by seeing if there is a whale at the top menu toolbar with `Docker Desktop is running`.
 
-Depending on if you are running in development mode or production mode, update `.env` with `DEBUG=1` for the former and `DEBUG=0` for the latter. Note that production mode will include things like checking against Facebook tokens, which will make it difficult to use in development.
+Depending on if you are running in development mode or production mode, update `.env` as explained above.
 
-You may encounter an error with a celery worker exiting out with 137 error code. This simply means that there is a memory cap on the Docker settings on your computer, and you can increase the allowed memory allocation to containers in `Docker > Preferences > Advanced > Memory`. You may also need to increase the Swap size.
+You may encounter an error with a celery worker exiting out with 137 error code. This just means that there is a memory cap on the Docker settings on your computer, and you can increase the allowed memory allocation to containers in `Docker > Preferences > Advanced > Memory`. You may also need to increase the Swap size.
 
 You may also encounter migrations issues (likely once you make the transition from `db.sqlite3` to PostgreSQL), and you can run the following two commands to clear migrations in `flick-backend/src/flick`:
 
@@ -36,7 +44,7 @@ find . -path "*/migrations/*.pyc"  -delete
 
 Before we go into the proper ways of running the backend, here's a quick way to run locally for development purposes:
 
-1. Update `.env` with `SQLITE3=1`
+1. Update `.env` with `DEBUG=True` and `SQLITE3=True`
 2. Create a virtual environment
 
 ```
@@ -175,7 +183,7 @@ docker swarm leave --force
 
 ```
 
-## Description
+## Note
 
 The setup here defines distinct development and production environments for the app. Running the app using Django's built in web server with `DEBUG=True` allows for quick and easy development; however, relying on Django's web server in a production environment is discouraged in the Django docs for security reasons. Additionally, serving large files in production should be handled by a proxy such as nginx to prevent the app from blocking.
 
@@ -197,25 +205,10 @@ docker build -t alannazhou/nginx . -f nginx.Dockerfile
 docker push alannazhou/nginx
 ```
 
-Since the celery worker requires the same packages installed as the Django app, we simply use the same image but run it as a separate container, so we can reuse `alannazhou/app`.
-You may be wondering about how the development environment differs from the production environment and if we use a separate `.env` file. For now, we only have one `.env`, but simply changing `DEBUG` and `SQLITE3` is enough to determine which environment you will be using. As a summary,
+Since the celery worker requires the same packages installed as the Django app, we use the same image but run it as a separate container, so we can reuse `alannazhou/app`.
 
--   Local development with a local Sqlite3 database: `DEBUG=True` and `SQLITE3=True`
--   Local development with a local PostgreSQL database: `DEBUG=True` and `SQLITE3=False`
--   Production with a remote AWS RDS PostgreSQL database: `DEBUG=False`
-
-As long as `DEBUG=False`, `flick/settings/init.py` will redirect `flick.settings` to `production.py` instead of `local.py`. Because `production.py` does not read in `SQLITE3`, it will simply run with the remote PostgreSQL database.
-
-Now to deploy on the remote server, we can simply copy and paste `docker-compose.server.yaml` and run the Docker Swarm commands above.
+Now to deploy on the remote server, we can copy and paste `docker-compose.server.yaml` and run the Docker Swarm commands above.
 
 ## Style
 
 The `requirements.txt` already includes the pre-commit formatting, so making commits in your virtual environment will ensure that your code is formatted by [black](https://github.com/psf/black) standards.
-
-```
-
-```
-
-```
-
-```
