@@ -13,7 +13,7 @@ services:
     app:
         image: alannazhou/app:latest
         hostname: app
-        command: sh -c "python manage.py migrate && gunicorn flick.wsgi -b 0.0.0.0:8000"
+        command: sh -c "bash wait-for-it.sh postgres:5432 && python manage.py migrate && gunicorn flick.wsgi -b 0.0.0.0:8000"
         depends_on:
             - redis
         expose:
@@ -32,16 +32,9 @@ services:
             - app
             - redis
         deploy:
-            replicas: 2
+            replicas: 1
             restart_policy:
                 condition: on-failure
-            resources:
-                limits:
-                    cpus: "0.50"
-                    memory: 50M
-                reservations:
-                    cpus: "0.25"
-                    memory: 20M
         networks:
             - main
         restart: always

@@ -1,6 +1,6 @@
-FROM nginx:alpine
+FROM nginx
 
-RUN apk update && apk add bash
+# RUN apk update && apk add bash
 
 ADD nginx.conf /etc/nginx/nginx.conf
 COPY /static/ /var/www/app/static/
