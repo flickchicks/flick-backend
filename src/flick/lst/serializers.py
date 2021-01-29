@@ -1,5 +1,6 @@
 from user.profile_simple_serializers import ProfileSimpleSerializer
 
+from like.serializers import LikeSerializer
 from rest_framework import serializers
 from show.serializers import ShowSearchSerializer
 from show.simple_serializers import ShowSimplestSerializer
@@ -13,6 +14,7 @@ class LstSerializer(serializers.ModelSerializer):
     owner = ProfileSimpleSerializer(many=False)
     shows = ShowSearchSerializer(many=True)
     tags = TagSimpleSerializer(many=True)
+    likers = LikeSerializer(many=True)
 
     class Meta:
         model = Lst
@@ -28,6 +30,8 @@ class LstSerializer(serializers.ModelSerializer):
             "owner",
             "shows",
             "tags",
+            "num_likes",
+            "likers",
         )
         read_only_fields = fields
 
@@ -37,6 +41,7 @@ class LstWithSimpleShowsSerializer(serializers.ModelSerializer):
     owner = ProfileSimpleSerializer(many=False)
     shows = ShowSimplestSerializer(many=True)
     tags = TagSimpleSerializer(many=True)
+    likers = LikeSerializer(many=True)
 
     class Meta:
         model = Lst
@@ -52,5 +57,7 @@ class LstWithSimpleShowsSerializer(serializers.ModelSerializer):
             "owner",
             "shows",
             "tags",
+            "num_likes",
+            "likers",
         )
         read_only_fields = fields

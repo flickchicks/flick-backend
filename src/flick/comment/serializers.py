@@ -1,6 +1,7 @@
 from user.models import Profile
 from user.profile_simple_serializers import ProfileSimpleSerializer
 
+from like.serializers import LikeSerializer
 from rest_framework import serializers
 from show.simple_serializers import ShowSimpleSerializer
 
@@ -47,8 +48,9 @@ class CommentSerializer(serializers.ModelSerializer):
 class SimpleCommentSerializer(serializers.ModelSerializer):
     owner = ProfileSimpleSerializer(many=False)
     show = ShowSimpleSerializer(many=False)
+    likers = LikeSerializer(many=True)
 
     class Meta:
         model = Comment
-        fields = ("created_at", "id", "is_spoiler", "num_likes", "owner", "message", "show")
+        fields = ("created_at", "id", "is_spoiler", "num_likes", "owner", "message", "show", "likers")
         read_only_fields = fields

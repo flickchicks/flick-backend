@@ -9,7 +9,7 @@ from .models import Lst
 class LstSimpleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lst
-        fields = ("id", "name", "pic", "is_saved", "is_private", "is_watch_later")
+        fields = ("id", "name", "pic", "is_saved", "is_private", "is_watch_later", "num_likes")
         read_only_fields = fields
 
 
@@ -23,5 +23,5 @@ class MeLstSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Lst
-        fields = ("id", "name", "is_private", "collaborators", "shows")
+        fields = ("id", "name", "is_private", "collaborators", "shows", "num_likes")
         read_only_fields = fields
