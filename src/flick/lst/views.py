@@ -37,11 +37,10 @@ class LstList(generics.GenericAPIView):
 
 
 class LstDetail(generics.GenericAPIView):
-
     queryset = Lst.objects.all()
     serializer_class = LstWithSimpleShowsSerializer
 
-    permission_classes = api_settings.UNPROTECTED
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
 
     def get(self, request, pk):
         """
@@ -87,7 +86,7 @@ class LstDetailAdd(generics.GenericAPIView):
     queryset = Lst.objects.all()
     serializer_class = LstWithSimpleShowsSerializer
 
-    permission_classes = api_settings.UNPROTECTED
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
 
     def post(self, request, pk):
         """
@@ -106,7 +105,7 @@ class LstDetailRemove(generics.GenericAPIView):
     queryset = Lst.objects.all()
     serializer_class = LstWithSimpleShowsSerializer
 
-    permission_classes = api_settings.UNPROTECTED
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
 
     def post(self, request, pk):
         """

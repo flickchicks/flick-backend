@@ -8,6 +8,7 @@ from django.urls import reverse
 from friendship.exceptions import AlreadyFriendsError
 from friendship.models import Friend
 from rest_framework.test import APIClient
+from show.models import Show
 
 
 class FlickTestCase(TestCase):
@@ -50,6 +51,24 @@ class FlickTestCase(TestCase):
             Friend.objects.add_friend(user1, user2).accept()
         except AlreadyFriendsError:
             return
+
+    def _create_show(self):
+        show = Show()
+        show.title = self.get_random_str()
+        show.ext_api_id = 1
+        show.ext_api_source = "tmdb"
+        show.poster_pic = self.get_random_str()
+        show.is_tv = True
+        show.date_released = "4/1/20"
+        show.status = "status"
+        show.language = "en"
+        show.duration = None
+        show.plot = "juicy plot"
+        show.seasons = 3
+        show.directors = "alanna"
+        show.cast = "alanna"
+        show.save()
+        return show
 
 
 class FlickTransactionTestCase(TransactionTestCase):
