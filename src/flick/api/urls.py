@@ -16,6 +16,7 @@ from friend.views import FriendRejectListAndCreate
 from friend.views import FriendRemoveListAndCreate
 from friend.views import FriendRequestListAndCreate
 from friend.views import UserFriendList
+from group.views import GroupDetail
 from group.views import GroupList
 from like.views import LikeView
 from lst.views import LstDetail
@@ -56,6 +57,7 @@ urlpatterns = [
     path("friends/reject/", FriendRejectListAndCreate.as_view(), name="friend-reject"),
     path("friends/remove/", FriendRemoveListAndCreate.as_view(), name="friend-remove"),
     path("groups/", GroupList.as_view(), name="group-list"),
+    path("groups/<int:pk>/", GroupDetail.as_view(), name="group-detail"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("lsts/", LstList.as_view(), name="lst-list"),
     path("lsts/<int:pk>/", LstDetail.as_view(), name="lst-detail"),
