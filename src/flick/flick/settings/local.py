@@ -166,8 +166,8 @@ S3_BASE_URL = f"https://{S3_BUCKET}.s3-us-west-1.amazonaws.com/"
 
 # Celery config
 # if running without docker, update redis to localhost
-CELERY_BROKER_URL = "redis://redis:6379"  # "redis://localhost:6379"
-CELERY_RESULT_BACKEND = "redis://redis:6379"  # "redis://localhost:6379/0"
+CELERY_BROKER_URL = "redis://localhost:6379"  # "redis://localhost:6379"
+CELERY_RESULT_BACKEND = "redis://localhost:6379"  # "redis://localhost:6379/0"
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"

@@ -6,7 +6,6 @@ from api.tests import FlickTestCase
 from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework.test import APIClient
-from show.models import Show
 from tag.models import Tag
 
 
@@ -28,24 +27,6 @@ class UpdateLstTests(FlickTestCase):
         self._create_friendship(user1=User.objects.get(id=1), user2=User.objects.get(id=2))
         self._create_friendship(user1=User.objects.get(id=1), user2=User.objects.get(id=3))
         self._create_friendship(user1=User.objects.get(id=2), user2=User.objects.get(id=3))
-
-    def _create_show(self):
-        show = Show()
-        show.title = self._get_random_string()
-        show.ext_api_id = 1
-        show.ext_api_source = "tmdb"
-        show.poster_pic = self._get_random_string()
-        show.is_tv = True
-        show.date_released = "4/1/20"
-        show.status = "status"
-        show.language = "en"
-        show.duration = None
-        show.plot = "juicy plot"
-        show.seasons = 3
-        show.directors = "alanna"
-        show.cast = "alanna"
-        show.save()
-        return show
 
     def _get_random_string(self):
         return "".join(random.choice(string.digits) for i in range(5))
