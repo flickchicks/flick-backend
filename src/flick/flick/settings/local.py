@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "api",
     "comment",
     "friend",
+    "group",
     "lst",
     "like",
     "notification",
@@ -61,6 +62,7 @@ INSTALLED_APPS = [
     "suggestion",
     "tag",
     "user",
+    "vote",
 ]
 
 PUSH_NOTIFICATIONS_SETTINGS = {

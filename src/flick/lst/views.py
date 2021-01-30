@@ -37,7 +37,6 @@ class LstList(generics.GenericAPIView):
 
 
 class LstDetail(generics.GenericAPIView):
-
     queryset = Lst.objects.all()
     serializer_class = LstWithSimpleShowsSerializer
 
