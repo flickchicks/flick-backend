@@ -29,9 +29,9 @@ services:
 
     app:
         build: .
+        env_file: .envrc
         command: sh -c "./wait-for-it.sh postgres:5432 && python manage.py migrate && gunicorn flick.wsgi -b 0.0.0.0:8000"
         container_name: app
-        env_file: .envrc
         depends_on:
             - postgres
             - redis
@@ -44,6 +44,7 @@ services:
         restart: on-failure
 
     celery_worker:
+        env_file: .envrc
         command: sh -c "./wait-for-it.sh redis:6379 && ./wait-for-it.sh app:8000 -- celery -A flick worker -l info --uid=0"
         depends_on:
             - app

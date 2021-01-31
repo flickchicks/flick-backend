@@ -28,6 +28,7 @@ services:
     celery_worker:
         image: alannazhou/app:latest
         hostname: celery_worker
+        env_file: .envrc
         command: sh -c "./wait-for-it.sh redis:6379 && ./wait-for-it.sh app:8000 -- celery -A flick worker -l info"
         depends_on:
             - app
