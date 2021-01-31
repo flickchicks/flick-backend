@@ -11,15 +11,17 @@ cd flick-backend
 
 ## Environment Variables
 
-If you are a developer on on the team, there is a `.env` file pinned in the backend channel of the Slack, and you can put this file where `manage.py` is. Any other average Joe can create an `.env` file by copying the template:
+If you are a developer on on the team, there is a `.envrc` file pinned in the backend channel of the Slack, and you can put this file where `manage.py` is. Any other average Joe can create an `.envrc` file by copying the template:
 
 ```
-cp env.template .env
+cp envrc.template .envrc
 ```
+
+Using [direnv](https://direnv.net/) is recommended. Otherwise, you need to source it using `source .envrc`.
 
 You will also need the private key files `apple_private.p8` (verify Apple Access Tokens during authentication) and `aps.pem` (connect with APNS to send push notifications to iOS devices) which we've pinned in the backend Slack channel. Put these in `flick-backend/src/flick` so that the settings can be properly configured.
 
-You may be wondering about how the development environment differs from the production environment and if we use a separate `.env` file. For now, we only have one `.env`, but simply changing `DEBUG` and `SQLITE3` is enough to determine which environment you will be using. As a summary,
+You may be wondering about how the development environment differs from the production environment and if we use a separate `.envrc` file. For now, we only have one `.envrc`, but simply changing `DEBUG` and `SQLITE3` is enough to determine which environment you will be using. As a summary,
 
 -   Local development with a local Sqlite3 database: `DEBUG=True` and `SQLITE3=True`
 -   Local development with a local PostgreSQL database: `DEBUG=True` and `SQLITE3=False`
@@ -31,7 +33,7 @@ As long as `DEBUG=False`, `flick/settings/init.py` will redirect `flick.settings
 
 Because this is a Django, Redis, Celery, PostgreSQL application, the backend is containerized and orchestrated with [Docker](https://www.docker.com/get-started) and Docker Swarm. Before we start, download [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/). Once you've installed Docker, check that it is running by seeing if there is a whale at the top menu toolbar with `Docker Desktop is running`.
 
-Depending on if you are running in development mode or production mode, update `.env` as explained above.
+Depending on if you are running in development mode or production mode, update `.envrc` as explained above.
 
 You may encounter an error with a celery worker exiting out with 137 error code. This just means that there is a memory cap on the Docker settings on your computer, and you can increase the allowed memory allocation to containers in `Docker > Preferences > Advanced > Memory`. You may also need to increase the Swap size.
 
@@ -44,7 +46,7 @@ find . -path "*/migrations/*.pyc"  -delete
 
 Before we go into the proper ways of running the backend, here's a quick way to run locally for development purposes:
 
-1. Update `.env` with `DEBUG=True` and `SQLITE3=True`
+1. Update `.envrc` with `DEBUG=True` and `SQLITE3=True`
 2. Create a virtual environment
 
 ```
@@ -95,7 +97,7 @@ flick-backend/src/flick> (venv) $ python3 manage.py createsuperuser
 
 ### Compose
 
-The app can be run in development mode using Django's built in web server (accessible at `http://localhost:8000/`), but make sure that `.env` has `DEBUG=True` and `SQLITE3=False`:
+The app can be run in development mode using Django's built in web server (accessible at `http://localhost:8000/`), but make sure that `.envrc` has `DEBUG=True` and `SQLITE3=False`:
 
 ```
 
@@ -119,7 +121,7 @@ docker-compose down
 
 ```
 
-To run the app in production mode, using gunicorn as a web server and nginx as a proxy (accessible at `http://localhost:80/` which is the same thing as `http://localhost/`), and making sure that `.env` has `DEBUG=False` and `SQLITE3=False`, use
+To run the app in production mode, using gunicorn as a web server and nginx as a proxy (accessible at `http://localhost:80/` which is the same thing as `http://localhost/`), and making sure that `.envrc` has `DEBUG=False` and `SQLITE3=False`, use
 
 ```
 
@@ -189,7 +191,7 @@ The setup here defines distinct development and production environments for the 
 
 ## Deployment
 
-We use Docker Hub to push images from our local computers and pull images on our remote servers. In the following commands, you can replace `alannazhou` with your own Docker Hub username. Make sure that `.env` has `DEBUG=False` before you build the Docker images.
+We use Docker Hub to push images from our local computers and pull images on our remote servers. In the following commands, you can replace `alannazhou` with your own Docker Hub username. Make sure that `.envrc` has `DEBUG=False` before you build the Docker images.
 
 To build the Django app image and push it to Docker Hub, run this command in `flick-backend/src/flick` (by default the image is being built from `Dockerfile`):
 
