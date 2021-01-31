@@ -178,4 +178,4 @@ class UpdateLstController:
             self._modify_tags(tag_ids)
 
         self._lst.save()
-        return success_response(self._serializer(self._lst).data)
+        return success_response(self._serializer(self._lst, context={"request": self._request}).data)

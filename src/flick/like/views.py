@@ -66,24 +66,25 @@ class LstLikeView(generics.GenericAPIView):
         notif.lst = lst
         notif.save()
 
+    def _create_like(self, lst, liker_profile):
+        like = Like()
+        like.lst = lst
+        like.type = "list_like"
+        like.liker = liker_profile
+        like.save()
+
     def post(self, request, pk):
-        if not Lst.objects.filter(pk=pk):
+        if not Lst.objects.filter(id=pk).exists():
             return failure_response(f"List of id {pk} does not exist.")
         lst = Lst.objects.get(pk=pk)
-
         user = request.user
-        if not Profile.objects.filter(user=user):
+        if not Profile.objects.filter(user=user).exists():
             return failure_response(f"{user} must be logged in.")
         profile = Profile.objects.get(user=user)
-
         existing_like = lst.likers.filter(liker=profile)
         if not existing_like:
             lst.num_likes += 1
-            like = Like()
-            like.lst = lst
-            like.type = "lst_like"
-            like.liker = profile
-            like.save()
+            self._create_like(lst, profile)
         else:
             lst.num_likes -= 1
             existing_like.delete()
@@ -91,5 +92,5 @@ class LstLikeView(generics.GenericAPIView):
         lst.save(update_fields=["num_likes"])
         if request.user.id != lst.owner.user.id:
             self._create_lst_like_notification(user, lst.owner, lst)
-        comment_data = LstWithSimpleShowsSerializer(lst, context={"request": request}).data
-        return success_response(comment_data)
+        lst_data = LstWithSimpleShowsSerializer(lst, context={"request": request}).data
+        return success_response(lst_data)

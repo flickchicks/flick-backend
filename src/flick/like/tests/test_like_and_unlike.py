@@ -87,7 +87,7 @@ class LikeTests(FlickTestCase):
 
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
 
-        # test notification is recieved
+        # test notification is received
         response = self.client.get(self.NOTIFICATION_URL)
         data = json.loads(response.content)["data"]
         self.assertEqual(response.status_code, 200)
