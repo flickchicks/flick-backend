@@ -12,8 +12,6 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 
-from decouple import config
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -22,14 +20,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config("SECRET_KEY")
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG") == "True"
 
-SQLITE3 = config("SQLITE3", default=False, cast=bool)
+SQLITE3 = os.getenv("SQLITE3") == "True"
 
-ALLOWED_HOSTS = config("DJANGO_ALLOWED_HOSTS").split(" ")
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS").split(",")
 
 # Application definition
 
@@ -66,9 +64,9 @@ INSTALLED_APPS = [
 ]
 
 PUSH_NOTIFICATIONS_SETTINGS = {
-    "FCM_API_KEY": config("FCM_API_KEY"),
-    "APNS_CERTIFICATE": config("APNS_CERTIFICATE"),
-    "APNS_TOPIC": config("APPLE_BUNDLE_ID"),
+    "FCM_API_KEY": os.getenv("FCM_API_KEY"),
+    "APNS_CERTIFICATE": os.getenv("APNS_CERTIFICATE"),
+    "APNS_TOPIC": os.getenv("APPLE_BUNDLE_ID"),
     "APNS_USE_SANDBOX": False,
 }
 
@@ -114,11 +112,11 @@ else:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql_psycopg2",
-            "NAME": "postgres",
-            "USER": "postgres",
-            "PASSWORD": "postgres",
-            "HOST": "postgres",
-            "PORT": "5432",
+            "NAME": os.getenv("POSTGRES_NAME"),
+            "USER": os.getenv("POSTGRES_USER"),
+            "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+            "HOST": os.getenv("POSTGRES_HOST"),
+            "PORT": os.getenv("POSTGRES_PORT"),
         }
     }
 
@@ -164,26 +162,29 @@ STATIC_ROOT = "/static"
 S3_BUCKET = "flick"
 S3_BASE_URL = f"https://{S3_BUCKET}.s3-us-west-1.amazonaws.com/"
 
-# Celery config
 # if running without docker, update redis to localhost
-CELERY_BROKER_URL = "redis://redis:6379"  # "redis://localhost:6379"
-CELERY_RESULT_BACKEND = "redis://redis:6379"  # "redis://localhost:6379/0"
+if DEBUG:
+    CELERY_BROKER_URL = "redis://localhost:6379"  # "redis://localhost:6379"
+    CELERY_RESULT_BACKEND = "redis://localhost:6379"  # "redis://localhost:6379/0"
+else:
+    CELERY_BROKER_URL = "redis://redis:6379"  # "redis://localhost:6379"
+    CELERY_RESULT_BACKEND = "redis://redis:6379"  # "redis://localhost:6379/0"
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
 
 # Third party APIs
-TMDB_API_KEY = config("TMDB_API_KEY")
+TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 TMDB_BASE_URL = "https://api.themoviedb.org/3"
 TMDB_BASE_IMAGE_URL = "http://image.tmdb.org/t/p/w400"
-VALIDATE_SOCIAL_TOKEN = False
+VALIDATE_SOCIAL_TOKEN = os.getenv("VALIDATE_SOCIAL_TOKEN") == "True"
 VALIDATE_FACEBOOK_TOKEN_URL = "https://graph.facebook.com/me"
 VALIDATE_FACEBOOK_ID_AND_TOKEN_URL = "https://graph.facebook.com/me?fields=id&access_token="
-APPLE_KEY_ID = config("APPLE_KEY_ID")
-APPLE_TEAM_ID = config("APPLE_TEAM_ID")
-APPLE_BUNDLE_ID = config("APPLE_BUNDLE_ID")
-APPLE_PRIVATE_KEY = config("APPLE_PRIVATE_KEY")
+APPLE_KEY_ID = os.getenv("APPLE_KEY_ID")
+APPLE_TEAM_ID = os.getenv("APPLE_TEAM_ID")
+APPLE_BUNDLE_ID = os.getenv("APPLE_BUNDLE_ID")
+APPLE_PRIVATE_KEY = os.getenv("APPLE_PRIVATE_KEY")
 VALIDATE_APPLE_TOKEN_URL = "https://appleid.apple.com/auth/token"
 
 # Testing
