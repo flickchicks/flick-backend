@@ -85,12 +85,12 @@ class LstLikeView(generics.GenericAPIView):
         if not existing_like:
             lst.num_likes += 1
             self._create_like(lst, profile)
+            if request.user.id != lst.owner.user.id:
+                self._create_lst_like_notification(user, lst.owner, lst)
         else:
             lst.num_likes -= 1
             existing_like.delete()
 
         lst.save(update_fields=["num_likes"])
-        if request.user.id != lst.owner.user.id:
-            self._create_lst_like_notification(user, lst.owner, lst)
         lst_data = LstWithSimpleShowsSerializer(lst, context={"request": request}).data
         return success_response(lst_data)
