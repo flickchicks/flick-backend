@@ -27,7 +27,7 @@ class LstList(generics.GenericAPIView):
             return failure_response(f"No user to be found with id of {request.user.id}.")
         profile = Profile.objects.get(user=request.user)
         lsts = Lst.objects.filter(Q(owner=profile) | Q(collaborators=profile) | Q(is_private=False))
-        serializer = self.serializer_class(lsts, many=True)
+        serializer = self.serializer_class(lsts, many=True, context={"request": request})
         return success_response(serializer.data)
 
     def post(self, request):
