@@ -57,7 +57,7 @@ class LstDetail(generics.GenericAPIView):
         user_is_collaborator = profile in lst.collaborators.all()
         user_is_owner = profile == lst.owner
         if not lst.is_private or user_is_collaborator or user_is_owner:
-            serializer = self.serializer_class(lst, many=False)
+            serializer = self.serializer_class(lst, many=False, context={"request": request})
             return success_response(serializer.data)
         else:
             return failure_response(
