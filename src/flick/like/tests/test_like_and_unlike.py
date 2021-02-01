@@ -81,16 +81,16 @@ class LikeTests(FlickTestCase):
 
         # test like
         response = self.client.post(self.LIKE_LST_URL)
-        data = json.loads(response.content)["data"]
         self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)["data"]
         self.assertEqual(data["num_likes"], 1)
 
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
 
         # test notification is received
         response = self.client.get(self.NOTIFICATION_URL)
-        data = json.loads(response.content)["data"]
         self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)["data"]
         self.assertEqual(len(data), 1)
         notification = data[0]
         self.assertEqual(notification["from_user"]["id"], 2)
@@ -101,7 +101,6 @@ class LikeTests(FlickTestCase):
 
         # test cancel like
         response = self.client.post(self.LIKE_LST_URL)
-        data = json.loads(response.content)["data"]
         self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)["data"]
         self.assertEqual(data["num_likes"], 0)
-        pass
