@@ -17,6 +17,7 @@ class Lst(models.Model):
     shows = models.ManyToManyField(Show, blank=True)
     custom_tags = models.ManyToManyField(Tag, related_name="lsts", blank=True)
     description = models.CharField(max_length=150, default="", blank=True, null=True)
+    num_likes = models.IntegerField(default=0, null=True)
 
     @property
     def tags(self):

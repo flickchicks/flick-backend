@@ -21,6 +21,7 @@ from group.views import GroupDetailAdd
 from group.views import GroupDetailRemove
 from group.views import GroupList
 from like.views import LikeView
+from like.views import LstLikeView
 from lst.views import LstDetail
 from lst.views import LstDetailAdd
 from lst.views import LstDetailRemove
@@ -67,6 +68,7 @@ urlpatterns = [
     path("lsts/<int:pk>/", LstDetail.as_view(), name="lst-detail"),
     path("lsts/<int:pk>/add/", LstDetailAdd.as_view(), name="lst-detail-add"),
     path("lsts/<int:pk>/remove/", LstDetailRemove.as_view(), name="lst-detail-remove"),
+    path("lsts/<int:pk>/like/", LstLikeView.as_view(), name="like-list"),
     path("me/", UserView.as_view(), name="me"),
     path("media/image/", UploadImage.as_view(), name="upload"),
     path("search/", Search.as_view(), name="search"),

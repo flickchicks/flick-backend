@@ -61,4 +61,4 @@ class CreateLstController:
                 if tag not in lst.tags.all():
                     lst.custom_tags.add(tag)
         lst.save()
-        return success_response(self._serializer(lst).data)
+        return success_response(self._serializer(lst, context={"request": self._request}).data)

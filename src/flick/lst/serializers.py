@@ -1,5 +1,7 @@
+from user.models import Profile
 from user.profile_simple_serializers import ProfileSimpleSerializer
 
+from like.serializers import LikeSerializer
 from rest_framework import serializers
 from show.serializers import ShowSearchSerializer
 from show.simple_serializers import ShowSimplestSerializer
@@ -13,6 +15,19 @@ class LstSerializer(serializers.ModelSerializer):
     owner = ProfileSimpleSerializer(many=False)
     shows = ShowSearchSerializer(many=True)
     tags = TagSimpleSerializer(many=True)
+    likers = LikeSerializer(many=True)
+    has_liked = serializers.SerializerMethodField(method_name="get_has_liked")
+
+    def get_has_liked(self, lst):
+        request = self.context.get("request")
+        user = request.user
+
+        if not Profile.objects.filter(user=user):
+            return False
+        profile = Profile.objects.get(user=user)
+
+        has_liked = lst.likers.filter(liker=profile).exists()
+        return has_liked
 
     class Meta:
         model = Lst
@@ -28,6 +43,9 @@ class LstSerializer(serializers.ModelSerializer):
             "owner",
             "shows",
             "tags",
+            "has_liked",
+            "num_likes",
+            "likers",
         )
         read_only_fields = fields
 
@@ -37,6 +55,17 @@ class LstWithSimpleShowsSerializer(serializers.ModelSerializer):
     owner = ProfileSimpleSerializer(many=False)
     shows = ShowSimplestSerializer(many=True)
     tags = TagSimpleSerializer(many=True)
+    likers = LikeSerializer(many=True)
+    has_liked = serializers.SerializerMethodField(method_name="get_has_liked")
+
+    def get_has_liked(self, lst):
+        request = self.context.get("request")
+        user = request.user
+        if not Profile.objects.filter(user=user):
+            return False
+        profile = Profile.objects.get(user=user)
+        has_liked = lst.likers.filter(liker=profile).exists()
+        return has_liked
 
     class Meta:
         model = Lst
@@ -52,5 +81,8 @@ class LstWithSimpleShowsSerializer(serializers.ModelSerializer):
             "owner",
             "shows",
             "tags",
+            "num_likes",
+            "has_liked",
+            "likers",
         )
         read_only_fields = fields
