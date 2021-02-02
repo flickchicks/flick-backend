@@ -6,6 +6,10 @@ from api.utils import failure_response
 from api.utils import success_response
 from rest_framework import generics
 from show.models import Show
+from show.serializers import GroupShowSerializer
+from vote.models import Vote
+from vote.models import VoteType
+from vote.serializers import VoteSerializer
 
 from .models import Group
 from .serializers import GroupSerializer
@@ -137,4 +141,82 @@ class GroupDetailRemove(generics.GenericAPIView):
             group.shows.remove(show)
         group.save()
         serializer = self.serializer_class(group)
+        return success_response(serializer.data)
+
+
+class GroupClearShows(generics.GenericAPIView):
+    serializer_class = GroupSerializer
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
+
+    def post(self, request, pk):
+        """Clear all shows in a group by id."""
+        if not Profile.objects.filter(user=request.user).exists():
+            return failure_response(f"No user to be found with id of {request.user.id}.")
+        profile = Profile.objects.get(user=request.user)
+        if not profile.groups.filter(id=pk).exists():
+            return failure_response(f"User does not belong to group with id {pk} or group with id {pk} does not exist.")
+        group = profile.groups.get(id=pk)
+        group.shows.clear()
+        group.votes.clear()
+        serializer = self.serializer_class(group)
+        return success_response(serializer.data)
+
+
+class GroupShowList(generics.GenericAPIView):
+    serializer_class = GroupShowSerializer
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
+
+    def get(self, request, pk):
+        """Clear all shows in a group by id."""
+        if not Profile.objects.filter(user=request.user).exists():
+            return failure_response(f"No user to be found with id of {request.user.id}.")
+        profile = Profile.objects.get(user=request.user)
+        if not profile.groups.filter(id=pk).exists():
+            return failure_response(f"User does not belong to group with id {pk} or group with id {pk} does not exist.")
+        group = profile.groups.get(id=pk)
+        serializer = self.serializer_class(group.shows.all(), context={"group_id": group.id}, many=True)
+        return success_response(serializer.data)
+
+
+class GroupVoteShow(generics.GenericAPIView):
+    serializer_class = VoteSerializer
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
+
+    def post(self, request, group_pk, show_pk):
+        """Update a group by id by removing members and shows."""
+        if not Profile.objects.filter(user=request.user).exists():
+            return failure_response(f"No user to be found with id of {request.user.id}.")
+        profile = Profile.objects.get(user=request.user)
+        if not profile.groups.filter(id=group_pk).exists():
+            return failure_response(
+                f"User does not belong to group with id {group_pk} or group with id {group_pk} does not exist."
+            )
+        group = profile.groups.get(id=group_pk)
+        if not group.shows.filter(id=show_pk).exists():
+            return failure_response(f"Show with id {show_pk} does not belong to group with id {group_pk}.")
+        show = group.shows.get(id=show_pk)
+        data = json.loads(request.body)
+        vote_str = data.get("vote")
+        if vote_str == "yes":
+            choice = VoteType.YES
+        elif vote_str == "maybe":
+            choice = VoteType.MAYBE
+        elif vote_str == "no":
+            choice = VoteType.NO
+        else:
+            return failure_response("Votes can only be 'yes', 'no', or 'maybe'.")
+        vote_exists = group.votes.filter(voter=profile, choice=choice, show=show)
+        if vote_exists:
+            return failure_response(f"Already voted {vote_str}!")
+        old_vote = group.votes.filter(voter=profile, show=show)
+        if old_vote:
+            vote = group.votes.get(voter=profile, show=show)
+            vote.choice = choice
+            vote.save()
+            group.save()
+        else:
+            vote = Vote.objects.create(voter=profile, choice=choice, show=show)
+            group.votes.add(vote)
+            group.save()
+        serializer = self.serializer_class(group.votes.all(), many=True)
         return success_response(serializer.data)

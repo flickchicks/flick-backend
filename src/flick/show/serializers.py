@@ -3,9 +3,11 @@ from user.models import Profile
 from comment.serializers import CommentSerializer
 from django.db.models import Avg
 from friendship.models import Friend
+from group.models import Group
 from provider.serializers import ProviderSerializer
 from rest_framework import serializers
 from tag.simple_serializers import TagSimpleSerializer
+from vote.models import VoteType
 
 from .models import Show
 
@@ -89,3 +91,46 @@ class ShowSearchSerializer(serializers.ModelSerializer):
             "language",
         )
         read_only_fields = fields
+
+
+class GroupShowSerializer(serializers.ModelSerializer):
+    num_yes_votes = serializers.SerializerMethodField(method_name="get_num_yes_votes")
+    num_maybe_votes = serializers.SerializerMethodField(method_name="get_num_maybe_votes")
+    num_no_votes = serializers.SerializerMethodField(method_name="get_num_no_votes")
+
+    class Meta:
+        model = Show
+        fields = (
+            "id",
+            "num_yes_votes",
+            "num_maybe_votes",
+            "num_no_votes",
+            "ext_api_id",
+            "ext_api_source",
+            "title",
+            "poster_pic",
+            "backdrop_pic",
+            "is_tv",
+            "is_adult",
+            "plot",
+            "date_released",
+            "language",
+        )
+
+    def get_num_yes_votes(self, show):
+        group_id = self.context.get("group_id")
+        group = Group.objects.get(id=group_id)
+        num_yes_votes = group.votes.filter(choice=VoteType.YES, show=show).count()
+        return num_yes_votes
+
+    def get_num_maybe_votes(self, show):
+        group_id = self.context.get("group_id")
+        group = Group.objects.get(id=group_id)
+        num_yes_votes = group.votes.filter(choice=VoteType.MAYBE, show=show).count()
+        return num_yes_votes
+
+    def get_num_no_votes(self, show):
+        group_id = self.context.get("group_id")
+        group = Group.objects.get(id=group_id)
+        num_yes_votes = group.votes.filter(choice=VoteType.NO, show=show).count()
+        return num_yes_votes

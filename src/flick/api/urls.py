@@ -16,10 +16,13 @@ from friend.views import FriendRejectListAndCreate
 from friend.views import FriendRemoveListAndCreate
 from friend.views import FriendRequestListAndCreate
 from friend.views import UserFriendList
+from group.views import GroupClearShows
 from group.views import GroupDetail
 from group.views import GroupDetailAdd
 from group.views import GroupDetailRemove
 from group.views import GroupList
+from group.views import GroupShowList
+from group.views import GroupVoteShow
 from like.views import LikeView
 from like.views import LstLikeView
 from lst.views import LstDetail
@@ -63,6 +66,9 @@ urlpatterns = [
     path("groups/<int:pk>/", GroupDetail.as_view(), name="group-detail"),
     path("groups/<int:pk>/add/", GroupDetailAdd.as_view(), name="group-detail-add"),
     path("groups/<int:pk>/remove/", GroupDetailRemove.as_view(), name="group-detail-remove"),
+    path("groups/<int:group_pk>/shows/<int:show_pk>/vote/", GroupVoteShow.as_view(), name="group-vote-show"),
+    path("groups/<int:pk>/shows/clear/", GroupClearShows.as_view(), name="group-clear-shows"),
+    path("groups/<int:pk>/shows/", GroupShowList.as_view(), name="group-show-list"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("lsts/", LstList.as_view(), name="lst-list"),
     path("lsts/<int:pk>/", LstDetail.as_view(), name="lst-detail"),
