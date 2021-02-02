@@ -9,6 +9,7 @@
 *.pem
 *.sqlite3
 *.envrc
+*.env
 .cache
 .project
 .idea
