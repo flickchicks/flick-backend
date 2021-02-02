@@ -1,11 +1,9 @@
-language: python # => 1
+language: python
 
-python: # => 2
+python:
     - "3.7"
-# services: # => 3
-#     - postgresql
 
-env: # => 4
+env:
     - DEBUG=True
     - SQLITE3=True
     - TMDB_API_KEY=''
@@ -15,10 +13,9 @@ env: # => 4
     - APPLE_PRIVATE_KEY=''
     - APNS_CERTIFICATE=''
     - FCM_API_KEY=''
-install: # => 5
+
+install:
     - pip install -r /src/flick/requirements.txt
 
-# before_script: # => 6
-#     - mysql -e 'create database test;' -u root
-script: # => 7
+script:
     - python manage.py test --exclude-tag=flakey
