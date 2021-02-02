@@ -1,0 +1,21 @@
+language: python
+
+python:
+    - "3.7"
+
+env:
+    - DEBUG=True
+    - SQLITE3=True
+    - TMDB_API_KEY=''
+    - SECRET_KEY=''
+    - DJANGO_ALLOWED_HOSTS=localhost
+    - VALIDATE_SOCIAL_TOKEN=False
+    - APPLE_PRIVATE_KEY=''
+    - APNS_CERTIFICATE=''
+    - FCM_API_KEY=''
+
+install:
+    - pip install -r /src/flick/requirements.txt
+
+script:
+    - python manage.py test --exclude-tag=flakey
