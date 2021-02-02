@@ -208,5 +208,6 @@ CACHES = {
 }
 
 # read in the APPLE_PRIVATE_KEY
-with open("apple_private.p8", mode="rb") as key_file:
-    APPLE_PRIVATE_KEY = key_file.read()
+if VALIDATE_SOCIAL_TOKEN:
+    with open("apple_private.p8", mode="rb") as key_file:
+        APPLE_PRIVATE_KEY = key_file.read()

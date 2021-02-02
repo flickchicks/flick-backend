@@ -11,9 +11,9 @@ services:
         restart: always
 
     app:
-        image: alannazhou/app:latest
+        image: alannazhou/app-dev:latest
         hostname: app
-        env_file: .envrc
+        env_file: .env
         command: sh -c "python manage.py migrate && gunicorn flick.wsgi -b 0.0.0.0:8000"
         depends_on:
             - redis
@@ -24,11 +24,13 @@ services:
         restart: always
         volumes:
             - static:/static
+            - /home/alanna/docker-compose/aps.pem:/usr/src/app/aps.pem
+            - /home/alanna/docker-compose/apple_private.p8:/usr/src/app/apple_private.p8
 
     celery_worker:
-        image: alannazhou/app:latest
+        image: alannazhou/app-dev:latest
         hostname: celery_worker
-        env_file: .envrc
+        env_file: .env
         command: sh -c "./wait-for-it.sh redis:6379 && ./wait-for-it.sh app:8000 -- celery -A flick worker -l info"
         depends_on:
             - app
@@ -40,6 +42,9 @@ services:
         networks:
             - main
         restart: always
+        volumes:
+            - /home/alanna/docker-compose/aps.pem:/usr/src/app/aps.pem
+            - /home/alanna/docker-compose/apple_private.p8:/usr/src/app/apple_private.p8
 
     nginx:
         image: alannazhou/nginx:latest
