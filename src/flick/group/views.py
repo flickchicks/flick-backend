@@ -170,7 +170,7 @@ class GroupShowList(generics.GenericAPIView):
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
     def get(self, request, pk):
-        """Clear all shows in a group by id."""
+        """View show results in a group by id."""
         if not Profile.objects.filter(user=request.user).exists():
             return failure_response(f"No user to be found with id of {request.user.id}.")
         profile = Profile.objects.get(user=request.user)
@@ -223,7 +223,7 @@ class GroupVoteShow(generics.GenericAPIView):
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
     def post(self, request, group_pk, show_pk):
-        """Update a group by id by removing members and shows."""
+        """Vote for a show in a group by id."""
         if not Profile.objects.filter(user=request.user).exists():
             return failure_response(f"No user to be found with id of {request.user.id}.")
         profile = Profile.objects.get(user=request.user)
