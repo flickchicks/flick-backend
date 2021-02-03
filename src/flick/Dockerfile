@@ -5,6 +5,9 @@ RUN apt-get -q update && apt-get -qy install netcat
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
+
+RUN ["chmod", "+x", "wait-for-it.sh"]
+
 COPY . .
 
 RUN ["chmod", "+x", "/usr/src/app/wait-for-it.sh"]
