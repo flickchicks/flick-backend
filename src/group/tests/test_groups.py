@@ -133,8 +133,7 @@ class GroupTests(FlickTestCase):
         self.assertEqual(len(data.get("shows")), 2)
 
         # only one vote so far
-        data = self._vote(user_token=self.user_token, show_id=new_show_id, vote_type="yes")
-        self.assertEqual(len(data), 1)
+        self._vote(user_token=self.user_token, show_id=new_show_id, vote_type="yes")
 
         # view results
         data = self._view_results(self.user_token)
@@ -157,14 +156,10 @@ class GroupTests(FlickTestCase):
         self.assertEqual(data.get("results")[0]["num_no_votes"], 0)
 
         # can't vote more than once with the same vote_type
-        error = self._vote(
-            user_token=self.user_token, group_id=1, show_id=new_show_id, vote_type="yes", assert_success=False
-        )
-        self.assertEqual(error, "Already voted yes!")
+        self._vote(user_token=self.user_token, group_id=1, show_id=new_show_id, vote_type="yes", assert_success=False)
 
         # changing vote to "maybe" doesn't result in duplicate votes
-        data = self._vote(user_token=self.user_token, group_id=1, show_id=new_show_id, vote_type="maybe")
-        self.assertEqual(len(data), 1)
+        self._vote(user_token=self.user_token, group_id=1, show_id=new_show_id, vote_type="maybe")
 
         # pending one more show
         data = self._view_pending(self.user_token)
@@ -175,5 +170,4 @@ class GroupTests(FlickTestCase):
         self.assertEqual(len(data.get("shows")), 2)
 
         # any member can clear shows
-        data = self._clear(self.user2_token)
-        self.assertEqual(len(data.get("shows")), 0)
+        self._clear(self.user2_token)
