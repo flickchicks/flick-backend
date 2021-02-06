@@ -11,17 +11,11 @@ from vote.models import VoteType
 
 
 @shared_task
-def vote(request, group_pk, show_pk):
-    if not Profile.objects.filter(user=request.user).exists():
-        return
-    profile = Profile.objects.get(user=request.user)
-    if not profile.groups.filter(id=group_pk).exists():
-        return
+def vote(user_pk, request_body, group_pk, show_pk):
+    profile = Profile.objects.get(user__id=user_pk)
     group = profile.groups.get(id=group_pk)
-    if not group.shows.filter(id=show_pk).exists():
-        return
     show = group.shows.get(id=show_pk)
-    data = json.loads(request.body)
+    data = json.loads(request_body)
     vote_str = data.get("vote")
     if vote_str == "yes":
         choice = VoteType.YES

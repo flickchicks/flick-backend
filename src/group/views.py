@@ -226,5 +226,5 @@ class GroupVoteShow(generics.GenericAPIView):
 
     def post(self, request, group_pk, show_pk):
         """Vote for a show in a group by id."""
-        vote.delay(request, group_pk, show_pk)
+        vote.delay(request.user.id, request.body, group_pk, show_pk)
         return success_response()
