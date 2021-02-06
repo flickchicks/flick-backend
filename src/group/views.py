@@ -153,7 +153,7 @@ class GroupClearShows(generics.GenericAPIView):
 
     def post(self, request, pk):
         """Clear all shows in a group by id."""
-        clear_shows.delay(user_pk=request.user.id, group_pk=pk)
+        clear_shows.delay(user_id=request.user.id, group_id=pk)
         return success_response()
 
 

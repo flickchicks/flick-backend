@@ -11,19 +11,19 @@ from vote.models import VoteType
 
 
 @shared_task
-def clear_shows(user_pk, group_pk):
-    profile = Profile.objects.get(user__id=user_pk)
-    group = profile.groups.get(id=group_pk)
+def clear_shows(user_id, group_id):
+    profile = Profile.objects.get(user__id=user_id)
+    group = profile.groups.get(id=group_id)
     group.shows.clear()
     group.votes.clear()
     return
 
 
 @shared_task
-def vote(request_body, user_pk, group_pk, show_pk):
-    profile = Profile.objects.get(user__id=user_pk)
-    group = profile.groups.get(id=group_pk)
-    show = group.shows.get(id=show_pk)
+def vote(request_body, user_id, group_id, show_id):
+    profile = Profile.objects.get(user__id=user_id)
+    group = profile.groups.get(id=group_id)
+    show = group.shows.get(id=show_id)
     data = json.loads(request_body)
     vote_str = data.get("vote")
     if vote_str == "yes":
