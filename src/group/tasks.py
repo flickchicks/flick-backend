@@ -11,7 +11,16 @@ from vote.models import VoteType
 
 
 @shared_task
-def vote(user_pk, request_body, group_pk, show_pk):
+def clear_shows(user_pk, group_pk):
+    profile = Profile.objects.get(user__id=user_pk)
+    group = profile.groups.get(id=group_pk)
+    group.shows.clear()
+    group.votes.clear()
+    return
+
+
+@shared_task
+def vote(request_body, user_pk, group_pk, show_pk):
     profile = Profile.objects.get(user__id=user_pk)
     group = profile.groups.get(id=group_pk)
     show = group.shows.get(id=show_pk)

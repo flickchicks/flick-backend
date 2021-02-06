@@ -15,6 +15,7 @@ from vote.serializers import VoteSerializer
 from .models import Group
 from .serializers import GroupSerializer
 from .serializers import GroupSimpleSerializer
+from .tasks import clear_shows
 from .tasks import vote
 
 
@@ -152,16 +153,8 @@ class GroupClearShows(generics.GenericAPIView):
 
     def post(self, request, pk):
         """Clear all shows in a group by id."""
-        if not Profile.objects.filter(user=request.user).exists():
-            return failure_response(f"No user to be found with id of {request.user.id}.")
-        profile = Profile.objects.get(user=request.user)
-        if not profile.groups.filter(id=pk).exists():
-            return failure_response(f"User does not belong to group with id {pk} or group with id {pk} does not exist.")
-        group = profile.groups.get(id=pk)
-        group.shows.clear()
-        group.votes.clear()
-        serializer = self.serializer_class(group)
-        return success_response(serializer.data)
+        clear_shows.delay(user_pk=request.user.id, group_pk=pk)
+        return success_response()
 
 
 class GroupShowList(generics.GenericAPIView):
@@ -226,5 +219,5 @@ class GroupVoteShow(generics.GenericAPIView):
 
     def post(self, request, group_pk, show_pk):
         """Vote for a show in a group by id."""
-        vote.delay(request.user.id, request.body, group_pk, show_pk)
+        vote.delay(request.body, request.user.id, group_pk, show_pk)
         return success_response()
