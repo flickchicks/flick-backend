@@ -21,8 +21,6 @@ class CommentSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         user = request.user
 
-        if not Profile.objects.filter(user=user):
-            return False
         profile = Profile.objects.get(user=user)
 
         has_liked = instance.likers.filter(liker=profile).exists()
@@ -34,8 +32,6 @@ class CommentSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         user = request.user
 
-        if not Profile.objects.filter(user=user):
-            return False
         profile = Profile.objects.get(user=user)
         if instance.owner == profile:
             return True
