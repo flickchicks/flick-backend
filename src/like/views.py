@@ -31,8 +31,6 @@ class LikeView(generics.GenericAPIView):
         comment = Comment.objects.get(pk=pk)
 
         user = request.user
-        if not Profile.objects.filter(user=user):
-            return failure_response(f"{user} must be logged in.")
         profile = Profile.objects.get(user=user)
 
         existing_like = comment.likers.filter(liker=profile)
@@ -78,8 +76,6 @@ class LstLikeView(generics.GenericAPIView):
             return failure_response(f"List of id {pk} does not exist.")
         lst = Lst.objects.get(pk=pk)
         user = request.user
-        if not Profile.objects.filter(user=user).exists():
-            return failure_response(f"{user} must be logged in.")
         profile = Profile.objects.get(user=user)
         existing_like = lst.likers.filter(liker=profile)
         if not existing_like:
