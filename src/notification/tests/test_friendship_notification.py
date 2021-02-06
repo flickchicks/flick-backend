@@ -1,6 +1,7 @@
 import json
 
 from api.tests import FlickTestCase
+from django.test import tag
 from django.urls import reverse
 from rest_framework.test import APIClient
 
@@ -43,6 +44,8 @@ class FriendshipNotification(FlickTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(content.get("num_notifs"), num_notifs)
 
+    # Marking as flakey because this is an asynchronous task
+    @tag("flakey")
     def test_incoming_and_outgoing_friend_request_accepted(self):
         # user 1 sends friend request to user 2
         self._send_friend_request()

@@ -188,8 +188,8 @@ APPLE_PRIVATE_KEY = os.getenv("APPLE_PRIVATE_KEY")
 VALIDATE_APPLE_TOKEN_URL = "https://appleid.apple.com/auth/token"
 
 # Testing
-# TEST_RUNNER = "django_slowtests.testrunner.DiscoverSlowestTestsRunner"
-# NUM_SLOW_TESTS = 5
+TEST_RUNNER = "django_slowtests.testrunner.DiscoverSlowestTestsRunner"
+NUM_SLOW_TESTS = 5
 
 # Caches
 CACHES = {

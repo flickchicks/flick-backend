@@ -1,5 +1,4 @@
 import json
-from user.models import Profile
 
 from api import settings as api_settings
 from api.utils import failure_response
@@ -7,13 +6,14 @@ from api.utils import success_response
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.shortcuts import reverse
+from flick.tasks import create_incoming_friend_request_accepted_for_to_user
+from flick.tasks import create_outgoing_friend_request_accepted_for_from_user
 from friend.serializers import FriendRequestSerializer
 from friend.serializers import FriendshipSerializer
 from friend.serializers import FriendUserSerializer
 from friend.serializers import IncomingRequestSerializer
 from friendship.models import Friend
 from friendship.models import FriendshipRequest
-from notification.models import Notification
 from push_notifications.models import APNSDevice
 from push_notifications.models import GCMDevice
 from rest_framework import generics
@@ -89,31 +89,6 @@ class FriendAcceptListAndCreate(generics.ListCreateAPIView):
 
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
-    def _create_incoming_friend_request_accepted_for_to_user(self, from_user, to_user):
-        from_profile = Profile.objects.get(user=from_user)
-        to_profile = Profile.objects.get(user=to_user)
-        notif = Notification()
-        notif.notif_type = "incoming_friend_request_accepted"
-        notif.from_user = from_profile
-        notif.to_user = to_profile
-        notif.save()
-
-    def _create_outgoing_friend_request_accepted_for_from_user(self, from_user, to_user):
-        from_profile = Profile.objects.get(user=from_user)
-        to_profile = Profile.objects.get(user=to_user)
-        notif = Notification()
-        notif.notif_type = "outgoing_friend_request_accepted"
-        notif.from_user = to_profile
-        notif.to_user = from_profile
-        notif.save()
-        ios_devices = APNSDevice.objects.filter(user=from_user, active=True)
-        android_devices = GCMDevice.objects.filter(user=from_user, active=True)
-        message_body = (
-            f"({from_user.username}): {to_user.first_name} (@{to_user.username}) accepted your friend request."
-        )
-        ios_devices.send_message(message={"body": message_body})
-        android_devices.send_message(message={"body": message_body})
-
     def get(self, request, format=None):
         friend_requests = Friend.objects.unrejected_requests(user=request.user)
         serializer = IncomingRequestSerializer(friend_requests, many=True)
@@ -129,14 +104,11 @@ class FriendAcceptListAndCreate(generics.ListCreateAPIView):
                 friend_request = FriendshipRequest.objects.get(from_user=friend.id, to_user=id)
                 friend_request.accept()
                 friends_accepted.append(friend_request)
-                self._create_outgoing_friend_request_accepted_for_from_user(from_user=friend, to_user=request.user)
-                self._create_incoming_friend_request_accepted_for_to_user(from_user=friend, to_user=request.user)
-            except Exception as e:
-                print(str(e))
+                create_outgoing_friend_request_accepted_for_from_user.delay(from_user=friend, to_user=request.user)
+                create_incoming_friend_request_accepted_for_to_user.delay(from_user=friend, to_user=request.user)
+            except Exception:
                 continue
-
         serializer = FriendshipSerializer(friends_accepted, many=True)
-
         return success_response(serializer.data)
 
 
