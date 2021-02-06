@@ -169,6 +169,9 @@ class GroupShowList(generics.GenericAPIView):
     serializer_class = GroupShowSerializer
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
+    def order(self, result):
+        return 1 * result["num_yes_votes"] + 0.5 * result["num_maybe_votes"] - 1 * result["num_no_votes"]
+
     def get(self, request, pk):
         """View show results in a group by id."""
         if not Profile.objects.filter(user=request.user).exists():
@@ -188,7 +191,7 @@ class GroupShowList(generics.GenericAPIView):
             "num_members": num_members,
             "num_voted": num_voted,
             "user_voted": user_voted,
-            "results": serializer.data,
+            "results": sorted(serializer.data, key=self.order, reverse=True),
         }
         return success_response(data)
 
