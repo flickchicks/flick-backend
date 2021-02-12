@@ -50,10 +50,7 @@ class ShowDetail(generics.GenericAPIView):
         if not Show.objects.filter(pk=pk):
             return failure_response(f"Show of id {pk} does not exist.")
         show = Show.objects.get(pk=pk)
-
         user = request.user
-        if not Profile.objects.filter(user=user):
-            return failure_response("User must be logged in.")
         profile = Profile.objects.get(user=user)
         data = json.loads(request.body)
         score = data.get("user_rating")

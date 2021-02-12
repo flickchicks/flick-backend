@@ -13,11 +13,7 @@ class UpdateProfileController:
         self._serializer = serializer
 
     def process(self):
-        profile_exists = Profile.objects.filter(user=self._user)
-        if not profile_exists:
-            return failure_response(f"Profile for user {self._user} does not exist!")
         profile = Profile.objects.get(user=self._user)
-
         username = self._data.get("username")
         name = self._data.get("name")
         profile_pic_base64 = self._data.get("profile_pic")

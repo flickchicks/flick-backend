@@ -139,9 +139,6 @@ class UpdateLstController:
         if not Lst.objects.filter(pk=self._pk):
             return failure_response(f"No list to be found with id of {self._pk}.")
         self._lst = Lst.objects.get(pk=self._pk)
-
-        if not Profile.objects.filter(user=self._user):
-            return failure_response(f"No user to be found with id of {self._user.id}.")
         self._profile = Profile.objects.get(user=self._user)
 
         user_is_owner = self._profile == self._lst.owner

@@ -21,8 +21,6 @@ class NotificationList(generics.GenericAPIView):
 
     def get(self, request):
         """See all notifications."""
-        if not Profile.objects.filter(user=request.user):
-            return failure_response(f"No user to be found with id of {request.user.id}.")
         profile = Profile.objects.get(user=request.user)
         notifs = Notification.objects.filter(Q(to_user=profile))
         serializer = self.serializer_class(notifs, many=True)
@@ -32,8 +30,6 @@ class NotificationList(generics.GenericAPIView):
         """Update the last viewed notification time."""
         data = json.loads(request.body)
         notif_time_viewed = data.get("notif_time_viewed")
-        if not Profile.objects.filter(user=request.user):
-            return failure_response(f"No user to be found with id of {request.user.id}.")
         profile = Profile.objects.get(user=request.user)
         profile.notif_time_viewed = parse_datetime(notif_time_viewed)
         profile.save()

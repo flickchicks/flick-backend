@@ -23,8 +23,6 @@ class LstList(generics.GenericAPIView):
 
     def get(self, request):
         """See all possible lists."""
-        if not Profile.objects.filter(user=request.user):
-            return failure_response(f"No user to be found with id of {request.user.id}.")
         profile = Profile.objects.get(user=request.user)
         lsts = Lst.objects.filter(Q(owner=profile) | Q(collaborators=profile) | Q(is_private=False))
         serializer = self.serializer_class(lsts, many=True, context={"request": request})
