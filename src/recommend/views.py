@@ -33,6 +33,7 @@ class LstRecommendView(generics.GenericAPIView):
             similar = local_cache.get((show.id, "similar"))
             if not similar:
                 similar = flicktmdb().get_similar_shows(show.ext_api_id, show.is_tv)
+                local_cache.set((show.id, "similar"), similar)
             rec_shows.extend(similar)
 
         data = ShowAPI.create_show_objects(rec_shows, serializer=ShowSimpleSerializer)
