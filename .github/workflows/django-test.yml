@@ -23,8 +23,6 @@ jobs:
                   pip install -r requirements.txt
             - name: Start Redis
               uses: supercharge/redis-github-action@1.2.0
-              with:
-                  redis-version: 3.5.2
             - name: Run tests
               run: |
                   cd src
