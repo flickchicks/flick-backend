@@ -2,6 +2,7 @@ import json
 
 from api.tests import FlickTestCase
 from django.contrib.auth.models import User
+from django.test import tag
 from django.urls import reverse
 from rest_framework.test import APIClient
 from show.models import Show
@@ -58,6 +59,8 @@ class PrivateSuggestionTests(FlickTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(content.get("num_notifs"), num_notifs)
 
+    @tag("flakey")
+    # Flakey because async task
     def test_suggestions(self):
         suggest_data = {"users": [2, 3], "message": "Great film", "show_id": self.show.pk}
         self._suggest_show(self.user_token, suggest_data)

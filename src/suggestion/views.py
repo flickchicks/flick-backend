@@ -17,7 +17,7 @@ class CreateSuggestion(generics.GenericAPIView):
         """Suggest a show to another user."""
         data = json.loads(request.body)
         profile_id = Profile.objects.get(user=request.user).id
-        create_suggestion_and_push_notify(data, profile_id)
+        create_suggestion_and_push_notify.delay(data, profile_id)
         return success_response()
 
 

@@ -15,6 +15,7 @@ from .models import Group
 from .serializers import GroupSerializer
 from .serializers import GroupSimpleSerializer
 from .tasks import clear_shows
+from .tasks import create_new_group_notif
 from .tasks import vote
 
 
@@ -44,6 +45,7 @@ class GroupList(generics.GenericAPIView):
             except:
                 continue
         group.save()
+        create_new_group_notif.delay(profile_id=profile.id, group_id=group.id, member_ids=member_ids)
         serializer = self.serializer_class(group)
         return success_response(serializer.data)
 
@@ -94,6 +96,7 @@ class GroupDetailAdd(generics.GenericAPIView):
             except:
                 continue
         group.save()
+        create_new_group_notif.delay(profile_id=profile.id, group_id=group.id, member_ids=member_ids)
         serializer = self.serializer_class(group)
         return success_response(serializer.data)
 

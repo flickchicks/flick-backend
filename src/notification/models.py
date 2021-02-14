@@ -2,6 +2,7 @@ from user.models import Profile
 
 from comment.models import Comment
 from django.db import models
+from group.models import Group
 from lst.models import Lst
 
 
@@ -13,6 +14,7 @@ class Notification(models.Model):
         ("outgoing_friend_request_accepted", "Outoing Friend Request Accepted"),
         ("comment_like", "Comment Like"),
         ("list_like", "List Like"),
+        ("group_invite", "Group Invite"),
     )
 
     notif_type = models.CharField(max_length=50, choices=NOTIF_TYPE_CHOICES, default=None)
@@ -23,6 +25,7 @@ class Notification(models.Model):
         Profile, on_delete=models.CASCADE, blank=True, null=True, related_name="received_notification"
     )
     lst = models.ForeignKey(Lst, on_delete=models.CASCADE, blank=True, null=True, related_name="notification")
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, blank=True, null=True, related_name="notification")
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE, blank=True, null=True, related_name="notification")
     num_shows_added = models.IntegerField(blank=True, null=True)
     num_shows_removed = models.IntegerField(blank=True, null=True)
