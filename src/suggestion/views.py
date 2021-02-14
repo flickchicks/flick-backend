@@ -2,16 +2,12 @@ import json
 from user.models import Profile
 
 from api import settings as api_settings
-from api.utils import failure_response
 from api.utils import success_response
-from django.contrib.auth.models import User
 from django.utils.dateparse import parse_datetime
-from friendship.models import Friend
 from rest_framework import generics
-from show.models import Show
 
-from .models import PrivateSuggestion
 from .serializers import PrivateSuggestionSerializer
+from .tasks import create_suggestion_and_push_notify
 
 
 class CreateSuggestion(generics.GenericAPIView):
@@ -20,41 +16,9 @@ class CreateSuggestion(generics.GenericAPIView):
     def post(self, request):
         """Suggest a show to another user."""
         data = json.loads(request.body)
-        user = request.user
-        profile = Profile.objects.get(user=user)
-
-        show_id = data.get("show_id")
-        if not Show.objects.filter(id=show_id):
-            return failure_response(f"Show of id {show_id} does not exist.")
-        show = Show.objects.get(id=show_id)
-
-        suggestions = []
-        for friend_id in data.get("users"):
-            try:
-                if friend_id == user.pk:
-                    raise Exception("Unable to suggest to yourself")
-                if not User.objects.filter(id=friend_id):
-                    raise Exception(f"Friend ID {friend_id} does not correspond to a valid user")
-                friend = User.objects.get(id=friend_id)
-                if not Friend.objects.are_friends(user, friend):
-                    raise Exception(f"Unable to suggest to non-friend user {friend_id}")
-                if PrivateSuggestion.objects.filter(
-                    from_user=profile, to_user=friend, show=show, message=data.get("message")
-                ):
-                    return failure_response("Suggestion has already been sent!")
-                pri_suggestion = PrivateSuggestion()
-                pri_suggestion.from_user = profile
-                pri_suggestion.to_user = friend
-                pri_suggestion.show = show
-                pri_suggestion.message = data.get("message")
-                pri_suggestion.save()
-                suggestions.append(pri_suggestion)
-            except Exception as e:
-                print(str(e))
-                continue
-
-        suggestion_data = PrivateSuggestionSerializer(suggestions, many=True).data
-        return success_response(suggestion_data)
+        profile_id = Profile.objects.get(user=request.user).id
+        create_suggestion_and_push_notify(data, profile_id)
+        return success_response()
 
 
 class SuggestionList(generics.GenericAPIView):
