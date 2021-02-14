@@ -97,6 +97,8 @@ class GroupTests(FlickTestCase):
         data = json.loads(response.content)["data"]
         return data
 
+    # Tagging as flakey because this contains an asynchronous task
+    @tag("flakey")
     def test_groups(self):
         # group was first created at setup
         self._view_groups(num_groups=1)
