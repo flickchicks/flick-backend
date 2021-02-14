@@ -42,7 +42,6 @@ class CreateLstController:
                 if Profile.objects.filter(user=collaborator):
                     c = Profile.objects.get(user=collaborator)
                     lst.collaborators.add(c)
-        create_lst_invite_notif.delay(profile_id=self._profile.id, collaborator_ids=collaborator_ids)
         for show_id in show_ids:
             if Show.objects.filter(pk=show_id):
                 show = Show.objects.get(pk=show_id)
@@ -53,4 +52,5 @@ class CreateLstController:
                 if tag not in lst.tags.all():
                     lst.custom_tags.add(tag)
         lst.save()
+        create_lst_invite_notif.delay(profile_id=self._profile.id, lst_id=lst.id, collaborator_ids=collaborator_ids)
         return success_response(self._serializer(lst, context={"request": self._request}).data)
