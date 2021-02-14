@@ -21,9 +21,11 @@ jobs:
               run: |
                   python -m pip install --upgrade pip
                   pip install -r requirements.txt
+                  redis-server
             - name: Run tests
               run: |
                   cd src
+                  celery -A flick worker --loglevel=info
                   python manage.py test --exclude-tag=flakey
               env:
                   DEBUG: "True"
