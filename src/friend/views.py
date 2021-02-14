@@ -6,8 +6,6 @@ from api.utils import success_response
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.shortcuts import reverse
-from flick.tasks import create_incoming_friend_request_accepted_for_to_user
-from flick.tasks import create_outgoing_friend_request_accepted_for_from_user
 from friend.serializers import FriendRequestSerializer
 from friend.serializers import FriendshipSerializer
 from friend.serializers import FriendUserSerializer
@@ -18,6 +16,9 @@ from push_notifications.models import APNSDevice
 from push_notifications.models import GCMDevice
 from rest_framework import generics
 from rest_framework.views import APIView
+
+from .tasks import create_incoming_friend_request_accepted_for_to_user
+from .tasks import create_outgoing_friend_request_accepted_for_from_user
 
 
 class FriendList(APIView):
