@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class MemberConfig(AppConfig):
-    name = "member"
+class RecommendConfig(AppConfig):
+    name = "recommend"
