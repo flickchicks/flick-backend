@@ -24,6 +24,7 @@ class LstRecommendView(generics.GenericAPIView):
         """
         lst = Lst.objects.get(pk=pk)
         shows = lst.shows.filter(ext_api_source="tmdb")
+        show_ids = set(shows.values_list("ext_api_id", flat=True))
 
         rec_shows = []
         for show in shows:
@@ -31,6 +32,7 @@ class LstRecommendView(generics.GenericAPIView):
             if not similar:
                 similar = self.api.get_similar_shows(show.ext_api_id, show.is_tv)
                 local_cache.set((show.id, "similar"), similar)
+            similar = filter(lambda a: a.get("ext_api_id") not in show_ids, similar)
             rec_shows.extend(similar)
 
         data = ShowAPI.create_show_objects(rec_shows, serializer=ShowSimpleSerializer)
