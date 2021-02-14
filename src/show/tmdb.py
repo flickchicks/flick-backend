@@ -153,3 +153,59 @@ class flicktmdb:
             }
             shows.append(show)
         return shows
+
+    def get_similar_movies(self, tmdb_id):
+        url = f"{settings.TMDB_BASE_URL}/movie/{tmdb_id}/similar?api_key={settings.TMDB_API_KEY}&page=1"
+        r = requests.get(url)
+        if r.status_code != 200:
+            return []
+        results = json.loads(r.content).get("results")
+        shows = []
+        for result in results:
+            backdrop_path = result.get("backdrop_path")
+            poster_path = result.get("poster_path")
+            show = {
+                "backdrop_pic": settings.TMDB_BASE_IMAGE_URL + backdrop_path if backdrop_path else None,
+                "date_released": result.get("release_date"),
+                "ext_api_id": result.get("id"),
+                "ext_api_source": "tmdb",
+                "is_adult": result.get("adult"),
+                "is_tv": False,
+                "language": result.get("original_language"),
+                "plot": result.get("overview"),
+                "poster_pic": settings.TMDB_BASE_IMAGE_URL + poster_path if poster_path else None,
+                "title": result.get("title"),
+            }
+            shows.append(show)
+        return shows
+
+    def get_similar_tv(self, tmdb_id):
+        url = f"{settings.TMDB_BASE_URL}/tv/{tmdb_id}/similar?api_key={settings.TMDB_API_KEY}&page=1"
+        r = requests.get(url)
+        if r.status_code != 200:
+            return []
+        results = json.loads(r.content).get("results")
+        shows = []
+        for result in results:
+            backdrop_path = result.get("backdrop_path")
+            poster_path = result.get("poster_path")
+            show = {
+                "backdrop_pic": settings.TMDB_BASE_IMAGE_URL + backdrop_path if backdrop_path else None,
+                "date_released": result.get("first_air_date"),
+                "ext_api_id": result.get("id"),
+                "ext_api_source": "tmdb",
+                "is_adult": result.get("adult"),
+                "is_tv": True,
+                "language": result.get("original_language"),
+                "plot": result.get("overview"),
+                "poster_pic": settings.TMDB_BASE_IMAGE_URL + poster_path if poster_path else None,
+                "title": result.get("name"),
+            }
+            shows.append(show)
+        return shows
+
+    def get_similar_shows(self, tmdb_id, is_tv):
+        if is_tv:
+            return self.get_similar_tv(tmdb_id)
+        else:
+            return self.get_similar_movies(tmdb_id)
