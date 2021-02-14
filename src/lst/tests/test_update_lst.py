@@ -4,6 +4,7 @@ import string
 
 from api.tests import FlickTestCase
 from django.contrib.auth.models import User
+from django.test import tag
 from django.urls import reverse
 from rest_framework.test import APIClient
 from tag.models import Tag
@@ -152,6 +153,7 @@ class UpdateLstTests(FlickTestCase):
         self.assertEqual(data["num_shows_added"], None)
         self.assertEqual(data["num_shows_removed"], None)
 
+    @tag("flakey")
     def test_shows_added_to_lst_edit_notification(self):
         self._create_list(collaborators=[2])
         show_ids = self._get_created_show_ids(num_shows=3)
@@ -161,6 +163,7 @@ class UpdateLstTests(FlickTestCase):
         self.assertEqual(len(data["shows"]), len(show_ids))
         self._check_list_edit_notification(num_shows_added=len(show_ids))
 
+    @tag("flakey")
     def test_shows_removed_from_lst_edit_notification(self):
         show_ids = self._get_created_show_ids(num_shows=3)
         self._create_list(collaborators=[2], shows=show_ids)
