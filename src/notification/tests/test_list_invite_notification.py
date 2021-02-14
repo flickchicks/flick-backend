@@ -2,6 +2,7 @@ import json
 
 from api.tests import FlickTestCase
 from django.contrib.auth.models import User
+from django.test import tag
 from django.urls import reverse
 from rest_framework.test import APIClient
 
@@ -65,12 +66,14 @@ class ListInviteNotificationTests(FlickTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(content.get("num_notifs"), num_notifs)
 
+    @tag("flakey")
     def test_list_invite_via_list_creation(self):
         self._check_me_has_num_notifs(num_notifs=0)
         self._create_list()
         self._check_notification()
         self._check_me_has_num_notifs(num_notifs=1)
 
+    @tag("flakey")
     def test_list_invite_via_list_update(self):
         self._create_and_update_list()
         self._check_notification()
