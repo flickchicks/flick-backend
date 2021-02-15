@@ -65,7 +65,7 @@ def create_new_group_notif(profile_id, group_id, member_ids):
             continue
         try:
             to_user = User.objects.get(id=user_id)
-            to_profile = User.objects.get(user__id=user_id)
+            to_profile = Profile.objects.get(user__id=user_id)
             notif = Notification()
             notif.notif_type = "group_invite"
             notif.from_user = from_profile
@@ -77,5 +77,5 @@ def create_new_group_notif(profile_id, group_id, member_ids):
             message_body = f"🤩 {from_user.first_name} (@{from_user.username}) added you to a group."
             ios_devices.send_message(message={"title": "Telie", "body": message_body})
             android_devices.send_message(message={"title": "Telie", "body": message_body})
-        except:
+        except Exception:
             continue
