@@ -74,8 +74,8 @@ def create_new_group_notif(profile_id, group_id, member_ids):
             notif.save()
             ios_devices = APNSDevice.objects.filter(user=to_user, active=True)
             android_devices = GCMDevice.objects.filter(user=to_user, active=True)
-            message_body = f"🤩  {from_user.first_name} (@{from_user.username}) added you to a group."
-            ios_devices.send_message(message={"body": message_body})
-            android_devices.send_message(message={"body": message_body})
+            message_body = f"🤩 {from_user.first_name} (@{from_user.username}) added you to a group."
+            ios_devices.send_message(message={"title": "Telie", "body": message_body})
+            android_devices.send_message(message={"title": "Telie", "body": message_body})
         except:
             continue

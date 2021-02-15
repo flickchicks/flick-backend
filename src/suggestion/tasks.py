@@ -41,8 +41,8 @@ def create_suggestion_and_push_notify(data, profile_id):
             suggestions.append(pri_suggestion)
             ios_devices = APNSDevice.objects.filter(user=friend, active=True)
             android_devices = GCMDevice.objects.filter(user=friend, active=True)
-            message_body = f"🎬  {user.first_name} (@{user.username}) suggested {show.title} for you."
-            ios_devices.send_message(message={"body": message_body})
-            android_devices.send_message(message={"body": message_body})
+            message_body = f"🎬 {user.first_name} (@{user.username}) suggested {show.title} for you."
+            ios_devices.send_message(message={"title": "Telie", "body": message_body})
+            android_devices.send_message(message={"title": "Telie", "body": message_body})
         except Exception:
             continue

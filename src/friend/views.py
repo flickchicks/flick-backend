@@ -73,9 +73,9 @@ class FriendRequestListAndCreate(generics.ListCreateAPIView):
                 friend_requests.append(Friend.objects.add_friend(request.user, friend))
                 ios_devices = APNSDevice.objects.filter(user=friend, active=True)
                 android_devices = GCMDevice.objects.filter(user=friend, active=True)
-                message_body = f"📬  {request.user.first_name} (@{request.user.username}) sent you a friend request."
-                ios_devices.send_message(message={"body": message_body})
-                android_devices.send_message(message={"body": message_body})
+                message_body = f"📬 {request.user.first_name} (@{request.user.username}) sent you a friend request."
+                ios_devices.send_message(message={"title": "Telie", "body": message_body})
+                android_devices.send_message(message={"title": "Telie", "body": message_body})
             except Exception as e:
                 print(str(e))
                 continue
