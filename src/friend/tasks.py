@@ -31,6 +31,6 @@ def create_outgoing_friend_request_accepted_for_from_user(from_user, to_user):
     notif.save()
     ios_devices = APNSDevice.objects.filter(user=from_user, active=True)
     android_devices = GCMDevice.objects.filter(user=from_user, active=True)
-    message_body = f"({from_user.username}): {to_user.first_name} (@{to_user.username}) accepted your friend request."
+    message_body = f"💌  {to_user.first_name} (@{to_user.username}) accepted your friend request."
     ios_devices.send_message(message={"body": message_body})
     android_devices.send_message(message={"body": message_body})

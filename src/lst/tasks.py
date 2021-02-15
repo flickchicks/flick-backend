@@ -31,7 +31,7 @@ def create_lst_invite_notif(profile_id, lst_id, collaborator_ids):
             ios_devices = APNSDevice.objects.filter(user=to_user, active=True)
             android_devices = GCMDevice.objects.filter(user=to_user, active=True)
             message_title = "Telie"
-            message_body = f"{from_user.username} invited you to collaborate on a list"
+            message_body = f"📌  {from_user.first_name} (@{from_user.username}) invited you to collaborate on a list."
             ios_devices.send_message(message={"title": message_title, "body": message_body})
             android_devices.send_message(message={"title": message_title, "body": message_body})
         except:
