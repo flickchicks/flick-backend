@@ -46,3 +46,4 @@ def create_suggestion_and_push_notify(data, profile_id):
             android_devices.send_message(message={"title": "Telie", "body": message_body})
         except Exception:
             continue
+    return
