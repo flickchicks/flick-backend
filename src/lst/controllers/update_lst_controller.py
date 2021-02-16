@@ -9,6 +9,8 @@ from notification.models import Notification
 from show.models import Show
 from tag.models import Tag
 
+from ..tasks import create_lst_edit_notif
+
 
 class UpdateLstController:
     def __init__(self, request, pk, data, serializer, is_add=False, is_remove=False):
@@ -41,17 +43,16 @@ class UpdateLstController:
     def _create_edit_notification(self, modified_shows):
         if not modified_shows:
             return
-        for profile in self._profiles_to_notify:
-            notif = Notification()
-            notif.notif_type = "list_edit"
-            notif.from_user = self._profile
-            notif.to_user = profile
-            notif.lst = self._lst
-            if self._is_add:
-                notif.num_shows_added = len(modified_shows)
-            elif self._is_remove:
-                notif.num_shows_removed = len(modified_shows)
-            notif.save()
+        from_profile_id = self._profile.id
+        to_profile_ids = self._profiles_to_notify.values_list("id", flat=True).distinct()
+        create_lst_edit_notif.delay(
+            from_profile_id=from_profile_id,
+            to_profile_ids=to_profile_ids,
+            lst_id=self._lst.id,
+            num_modified_shows=len(modified_shows),
+            is_add=self._is_add,
+            is_remove=self._is_remove,
+        )
 
     def _create_new_owner_notification(self, owner):
         if not owner:

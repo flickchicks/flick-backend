@@ -37,3 +37,29 @@ def create_lst_invite_notif(profile_id, lst_id, collaborator_ids):
         except:
             continue
     return
+
+
+@shared_task
+def create_lst_edit_notif(self, from_profile_id, to_profile_ids, lst_id, num_modified_shows, is_add, is_remove):
+    if num_modified_shows == 0:
+        return
+    for to_profile_id in to_profile_ids:
+        from_profile = Profile.objects.get(id=from_profile_id)
+        to_profile = Profile.objects.get(id=to_profile_id)
+        lst = Lst.objects.get(id=lst_id)
+        notif = Notification()
+        notif.notif_type = "list_edit"
+        notif.from_user = from_profile
+        notif.to_user = to_profile
+        notif.lst = lst
+        if self._is_add:
+            notif.num_shows_added = num_modified_shows
+        elif self._is_remove:
+            notif.num_shows_removed = num_modified_shows
+        notif.save()
+        ios_devices = APNSDevice.objects.filter(user=to_profile.user, active=True)
+        android_devices = GCMDevice.objects.filter(user=to_profile.user, active=True)
+        message_title = "Telie"
+        message_body = f"📌 {from_profile.user.first_name} (@{from_profile.user.username}) updated {lst.name}."
+        ios_devices.send_message(message={"title": message_title, "body": message_body})
+        android_devices.send_message(message={"title": message_title, "body": message_body})
