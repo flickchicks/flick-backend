@@ -190,6 +190,7 @@ class UpdateLstTests(FlickTestCase):
             for i in range(len(c_ids_removed)):
                 self.assertEqual(data["collaborators_removed"][i]["id"], c_ids_removed[i])
 
+    @tag("flakey")
     def test_collaborators_modified_by_owner_lst_edit_notification(self):
         self._create_list(collaborators=[2])
         data = self._update_list(collaborators=[3], is_add=True)
@@ -204,6 +205,7 @@ class UpdateLstTests(FlickTestCase):
             notified_c_tokens=[self.friend_token, self.friend2_token], c_ids_removed=[3]
         )
 
+    @tag("flakey")
     def test_collaborators_modified_by_collaborator_lst_edit_notification(self):
         self._create_list(collaborators=[2])
         data = self._update_list(token=self.friend_token, collaborators=[3], is_add=True)
