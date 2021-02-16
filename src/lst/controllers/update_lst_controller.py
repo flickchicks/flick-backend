@@ -10,6 +10,7 @@ from show.models import Show
 from tag.models import Tag
 
 from ..tasks import create_lst_edit_notif
+from ..tasks import create_modified_collaborators_notif
 
 
 class UpdateLstController:
@@ -69,18 +70,16 @@ class UpdateLstController:
     def _create_modified_collaborators_notification(self, modified_collaborators=[]):
         if not modified_collaborators:
             return
-        for profile in self._profiles_to_notify:
-            notif = Notification()
-            notif.notif_type = "list_edit"
-            notif.from_user = self._profile
-            notif.to_user = profile
-            notif.lst = self._lst
-            notif.save()
-            if self._is_add:
-                notif.collaborators_added.add(*modified_collaborators)
-            elif self._is_remove:
-                notif.collaborators_removed.add(*modified_collaborators)
-            notif.save()
+        from_profile_id = self._profile.id
+        to_profile_ids = [p.id for p in self._profiles_to_notify]
+        create_modified_collaborators_notif.delay(
+            from_profile_id=from_profile_id,
+            to_profile_ids=to_profile_ids,
+            modified_profile_ids=[m.id for m in modified_collaborators],
+            lst_id=self._lst.id,
+            is_add=self._is_add,
+            is_remove=self._is_remove,
+        )
 
     def _modify_tags(self, tag_ids):
         if self._is_simple_update():
