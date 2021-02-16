@@ -44,7 +44,7 @@ class UpdateLstController:
         if not modified_shows:
             return
         from_profile_id = self._profile.id
-        to_profile_ids = self._profiles_to_notify.values_list("id", flat=True).distinct()
+        to_profile_ids = [p.id for p in self._profiles_to_notify]
         create_lst_edit_notif.delay(
             from_profile_id=from_profile_id,
             to_profile_ids=to_profile_ids,

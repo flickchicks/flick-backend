@@ -40,7 +40,7 @@ def create_lst_invite_notif(profile_id, lst_id, collaborator_ids):
 
 
 @shared_task
-def create_lst_edit_notif(self, from_profile_id, to_profile_ids, lst_id, num_modified_shows, is_add, is_remove):
+def create_lst_edit_notif(from_profile_id, to_profile_ids, lst_id, num_modified_shows, is_add, is_remove):
     if num_modified_shows == 0:
         return
     for to_profile_id in to_profile_ids:
@@ -52,9 +52,9 @@ def create_lst_edit_notif(self, from_profile_id, to_profile_ids, lst_id, num_mod
         notif.from_user = from_profile
         notif.to_user = to_profile
         notif.lst = lst
-        if self._is_add:
+        if is_add:
             notif.num_shows_added = num_modified_shows
-        elif self._is_remove:
+        elif is_remove:
             notif.num_shows_removed = num_modified_shows
         notif.save()
         ios_devices = APNSDevice.objects.filter(user=to_profile.user, active=True)
