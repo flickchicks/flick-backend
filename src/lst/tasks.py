@@ -4,14 +4,11 @@ from __future__ import unicode_literals
 from user.models import Profile
 
 from celery import shared_task
-from celery.utils.log import get_task_logger
 from django.contrib.auth.models import User
 from lst.models import Lst
 from notification.models import Notification
 from push_notifications.models import APNSDevice
 from push_notifications.models import GCMDevice
-
-logger = get_task_logger(__name__)
 
 
 @shared_task
