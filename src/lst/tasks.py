@@ -60,6 +60,6 @@ def create_lst_edit_notif(from_profile_id, to_profile_ids, lst_id, num_modified_
         ios_devices = APNSDevice.objects.filter(user=to_profile.user, active=True)
         android_devices = GCMDevice.objects.filter(user=to_profile.user, active=True)
         message_title = "Telie"
-        message_body = f"📌 {from_profile.user.first_name} (@{from_profile.user.username}) updated {lst.name}."
+        message_body = f"🥳 {from_profile.user.first_name} (@{from_profile.user.username}) updated {lst.name}."
         ios_devices.send_message(message={"title": message_title, "body": message_body})
         android_devices.send_message(message={"title": message_title, "body": message_body})
