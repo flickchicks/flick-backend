@@ -25,7 +25,7 @@ jobs:
                   context: .
                   file: ./Dockerfile
                   push: true
-                  tags: ${{ secrets.DOCKER_USERNAME }}/app:${{ steps.vars.outputs.sha_short }}
+                  tags: ${{ secrets.DOCKER_USERNAME }}/app:latest
             - name: Remote ssh and deploy
               uses: appleboy/ssh-action@master
               with:
@@ -37,7 +37,4 @@ jobs:
                       cd docker-compose
                       docker stack rm flick
                       sleep 20s
-                      echo ${{ secrets.SERVER_PASSWORD }} | sudo -S
-                      sudo systemctl stop nginx
-                      sudo systemctl restart nginx
                       docker stack deploy -c docker-compose.yml flick

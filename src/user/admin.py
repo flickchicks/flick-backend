@@ -4,7 +4,17 @@ from .models import Profile
 
 
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ["user"]
+    list_display = [
+        "user",
+        "bio",
+        "profile_pic",
+        "phone_number",
+        "social_id",
+        "social_id_token_type",
+        "social_id_token",
+        "notif_time_viewed",
+        "suggest_time_viewed",
+    ]
 
 
 admin.site.register(Profile, ProfileAdmin)

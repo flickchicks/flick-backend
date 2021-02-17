@@ -6,8 +6,6 @@ from api.utils import success_response
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.shortcuts import reverse
-from flick.tasks import create_incoming_friend_request_accepted_for_to_user
-from flick.tasks import create_outgoing_friend_request_accepted_for_from_user
 from friend.serializers import FriendRequestSerializer
 from friend.serializers import FriendshipSerializer
 from friend.serializers import FriendUserSerializer
@@ -18,6 +16,9 @@ from push_notifications.models import APNSDevice
 from push_notifications.models import GCMDevice
 from rest_framework import generics
 from rest_framework.views import APIView
+
+from .tasks import create_incoming_friend_request_accepted_for_to_user
+from .tasks import create_outgoing_friend_request_accepted_for_from_user
 
 
 class FriendList(APIView):
@@ -72,9 +73,9 @@ class FriendRequestListAndCreate(generics.ListCreateAPIView):
                 friend_requests.append(Friend.objects.add_friend(request.user, friend))
                 ios_devices = APNSDevice.objects.filter(user=friend, active=True)
                 android_devices = GCMDevice.objects.filter(user=friend, active=True)
-                message_body = f"({friend.username}): {request.user.first_name} (@{request.user.username}) sent you a friend request."
-                ios_devices.send_message(message={"body": message_body})
-                android_devices.send_message(message={"body": message_body})
+                message_body = f"📬 {request.user.first_name} (@{request.user.username}) sent you a friend request."
+                ios_devices.send_message(message={"title": "Telie", "body": message_body})
+                android_devices.send_message(message={"title": "Telie", "body": message_body})
             except Exception as e:
                 print(str(e))
                 continue

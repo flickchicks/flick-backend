@@ -3,9 +3,10 @@ from user.models import Profile
 from api.utils import success_response
 from django.contrib.auth.models import User
 from lst.models import Lst
-from notification.models import Notification
 from show.models import Show
 from tag.models import Tag
+
+from ..tasks import create_lst_invite_notif
 
 
 class CreateLstController:
@@ -15,15 +16,6 @@ class CreateLstController:
         self._serializer = serializer
         self._profile = None
         self._lst = None
-
-    def _notify_collaborator(self, profile):
-        notif = Notification()
-        notif.notif_type = "list_invite"
-        notif.from_user = self._profile
-        notif.to_user = profile
-        notif.lst = self._lst
-        notif.save()
-        return notif
 
     def process(self):
         name = self._data.get("name")
@@ -50,7 +42,6 @@ class CreateLstController:
                 if Profile.objects.filter(user=collaborator):
                     c = Profile.objects.get(user=collaborator)
                     lst.collaborators.add(c)
-                    self._notify_collaborator(profile=c)
         for show_id in show_ids:
             if Show.objects.filter(pk=show_id):
                 show = Show.objects.get(pk=show_id)
@@ -61,4 +52,5 @@ class CreateLstController:
                 if tag not in lst.tags.all():
                     lst.custom_tags.add(tag)
         lst.save()
+        create_lst_invite_notif.delay(profile_id=self._profile.id, lst_id=lst.id, collaborator_ids=collaborator_ids)
         return success_response(self._serializer(lst, context={"request": self._request}).data)
