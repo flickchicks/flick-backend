@@ -19,11 +19,6 @@ class LstRecommendView(generics.GenericAPIView):
     api = flicktmdb()
 
     def get(self, request, pk):
-        """
-        Get a specific list by id.
-        If the request user is a collaborator or an owner or is looking at a list that is public,
-        then the list will be returned.
-        """
         lst = Lst.objects.get(pk=pk)
         shows = lst.shows.filter(ext_api_source="tmdb")
         show_ids = set(shows.values_list("ext_api_id", flat=True))
@@ -47,11 +42,6 @@ class GroupRecommendView(generics.GenericAPIView):
     api = flicktmdb()
 
     def get(self, request, pk):
-        """
-        Get a specific list by id.
-        If the request user is a collaborator or an owner or is looking at a list that is public,
-        then the list will be returned.
-        """
         group = Group.objects.get(pk=pk)
         lsts = Lst.objects.filter(is_private=False, owner__in=group.members.all())
         show_lst = [lst.shows.filter(ext_api_source="tmdb") for lst in lsts]
