@@ -1,4 +1,5 @@
 from itertools import chain
+import json
 from random import sample
 
 from api import settings as api_settings
@@ -41,8 +42,10 @@ class GroupRecommendView(generics.GenericAPIView):
     permission_classes = api_settings.CONSUMER_PERMISSIONS
     api = flicktmdb()
 
-    def get(self, request, pk):
+    def post(self, request, pk):
         group = Group.objects.get(pk=pk)
+        data = json.loads(request.body)
+        num_shows = data.get("num_shows", 0)
         lsts = Lst.objects.filter(is_private=False, owner__in=group.members.all())
         show_lst = [lst.shows.filter(ext_api_source="tmdb") for lst in lsts]
         if group.shows:
@@ -64,6 +67,6 @@ class GroupRecommendView(generics.GenericAPIView):
             rec_shows = self.api.get_trending_movies()
 
         data = ShowAPI.create_show_objects(rec_shows, serializer=ShowSimpleSerializer)
-        serializer_data = sample(data, min(15, len(data)))
+        serializer_data = sample(data, min(num_shows, len(data)))
 
         return success_response(serializer_data)
