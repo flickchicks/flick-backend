@@ -46,6 +46,8 @@ class GroupRecommendView(generics.GenericAPIView):
         group = Group.objects.get(pk=pk)
         data = json.loads(request.body)
         num_shows = data.get("num_shows", 0)
+        if num_shows <= 0:
+            return success_response([])
         lsts = Lst.objects.filter(is_private=False, owner__in=group.members.all())
         show_lst = [lst.shows.filter(ext_api_source="tmdb") for lst in lsts]
         if group.shows:
