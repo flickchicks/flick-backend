@@ -1,14 +1,21 @@
 import datetime
+from itertools import chain
 import json
+from random import sample
 from user.models import Profile
 
 from api import settings as api_settings
 from api.utils import success_response
+from django.core.cache import caches
+from lst.models import Lst
 import pytz
 from rest_framework import generics
 from show.models import Show
 from show.serializers import GroupShowSerializer
 from show.serializers import ShowSerializer
+from show.show_api_utils import ShowAPI
+from show.simple_serializers import ShowSimpleSerializer
+from show.tmdb import flicktmdb
 from vote.serializers import VoteSerializer
 
 from .models import Group
@@ -17,6 +24,8 @@ from .serializers import GroupSimpleSerializer
 from .tasks import clear_shows
 from .tasks import create_new_group_notif
 from .tasks import vote
+
+local_cache = caches["local"]
 
 
 class GroupList(generics.GenericAPIView):
@@ -75,6 +84,7 @@ class GroupDetail(generics.GenericAPIView):
 class GroupDetailAdd(generics.GenericAPIView):
     serializer_class = GroupSerializer
     permission_classes = api_settings.CONSUMER_PERMISSIONS
+    api = flicktmdb()
 
     def post(self, request, pk):
         """Update a group by id by adding members and shows."""
@@ -83,6 +93,7 @@ class GroupDetailAdd(generics.GenericAPIView):
         data = json.loads(request.body)
         member_ids = data.get("members", [])
         show_ids = data.get("shows", [])
+        num_random_shows = data.get("num_random_shows", 0)
         for member_id in member_ids:
             try:
                 member_profile = Profile.objects.get(user__id=member_id)
@@ -97,8 +108,34 @@ class GroupDetailAdd(generics.GenericAPIView):
                 continue
         group.save()
         create_new_group_notif.delay(profile_id=profile.id, group_id=group.id, member_ids=member_ids)
-        serializer = self.serializer_class(group)
-        return success_response(serializer.data)
+
+        rec_shows = []
+        if num_random_shows > 0:
+            lsts = Lst.objects.filter(is_private=False, owner__in=group.members.all())
+            show_lst = [lst.shows.filter(ext_api_source="tmdb") for lst in lsts]
+            if group.shows:
+                show_lst.append(group.shows.filter(ext_api_source="tmdb"))
+            shows = list(chain.from_iterable(show_lst))
+            shows = sample(shows, min(15, len(shows)))
+
+            for show in shows:
+                if not show:
+                    continue
+                similar = local_cache.get((show.id, "similar"))
+                if not similar:
+                    similar = self.api.get_similar_shows(show.ext_api_id, show.is_tv)
+                    local_cache.set((show.id, "similar"), similar)
+                rec_shows.extend(similar)
+
+            if len(rec_shows) < num_random_shows:
+                rec_shows.extend(self.api.get_trending_movies())
+
+            data = ShowAPI.create_show_objects(rec_shows, serializer=ShowSimpleSerializer)
+            rec_shows = sample(data, num_random_shows)
+
+        serializer_data = self.serializer_class(group).data
+        serializer_data["rec_shows"] = rec_shows
+        return success_response(serializer_data)
 
 
 class GroupDetailRemove(generics.GenericAPIView):
