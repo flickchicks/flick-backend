@@ -209,3 +209,28 @@ class flicktmdb:
             return self.get_similar_tv(tmdb_id)
         else:
             return self.get_similar_movies(tmdb_id)
+
+    def get_trending_movies(self):
+        url = f"{settings.TMDB_BASE_URL}/trending/movie/day?api_key={settings.TMDB_API_KEY}"
+        r = requests.get(url)
+        if r.status_code != 200:
+            return []
+        results = json.loads(r.content).get("results")
+        shows = []
+        for result in results:
+            backdrop_path = result.get("backdrop_path")
+            poster_path = result.get("poster_path")
+            show = {
+                "backdrop_pic": settings.TMDB_BASE_IMAGE_URL + backdrop_path if backdrop_path else None,
+                "date_released": result.get("release_date"),
+                "ext_api_id": result.get("id"),
+                "ext_api_source": "tmdb",
+                "is_adult": result.get("adult"),
+                "is_tv": False,
+                "language": result.get("original_language"),
+                "plot": result.get("overview"),
+                "poster_pic": settings.TMDB_BASE_IMAGE_URL + poster_path if poster_path else None,
+                "title": result.get("title"),
+            }
+            shows.append(show)
+        return shows

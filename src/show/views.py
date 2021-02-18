@@ -41,7 +41,7 @@ class ShowDetail(generics.GenericAPIView):
         utc = pytz.utc
         delta = datetime.datetime.now(tz=utc) - show.updated_at
         minutes = (delta.total_seconds() % 3600) // 60
-        if minutes > 30:
+        if minutes > 30 or not show.cast:
             populate_show_details(show.id)
         return success_response(self.serializer_class(show, context={"request": request}).data)
 
