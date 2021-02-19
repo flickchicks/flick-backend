@@ -34,6 +34,7 @@ from notification.views import NotificationEnable
 from notification.views import NotificationList
 from notification.views import NotificationTest
 from read.views import ReadView
+from recommend.views import GroupRecommendView
 from recommend.views import LstRecommendView
 from rest_framework import routers
 from search.views import Search
@@ -67,6 +68,7 @@ urlpatterns = [
     path("groups/", GroupList.as_view(), name="group-list"),
     path("groups/<int:pk>/", GroupDetail.as_view(), name="group-detail"),
     path("groups/<int:pk>/add/", GroupDetailAdd.as_view(), name="group-detail-add"),
+    path("groups/<int:pk>/recommend/", GroupRecommendView.as_view(), name="group-recommend"),
     path("groups/<int:pk>/remove/", GroupDetailRemove.as_view(), name="group-detail-remove"),
     path("groups/<int:pk>/pending/", GroupPendingList.as_view(), name="group-pending-list"),
     path("groups/<int:pk>/shows/", GroupShowList.as_view(), name="group-show-list"),
