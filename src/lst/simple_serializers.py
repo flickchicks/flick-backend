@@ -14,6 +14,7 @@ class LstSimpleSerializer(serializers.ModelSerializer):
 
 
 class MeLstSerializer(serializers.ModelSerializer):
+    owner = ProfileSimpleSerializer(many=False)
     collaborators = ProfileSimpleSerializer(many=True)
     shows = serializers.SerializerMethodField("get_subset_of_shows")
 
