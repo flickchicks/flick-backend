@@ -94,7 +94,7 @@ class TMDB_API:
         movie = {
             "ext_api_id": info.get("id"),
             "ext_api_source": "tmdb",
-            "title": info.get("original_title"),
+            "title": info.get("title"),
             "poster_pic": settings.TMDB_BASE_IMAGE_URL + poster_path if poster_path else None,
             "ext_api_genres": info.get("genres"),
             "is_tv": False,

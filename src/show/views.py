@@ -36,7 +36,6 @@ class ShowDetail(generics.GenericAPIView):
     def get(self, request, pk):
         """Get a specific show by id. Comes with user rating, friend rating, and comments."""
         try:
-            print("reach")
             if not Show.objects.filter(pk=pk):
                 return failure_response(f"Show of id {pk} does not exist.")
             show = Show.objects.get(pk=pk)
@@ -46,8 +45,7 @@ class ShowDetail(generics.GenericAPIView):
             if minutes > 30 or not show.cast:
                 populate_show_details(show.id)
         except Exception as e:
-            print("e is here", e)
-            return failure_response(message=f" the error that we get is {e}")
+            return failure_response(message=f"Oh no! {e}")
         return success_response(self.serializer_class(show, context={"request": request}).data)
 
     def post(self, request, pk):
