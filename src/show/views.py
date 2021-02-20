@@ -42,7 +42,7 @@ class ShowDetail(generics.GenericAPIView):
             utc = pytz.utc
             delta = datetime.datetime.now(tz=utc) - show.updated_at
             minutes = (delta.total_seconds() % 3600) // 60
-            if minutes > 30 or not show.cast:
+            if minutes > 30:
                 populate_show_details(show.id)
         except Exception as e:
             return failure_response(message=f"Oh no! {e}")
