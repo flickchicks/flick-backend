@@ -62,6 +62,8 @@ INSTALLED_APPS = [
     "tag",
     "user",
     "vote",
+    "discover",
+    "discover_recommend",
 ]
 
 PUSH_NOTIFICATIONS_SETTINGS = {
