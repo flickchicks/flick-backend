@@ -106,7 +106,6 @@ class GroupDetailAdd(generics.GenericAPIView):
                 group.shows.add(show)
             except:
                 continue
-        group.save()
 
         rec_shows = []
         if num_random_shows > 0:
