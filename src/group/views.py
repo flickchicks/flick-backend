@@ -107,7 +107,6 @@ class GroupDetailAdd(generics.GenericAPIView):
             except:
                 continue
         group.save()
-        create_new_group_notif.delay(profile_id=profile.id, group_id=group.id, member_ids=member_ids)
 
         rec_shows = []
         if num_random_shows > 0:
@@ -116,7 +115,7 @@ class GroupDetailAdd(generics.GenericAPIView):
             if group.shows:
                 show_lst.append(group.shows.filter(ext_api_source="tmdb"))
             shows = list(chain.from_iterable(show_lst))
-            shows = sample(shows, min(15, len(shows)))
+            shows = sample(shows, min(10, len(shows)))
 
             for show in shows:
                 if not show:
@@ -133,9 +132,13 @@ class GroupDetailAdd(generics.GenericAPIView):
             data = ShowAPI.create_show_objects(rec_shows, serializer=ShowSimpleSerializer)
             rec_shows = sample(data, num_random_shows)
 
-        serializer_data = self.serializer_class(group).data
-        serializer_data["rec_shows"] = rec_shows
-        return success_response(serializer_data)
+        for rec_show in rec_shows:
+            show = Show.objects.get(id=rec_show["id"])
+            group.shows.add(show)
+
+        create_new_group_notif.delay(profile_id=profile.id, group_id=group.id, member_ids=member_ids)
+        serializer = self.serializer_class(group)
+        return success_response(serializer.data)
 
 
 class GroupDetailRemove(generics.GenericAPIView):
