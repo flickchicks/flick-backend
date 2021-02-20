@@ -14,7 +14,7 @@ from show.models import Show
 from show.serializers import GroupShowSerializer
 from show.serializers import ShowSerializer
 from show.show_api_utils import ShowAPI
-from show.simple_serializers import ShowSimpleSerializer
+from show.simple_serializers import ShowSimplestSerializer
 from show.tmdb import flicktmdb
 from vote.serializers import VoteSerializer
 
@@ -129,7 +129,7 @@ class GroupDetailAdd(generics.GenericAPIView):
             if len(rec_shows) < num_random_shows:
                 rec_shows.extend(self.api.get_trending_movies())
 
-            data = ShowAPI.create_show_objects(rec_shows, serializer=ShowSimpleSerializer)
+            data = ShowAPI.create_show_objects(rec_shows, serializer=ShowSimplestSerializer)
             rec_shows = sample(data, num_random_shows)
 
         for rec_show in rec_shows:
