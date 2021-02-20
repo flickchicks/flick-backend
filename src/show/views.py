@@ -35,14 +35,17 @@ class ShowDetail(generics.GenericAPIView):
 
     def get(self, request, pk):
         """Get a specific show by id. Comes with user rating, friend rating, and comments."""
-        if not Show.objects.filter(pk=pk):
-            return failure_response(f"Show of id {pk} does not exist.")
-        show = Show.objects.get(pk=pk)
-        utc = pytz.utc
-        delta = datetime.datetime.now(tz=utc) - show.updated_at
-        minutes = (delta.total_seconds() % 3600) // 60
-        if minutes > 30:
-            populate_show_details(show.id)
+        try:
+            if not Show.objects.filter(pk=pk):
+                return failure_response(f"Show of id {pk} does not exist.")
+            show = Show.objects.get(pk=pk)
+            utc = pytz.utc
+            delta = datetime.datetime.now(tz=utc) - show.updated_at
+            minutes = (delta.total_seconds() % 3600) // 60
+            if minutes > 30:
+                populate_show_details(show.id)
+        except Exception as e:
+            return failure_response(message=f"Oh no! {e}")
         return success_response(self.serializer_class(show, context={"request": request}).data)
 
     def post(self, request, pk):
