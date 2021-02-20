@@ -26,6 +26,7 @@ from group.views import GroupShowList
 from group.views import GroupVoteShow
 from like.views import LikeView
 from like.views import LstLikeView
+from like.views import SuggestionLikeView
 from lst.views import LstDetail
 from lst.views import LstDetailAdd
 from lst.views import LstDetailRemove
@@ -85,6 +86,7 @@ urlpatterns = [
     path("show/<int:pk>/", ShowDetail.as_view(), name="show-detail"),
     path("suggest/", CreateSuggestion.as_view(), name="private-suggestion"),
     path("suggestions/", SuggestionList.as_view(), name="private-suggestion-list"),
+    path("suggestions/<int:pk>/like/", SuggestionLikeView.as_view(), name="like-private-suggestion"),
     path("tags/", TagList.as_view(), name="tag-list"),
     path("tags/<int:pk>/", TagDetail.as_view(), name="tag-detail"),
     path("user/<int:pk>/", UserProfileView.as_view(), name="user-profile"),

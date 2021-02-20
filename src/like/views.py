@@ -9,6 +9,8 @@ from lst.models import Lst
 from lst.serializers import LstWithSimpleShowsSerializer
 from notification.models import Notification
 from rest_framework import generics
+from suggestion.models import PrivateSuggestion
+from suggestion.serializers import PrivateSuggestionSerializer
 
 from .models import Like
 
@@ -90,3 +92,38 @@ class LstLikeView(generics.GenericAPIView):
         lst.save(update_fields=["num_likes"])
         lst_data = LstWithSimpleShowsSerializer(lst, context={"request": request}).data
         return success_response(lst_data)
+
+
+class SuggestionLikeView(generics.GenericAPIView):
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
+
+    def _create_suggestion_like_notification(self, from_user, to_user, suggestion):
+        from_profile = Profile.objects.get(user=from_user)
+        notif = Notification()
+        notif.notif_type = "suggestion_like"
+        notif.from_user = from_profile
+        notif.to_user = to_user
+        notif.suggestion = suggestion
+        notif.save()
+
+    def _create_like(self, suggestion, liker_profile):
+        like = Like()
+        like.suggestion = suggestion
+        like.type = "suggestion_like"
+        like.liker = liker_profile
+        like.save()
+
+    def post(self, request, pk):
+        suggestion = PrivateSuggestion.objects.get(pk=pk)
+        user = request.user
+        profile = Profile.objects.get(user=user)
+        existing_like = suggestion.likers.filter(liker=profile)
+        if not existing_like:
+            self._create_like(suggestion, profile)
+            if request.user.id != suggestion.from_user.user.id:
+                self._create_suggestion_like_notification(user, suggestion.from_user, suggestion)
+        else:
+            existing_like.delete()
+
+        suggestion_data = PrivateSuggestionSerializer(suggestion, context={"request": request}).data
+        return success_response(suggestion_data)

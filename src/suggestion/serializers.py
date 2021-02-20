@@ -1,6 +1,6 @@
+from user.models import Profile
 from user.profile_simple_serializers import ProfileSimpleSerializer
 
-from django.contrib.auth.models import User
 from rest_framework import serializers
 from show.serializers import ShowSearchSerializer
 
@@ -8,25 +8,23 @@ from .models import PrivateSuggestion
 from .models import PublicSuggestion
 
 
-class PrivateSuggestionUserSerializer(serializers.ModelSerializer):
-    user_id = serializers.CharField(source="id")
-    name = serializers.CharField(source="first_name")
-
-    class Meta:
-        model = User
-        fields = (User.USERNAME_FIELD, "user_id", "name")
-        write_only_fields = fields
-
-
 class PrivateSuggestionSerializer(serializers.ModelSerializer):
-    to_user = PrivateSuggestionUserSerializer(many=False)
+    to_user = ProfileSimpleSerializer(many=False)
     from_user = ProfileSimpleSerializer(many=False)
     show = ShowSearchSerializer(many=False)
+    has_liked = serializers.SerializerMethodField(method_name="get_has_liked")
 
     class Meta:
         model = PrivateSuggestion
-        fields = ("to_user", "from_user", "show", "message", "created_at", "updated_at")
+        fields = ("id", "to_user", "from_user", "show", "message", "has_liked", "created_at", "updated_at")
         read_only_fields = fields
+
+    def get_has_liked(self, instance):
+        request = self.context.get("request")
+        user = request.user
+        profile = Profile.objects.get(user=user)
+        has_liked = instance.likers.filter(liker=profile).exists()
+        return has_liked
 
 
 class PublicSuggestionSerializer(serializers.ModelSerializer):
