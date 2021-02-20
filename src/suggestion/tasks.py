@@ -18,7 +18,6 @@ def create_suggestion_and_push_notify(data, profile_id):
     user = User.objects.get(profile__id=profile_id)
     show = Show.objects.get(id=data.get("show_id"))
     profile = Profile.objects.get(id=profile_id)
-    suggestions = []
     for friend_id in data.get("users"):
         try:
             if friend_id == user.pk:
@@ -28,17 +27,17 @@ def create_suggestion_and_push_notify(data, profile_id):
             friend = User.objects.get(id=friend_id)
             if not Friend.objects.are_friends(user, friend):
                 raise Exception(f"Unable to suggest to non-friend user {friend_id}")
+            friend_profile = Profile.objects.get(user=friend)
             if PrivateSuggestion.objects.filter(
-                from_user=profile, to_user=friend, show=show, message=data.get("message")
+                from_user=profile, to_user=friend_profile, show=show, message=data.get("message")
             ):
-                return
+                continue
             pri_suggestion = PrivateSuggestion()
             pri_suggestion.from_user = profile
-            pri_suggestion.to_user = friend
+            pri_suggestion.to_user = friend_profile
             pri_suggestion.show = show
             pri_suggestion.message = data.get("message")
             pri_suggestion.save()
-            suggestions.append(pri_suggestion)
             ios_devices = APNSDevice.objects.filter(user=friend, active=True)
             android_devices = GCMDevice.objects.filter(user=friend, active=True)
             message_body = f"🎬 {user.first_name} (@{user.username}) suggested {show.title} for you."
@@ -46,4 +45,5 @@ def create_suggestion_and_push_notify(data, profile_id):
             android_devices.send_message(message={"title": "Telie", "body": message_body})
         except Exception:
             continue
+
     return
