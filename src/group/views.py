@@ -135,6 +135,7 @@ class GroupDetailAdd(generics.GenericAPIView):
         for rec_show in rec_shows:
             show = Show.objects.get(id=rec_show["id"])
             group.shows.add(show)
+        group.save()
 
         create_new_group_notif.delay(profile_id=profile.id, group_id=group.id, member_ids=member_ids)
         serializer = self.serializer_class(group)
