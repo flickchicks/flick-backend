@@ -25,7 +25,7 @@ jobs:
                   context: .
                   file: ./Dockerfile
                   push: true
-                  tags: ${{ secrets.DOCKER_USERNAME }}/app:latest
+                  tags: ${{ secrets.DOCKER_USERNAME }}/app:${{ steps.vars.outputs.sha_short }}
             - name: Remote ssh and deploy
               uses: appleboy/ssh-action@master
               with:
@@ -34,6 +34,7 @@ jobs:
                   password: ${{ secrets.SERVER_PASSWORD }}
                   port: ${{ secrets.SERVER_PORT }}
                   script: |
+                      export IMAGE_TAG=${{ steps.vars.outputs.sha_short }}
                       cd docker-compose
                       docker stack rm flick
                       sleep 20s

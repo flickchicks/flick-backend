@@ -14,6 +14,7 @@ class LstSimpleSerializer(serializers.ModelSerializer):
 
 
 class MeLstSerializer(serializers.ModelSerializer):
+    owner = ProfileSimpleSerializer(many=False)
     collaborators = ProfileSimpleSerializer(many=True)
     shows = serializers.SerializerMethodField("get_subset_of_shows")
 
@@ -23,5 +24,5 @@ class MeLstSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Lst
-        fields = ("id", "name", "is_private", "collaborators", "shows", "num_likes")
+        fields = ("id", "name", "is_private", "owner", "collaborators", "shows", "num_likes")
         read_only_fields = fields
