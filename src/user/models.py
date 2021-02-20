@@ -32,7 +32,7 @@ class Profile(models.Model):
 
         notifs = Notification.objects.filter(Q(to_user=self))
         unviewed_notifs = notifs.filter(Q(created_at__gt=self.notif_time_viewed)) if self.notif_time_viewed else notifs
-        suggests = PrivateSuggestion.objects.filter(to_user=self.user)
+        suggests = PrivateSuggestion.objects.filter(to_user=self)
         unviewed_suggests = (
             suggests.filter(Q(created_at__gt=self.suggest_time_viewed)) if self.suggest_time_viewed else suggests
         )
