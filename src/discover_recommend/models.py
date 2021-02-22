@@ -13,3 +13,6 @@ class DiscoverRecommendation(models.Model):
     recommend_type = models.CharField(max_length=50, choices=RECOMMEND_TYPE_CHOICES, default=None)
     lst = models.ForeignKey(Lst, on_delete=models.CASCADE, blank=True, null=True, related_name="recommendation")
     show = models.ForeignKey(Show, on_delete=models.CASCADE, blank=True, null=True, related_name="recommendation")
+
+    class Meta:
+        unique_together = ("recommend_type", "lst", "show")
