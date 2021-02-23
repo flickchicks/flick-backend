@@ -18,6 +18,7 @@ class Lst(models.Model):
     custom_tags = models.ManyToManyField(Tag, related_name="lsts", blank=True)
     description = models.CharField(max_length=150, default="", blank=True, null=True)
     num_likes = models.IntegerField(default=0, null=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     @property
     def tags(self):
@@ -34,3 +35,6 @@ class Lst(models.Model):
 
     def upload_pic(self):
         pass  # TODO: look at upload_profile_pic in user models
+
+    class Meta:
+        ordering = ["-updated_at"]

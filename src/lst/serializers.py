@@ -60,6 +60,8 @@ class LstWithSimpleShowsSerializer(serializers.ModelSerializer):
 
     def get_has_liked(self, lst):
         request = self.context.get("request")
+        if not request:
+            return False
         user = request.user
         if not Profile.objects.filter(user=user):
             return False
