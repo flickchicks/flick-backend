@@ -6,6 +6,8 @@ from api.utils import success_response
 from comment.models import Comment
 from discover_recommend.models import DiscoverRecommendation
 from django.core.cache import caches
+from django.db.models import Count
+from django.db.models import Q
 from friendship.models import Friend
 from lst.models import Lst
 import pytz
@@ -26,7 +28,10 @@ class DiscoverShow(APIView):
     api = flicktmdb()
 
     def get_friend_recommendations(self, user):
-        pass
+        friends = Friend.objects.friends(user=user)
+        friends_friend = Friend.objects.all().filter(Q(from_user__in=friends) & ~Q(to_user=user)).values("to_user")
+        most_friended_by_friends = friends_friend.annotate(Count("to_user")).order_by("-to_user__count")[:10]
+        return [Profile.objects.get(user=u["to_user"]) for u in most_friended_by_friends]
 
     def get_show_recommendations(self, user):
         trending = local_cache.get(("trending"))
@@ -101,12 +106,11 @@ class DiscoverShow(APIView):
             user_discover.user = user
             user_discover.save()
 
-        user_friends = [Profile.objects.get(user=friend) for friend in Friend.objects.friends(user=user)]
-        user_discover.friend_recommendations.set(user_friends)
+        user_discover.friend_recommendations.set(self.get_friend_recommendations(user))
         user_discover.show_recommendations.set(self.get_show_recommendations(user))
         user_discover.friend_comments.set(self.get_friend_comments(user))
         user_discover.list_recommendations.set(self.get_list_recommendations(user))
         user_discover.save()
 
-        seralizer = DiscoverSerializer(user_discover)
+        seralizer = DiscoverSerializer(user_discover, context={"request": request})
         return success_response(seralizer.data)
