@@ -3,6 +3,8 @@ from provider.models import Provider
 from rating.models import Rating
 from tag.models import Tag
 
+# from lst.models import Lst
+
 
 class Show(models.Model):
     EXT_API_SOURCE_CHOICES = (("tmdb", "TMDB"), ("animelist", "Animelist"))
