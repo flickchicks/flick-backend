@@ -1,5 +1,5 @@
 from user.models import Profile
-from user.profile_simple_serializers import ProfileSimpleSerializer
+from user.profile_simple_serializers import ProfileFriendRecommendationSerializer
 
 from comment.serializers import SimpleCommentSerializer
 from friendship.models import Friend
@@ -12,7 +12,7 @@ from .models import Discover
 
 
 class DiscoverSerializer(serializers.ModelSerializer):
-    friend_recommendations = ProfileSimpleSerializer(many=True)
+    friend_recommendations = serializers.SerializerMethodField(method_name="get_friend_recommendations")
     friend_lsts = serializers.SerializerMethodField(method_name="select_friend_lsts")
     trending_lsts = serializers.SerializerMethodField(method_name="select_trending_lsts")
     trending_shows = serializers.SerializerMethodField(method_name="select_trending_shows")
@@ -33,6 +33,12 @@ class DiscoverSerializer(serializers.ModelSerializer):
 
     def select_friend_lsts(self, instance):
         serializer = LstWithSimpleShowsSerializer(instance.friend_lsts, many=True, context=self.context)
+        return serializer.data
+
+    def get_friend_recommendations(self, instance):
+        serializer = ProfileFriendRecommendationSerializer(
+            instance.friend_recommendations, many=True, context=self.context
+        )
         return serializer.data
 
     def select_trending_lsts(self, instance):
