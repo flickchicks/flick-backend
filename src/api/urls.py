@@ -2,7 +2,7 @@ from user.views import UserViewSet
 
 from asset.views import AssetBundleDetail
 from asset.views import AssetBundleList
-from discover.views import DiscoverShow
+from discover.views import DiscoverView
 from django.urls import include
 from django.urls import path
 from flick_auth.views import AuthenticateView
@@ -57,7 +57,7 @@ urlpatterns = [
     path("authenticate/", AuthenticateView.as_view(), name="authenticate"),
     path("comment/<int:pk>/like/", LikeView.as_view(), name="like-comment"),
     path("comment/<int:pk>/read/", ReadView.as_view(), name="read-comment"),
-    path("discover/", DiscoverShow.as_view(), name="discover"),
+    path("discover/", DiscoverView.as_view(), name="discover"),
     path("friendship/", include("friendship.urls")),
     path("friends/", FriendList.as_view(), name="friend-list"),
     path("friends/request/", FriendRequestListAndCreate.as_view(), name="friend-request"),

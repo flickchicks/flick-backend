@@ -14,8 +14,8 @@ from .models import Discover
 class DiscoverSerializer(serializers.ModelSerializer):
     friend_recommendations = serializers.SerializerMethodField(method_name="get_friend_recommendations")
     friend_lsts = serializers.SerializerMethodField(method_name="select_friend_lsts")
-    trending_lsts = serializers.SerializerMethodField(method_name="select_trending_lsts")
-    trending_shows = serializers.SerializerMethodField(method_name="select_trending_shows")
+    # trending_lsts = serializers.SerializerMethodField(method_name="select_trending_lsts")
+    # trending_shows = serializers.SerializerMethodField(method_name="select_trending_shows")
     friend_shows = serializers.SerializerMethodField(method_name="select_friend_shows")
     friend_comments = SimpleCommentSerializer(many=True)
 
@@ -24,8 +24,8 @@ class DiscoverSerializer(serializers.ModelSerializer):
         fields = (
             "friend_recommendations",
             "friend_lsts",
-            "trending_lsts",
-            "trending_shows",
+            # "trending_lsts",
+            # "trending_shows",
             "friend_shows",
             "friend_comments",
         )
