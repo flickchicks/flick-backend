@@ -42,6 +42,10 @@ class Lst(models.Model):
 
 class LstSaveActivity(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
-    lst = models.ForeignKey(Lst, on_delete=models.CASCADE, blank=True, null=True, related_name="activity")
-    owner = models.ForeignKey(Profile, on_delete=models.CASCADE, blank=True, null=True, related_name="activity")
+    saved_by = models.ForeignKey(Profile, on_delete=models.CASCADE, blank=True, null=True, related_name="activity")
     show = models.ForeignKey(Show, on_delete=models.CASCADE, blank=True, null=True, related_name="activity")
+    lst = models.ForeignKey(Lst, on_delete=models.CASCADE, blank=True, null=True, related_name="activity")
+
+    class Meta:
+        ordering = ["-created_at"]
+        unique_together = ["lst", "show"]

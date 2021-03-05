@@ -47,11 +47,12 @@ class CreateLstController:
             if Show.objects.filter(pk=show_id):
                 show = Show.objects.get(pk=show_id)
                 lst.shows.add(show)
-                lst_activity = LstSaveActivity()
-                lst_activity.lst = lst
-                lst_activity.show = show
-                lst_activity.owner = self._profile
-                lst_activity.save()
+                if not show.activity.filter(lst=lst):
+                    lst_activity = LstSaveActivity()
+                    lst_activity.show = show
+                    lst_activity.saved_by = self._profile
+                    lst_activity.lst = lst
+                    lst_activity.save()
 
         for tag_id in tag_ids:
             if Tag.objects.filter(pk=tag_id):

@@ -5,6 +5,7 @@ from api.utils import success_response
 from django.contrib.auth.models import User
 from friendship.models import Friend
 from lst.models import Lst
+from lst.models import LstSaveActivity
 from notification.models import Notification
 from show.models import Show
 from tag.models import Tag
@@ -101,9 +102,17 @@ class UpdateLstController:
                 show = Show.objects.get(pk=show_id)
                 if self._is_remove:
                     self._lst.shows.remove(show)
+                    activity = self._lst.activity.get(show=show)
+                    activity.delete()
                     modified_shows.append(show)
                 else:
                     self._lst.shows.add(show)
+                    if not show.activity.filter(lst=self._lst):
+                        lst_activity = LstSaveActivity()
+                        lst_activity.show = show
+                        lst_activity.saved_by = self._profile
+                        lst_activity.lst = self._lst
+                        lst_activity.save()
                     modified_shows.append(show)
         self._create_edit_notification(modified_shows=modified_shows)
 

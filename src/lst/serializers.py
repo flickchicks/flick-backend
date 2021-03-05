@@ -8,6 +8,7 @@ from show.simple_serializers import ShowSimplestSerializer
 from tag.simple_serializers import TagSimpleSerializer
 
 from .models import Lst
+from .models import LstSaveActivity
 
 
 class LstSerializer(serializers.ModelSerializer):
@@ -88,3 +89,19 @@ class LstWithSimpleShowsSerializer(serializers.ModelSerializer):
             "likers",
         )
         read_only_fields = fields
+
+
+class LstSaveActivitySerializer(serializers.ModelSerializer):
+    saved_by = ProfileSimpleSerializer(many=False)
+    lst_name = serializers.SerializerMethodField(method_name="get_lst_name")
+    lst_id = serializers.SerializerMethodField(method_name="get_lst_id")
+
+    class Meta:
+        model = LstSaveActivity
+        fields = ("lst_id", "lst_name", "saved_by")
+
+    def get_lst_name(self, instance):
+        return instance.lst.name
+
+    def get_lst_id(self, instance):
+        return instance.lst.id
