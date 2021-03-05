@@ -8,6 +8,7 @@ from show.simple_serializers import ShowSimplestSerializer
 from tag.simple_serializers import TagSimpleSerializer
 
 from .models import Lst
+from .models import LstSaveActivity
 
 
 class LstSerializer(serializers.ModelSerializer):
@@ -61,7 +62,7 @@ class LstWithSimpleShowsSerializer(serializers.ModelSerializer):
     def get_has_liked(self, lst):
         request = self.context.get("request")
         user = request.user
-        if not Profile.objects.filter(user=user):
+        if user.is_anonymous or not Profile.objects.filter(user=user):
             return False
         profile = Profile.objects.get(user=user)
         has_liked = lst.likers.filter(liker=profile).exists()
@@ -86,3 +87,19 @@ class LstWithSimpleShowsSerializer(serializers.ModelSerializer):
             "likers",
         )
         read_only_fields = fields
+
+
+class LstSaveActivitySerializer(serializers.ModelSerializer):
+    saved_by = ProfileSimpleSerializer(many=False)
+    lst_name = serializers.SerializerMethodField(method_name="get_lst_name")
+    lst_id = serializers.SerializerMethodField(method_name="get_lst_id")
+
+    class Meta:
+        model = LstSaveActivity
+        fields = ("lst_id", "lst_name", "saved_by")
+
+    def get_lst_name(self, instance):
+        return instance.lst.name
+
+    def get_lst_id(self, instance):
+        return instance.lst.id

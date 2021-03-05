@@ -3,6 +3,7 @@ from user.models import Profile
 from api.utils import success_response
 from django.contrib.auth.models import User
 from lst.models import Lst
+from lst.models import LstSaveActivity
 from show.models import Show
 from tag.models import Tag
 
@@ -46,6 +47,13 @@ class CreateLstController:
             if Show.objects.filter(pk=show_id):
                 show = Show.objects.get(pk=show_id)
                 lst.shows.add(show)
+                if not show.activity.filter(lst=lst):
+                    lst_activity = LstSaveActivity()
+                    lst_activity.show = show
+                    lst_activity.saved_by = self._profile
+                    lst_activity.lst = lst
+                    lst_activity.save()
+
         for tag_id in tag_ids:
             if Tag.objects.filter(pk=tag_id):
                 tag = Tag.objects.get(pk=tag_id)

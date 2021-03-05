@@ -1,101 +1,102 @@
+import datetime
+from random import sample
+from user.models import Profile
+
 from api.utils import success_response
+from comment.models import Comment
 from django.core.cache import caches
+from django.db.models import Count
+from django.db.models import Q
+from friendship.models import Friend
+from lst.models import Lst
+from lst.models import LstSaveActivity
+from lst.serializers import LstWithSimpleShowsSerializer
+import pytz
 from rest_framework.views import APIView
 from show.show_api_utils import ShowAPI
-from show.simple_serializers import ShowSimplestSerializer
-from tag.models import Tag
-from tag.serializers import TagSerializer
+from show.simple_serializers import ShowSimpleSerializer
+from show.tmdb import flicktmdb
 
+from .models import Discover
+from .serializers import DiscoverSerializer
 
 local_cache = caches["local"]
 
 
-class DiscoverShow(APIView):
-    def get_shows_by_type(self, show_type, search_type, search_fn):
-        shows = local_cache.get((search_type, show_type))
-        if not shows:
-            shows = search_fn(show_type)
-            local_cache.set((search_type, show_type), shows)
-        return shows
+class DiscoverView(APIView):
+    api = flicktmdb()
 
-    def get_top_shows(self, is_movie, is_tv, is_anime):
-        if is_movie:
-            movies = self.get_shows_by_type("movie", "top", ShowAPI.get_top_show_info)
-        if is_tv:
-            tvs = self.get_shows_by_type("tv", "top", ShowAPI.get_top_show_info)
-        if is_anime:
-            animes = self.get_shows_by_type("anime", "top", ShowAPI.get_top_show_info)
-        return movies, tvs, animes
+    def get_friend_recommendations(self, user):
+        friends = Friend.objects.friends(user=user)
+        friends_friend = (
+            Friend.objects.all()
+            .filter(Q(from_user__in=friends) & ~Q(to_user=user) & ~Q(to_user__in=friends))
+            .values("to_user")
+        )
+        most_friended_by_friends = friends_friend.annotate(Count("to_user")).order_by("-to_user__count")[:10]
+        return [Profile.objects.get(user=u["to_user"]) for u in most_friended_by_friends]
 
-    def get_popular_shows(self, is_movie, is_tv, is_anime):
-        if is_movie:
-            movies = self.get_shows_by_type("movie", "popular", ShowAPI.get_popular_show_info)[:5]
-        if is_tv:
-            tvs = self.get_shows_by_type("tv", "popular", ShowAPI.get_popular_show_info)[:5]
-        if is_anime:
-            animes = self.get_shows_by_type("anime", "popular", ShowAPI.get_popular_show_info)[:5]
-        return movies, tvs, animes
+    def get_trending_shows(self):
+        trending = local_cache.get(("trending_shows"))
+        if not trending:
+            trending = self.api.get_trending_shows()
+            local_cache.set(("trending_shows"), trending)
+        trending_shows = ShowAPI.create_show_objects(sample(trending, 10), ShowSimpleSerializer)
+        return trending_shows
 
-    def get_now_playing_shows(self, is_movie, is_tv, is_anime):
-        if is_movie:
-            movies = self.get_shows_by_type("movie", "now_playing", ShowAPI.get_now_playing_show_info)
-        if is_tv:
-            tvs = self.get_shows_by_type("tv", "now_playing", ShowAPI.get_now_playing_show_info)
-        if is_anime:
-            animes = self.get_shows_by_type("anime", "now_playing", ShowAPI.get_now_playing_show_info)
-        return movies, tvs, animes
+    def get_friend_shows(self, user_friends):
+        public_lsts = Lst.objects.filter(is_private=False)
+        activities = LstSaveActivity.objects.filter(lst__in=public_lsts, saved_by__in=user_friends)
+        friend_shows = activities.values_list("show", flat=True).distinct()[:10]
+        return friend_shows
 
-    def get_top_shows_by_type_and_genre(self, show_type, tag_id):
-        top_shows = local_cache.get(("top", show_type, tag_id))
-        if not top_shows:
-            tag_data = TagSerializer(Tag.objects.get(id=tag_id)).data
-            ext_api_genre_id = tag_data.get("ext_api_genre_id")
-            top_shows = ShowAPI.get_top_show_info_by_genre(show_type, ext_api_genre_id)
-            local_cache.set(("top", show_type, tag_id), top_shows)
-        return top_shows
+    def get_friend_lsts(self, user_friends):
+        public_lsts = Lst.objects.filter(is_private=False, is_saved=False, is_watch_later=False)
+        friend_lsts = public_lsts.filter(owner__in=user_friends)[:10]
+        return friend_lsts
 
-    def get_top_shows_by_genre(self, is_movie, is_tv, is_anime, tag_id):
-        if is_movie:
-            movies = self.get_top_shows_by_type_and_genre("movie", tag_id)
-        if is_tv:
-            tvs = self.get_top_shows_by_type_and_genre("tv", tag_id)
-        if is_anime:
-            animes = self.get_shows_by_type(
-                "anime", "top", ShowAPI.get_top_show_info
-            )  # genre does not seem to be fully integrated in the anime api
-        return movies, tvs, animes
+    def get_trending_lsts(self, request):
+        trending_lsts = local_cache.get(("trending_lsts"))
+        if not trending_lsts:
+            public_lsts = Lst.objects.filter(is_private=False, is_saved=False, is_watch_later=False)
+            trending_lsts = public_lsts.order_by("-num_likes")[:20]
+            trending_lsts = LstWithSimpleShowsSerializer(trending_lsts, many=True, context={"request": request}).data
+            local_cache.set(("trending_lsts"), trending_lsts)
+        trending_lsts = sample(trending_lsts, min(len(trending_lsts), 10))
+        return trending_lsts
+
+    def get_friend_comments(self, user_friends):
+        comments = Comment.objects.filter(owner__in=user_friends).order_by("-created_at")[:10]
+        return comments
 
     def get(self, request, *args, **kwargs):
-        # tag_id = request.query_params.get("tag_id", "")
-        # print(f"genre: {tag_id}")
-        # is_anime = bool(request.query_params.get("is_anime", False))
-        # print(f"is_anime: {is_anime}")
-        # is_movie = bool(request.query_params.get("is_movie", False))
-        # print(f"is_movie: {is_movie}")
-        # is_tv = bool(request.query_params.get("is_tv", False))
-        # print(f"is_tv: {is_tv}")
-        # is_top = bool(request.query_params.get("is_top", False))
-        # print(f"is_top: {is_top}")
-        # is_now = bool(request.query_params.get("is_now", False))
-        # print(f"is_now: {is_now}")
-        # is_popular = bool(request.query_params.get("is_popular", False))
-        # print(f"is_popular: {is_popular}")
+        user = request.user
 
-        # self.shows = []
+        if not user.is_anonymous:
+            if Discover.objects.filter(user=user):
+                user_discover = Discover.objects.get(user=user)
+                utc = pytz.utc
+                delta = datetime.datetime.now(tz=utc) - user_discover.updated_at
+                minutes = (delta.total_seconds() % 3600) // 60
+                if minutes < 15:
+                    serializer_data = DiscoverSerializer(user_discover, context={"request": request}).data
+                    serializer_data["trending_shows"] = self.get_trending_shows()
+                    serializer_data["trending_lsts"] = self.get_trending_lsts(request)
+                    return success_response(serializer_data)
+            else:
+                user_discover = Discover()
+                user_discover.user = user
+                user_discover.save()
 
-        # if tag_id:
-        #     self.get_top_shows_by_genre(is_movie, is_tv, is_anime, tag_id)
-        # elif is_now:
-        #     self.get_now_playing_shows(is_movie, is_tv, is_anime)
-        # elif is_popular:
-        #     self.get_popular_shows(is_movie, is_tv, is_anime)
-        # elif is_top:
-        #     self.get_top_shows(is_movie, is_tv, is_anime)
-
-        movies, tvs, animes = self.get_popular_shows(True, True, True)
-        serializer_data = dict()
-        serializer_data["trending_movies"] = ShowAPI.create_show_objects(movies, ShowSimplestSerializer)
-        serializer_data["trending_tvs"] = ShowAPI.create_show_objects(tvs, ShowSimplestSerializer)
-        serializer_data["trending_animes"] = ShowAPI.create_show_objects(animes, ShowSimplestSerializer)
-
+            user_friends = [Profile.objects.get(user=friend) for friend in Friend.objects.friends(user=user)]
+            user_discover.friend_recommendations.set(self.get_friend_recommendations(user))
+            user_discover.friend_shows.set(self.get_friend_shows(user_friends))
+            user_discover.friend_lsts.set(self.get_friend_lsts(user_friends))
+            user_discover.friend_comments.set(self.get_friend_comments(user_friends))
+            user_discover.save()
+            serializer_data = DiscoverSerializer(user_discover, context={"request": request}).data
+        else:
+            serializer_data = dict()
+        serializer_data["trending_shows"] = self.get_trending_shows()
+        serializer_data["trending_lsts"] = self.get_trending_lsts(request)
         return success_response(serializer_data)

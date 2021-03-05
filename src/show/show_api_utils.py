@@ -50,6 +50,43 @@ class ShowAPI:
         return serializer_data
 
     @staticmethod
+    def create_show_objects_no_serialization(show_info_lst):
+        show_objects = []
+        for show_info in show_info_lst:
+            if not show_info:
+                continue
+            if Show.objects.filter(
+                title=show_info.get("title"),
+                ext_api_id=show_info.get("ext_api_id"),
+                ext_api_source=show_info.get("ext_api_source"),
+            ):
+                show = Show.objects.get(
+                    title=show_info.get("title"),
+                    ext_api_id=show_info.get("ext_api_id"),
+                    ext_api_source=show_info.get("ext_api_source"),
+                )
+                show_objects.append(show)
+            else:
+                try:
+                    show = Show()
+                    show.backdrop_pic = show_info.get("backdrop_pic")
+                    show.date_released = show_info.get("date_released")
+                    show.ext_api_id = show_info.get("ext_api_id")
+                    show.ext_api_source = show_info.get("ext_api_source")
+                    show.is_adult = show_info.get("is_adult")
+                    show.is_tv = show_info.get("is_tv")
+                    show.language = show_info.get("language")
+                    show.plot = show_info.get("plot")
+                    show.poster_pic = show_info.get("poster_pic")
+                    show.title = show_info.get("title")
+                    show.save()
+                    populate_show_details.delay(show.id)
+                    show_objects.append(show)
+                except Exception as e:
+                    print("create_show_objects:", e)
+        return show_objects
+
+    @staticmethod
     def get_top_show_info(show_type):
         if show_type == "movie":
             api = TMDB_API()

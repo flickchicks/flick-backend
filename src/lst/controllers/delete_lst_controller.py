@@ -21,5 +21,6 @@ class DeleteLstController:
         profile = Profile.objects.get(user=self._request.user)
         if not profile == lst.owner:
             return failure_response(f"User of id {self._request.user.id} is not the owner of list of id {self._pk}.")
+
         lst.delete()
         return success_response(f"List of id {self._pk} has been deleted.")

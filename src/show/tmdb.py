@@ -210,27 +210,51 @@ class flicktmdb:
         else:
             return self.get_similar_movies(tmdb_id)
 
-    def get_trending_movies(self):
-        url = f"{settings.TMDB_BASE_URL}/trending/movie/day?api_key={settings.TMDB_API_KEY}"
+    def get_movie_info(self, movie):
+        backdrop_path = movie.get("backdrop_path")
+        poster_path = movie.get("poster_path")
+        show = {
+            "backdrop_pic": settings.TMDB_BASE_IMAGE_URL + backdrop_path if backdrop_path else None,
+            "date_released": movie.get("release_date"),
+            "ext_api_id": movie.get("id"),
+            "ext_api_source": "tmdb",
+            "is_adult": movie.get("adult"),
+            "is_tv": False,
+            "language": movie.get("original_language"),
+            "plot": movie.get("overview"),
+            "poster_pic": settings.TMDB_BASE_IMAGE_URL + poster_path if poster_path else None,
+            "title": movie.get("title"),
+        }
+
+        return show
+
+    def get_tv_info(self, tv):
+        backdrop_path = tv.get("backdrop_path")
+        poster_path = tv.get("poster_path")
+        show = {
+            "backdrop_pic": settings.TMDB_BASE_IMAGE_URL + backdrop_path if backdrop_path else None,
+            "date_released": tv.get("first_air_date"),
+            "ext_api_id": tv.get("id"),
+            "ext_api_source": "tmdb",
+            "is_adult": tv.get("adult"),
+            "is_tv": True,
+            "language": tv.get("original_language"),
+            "plot": tv.get("overview"),
+            "poster_pic": settings.TMDB_BASE_IMAGE_URL + poster_path if poster_path else None,
+            "title": tv.get("name"),
+        }
+        return show
+
+    def get_trending_shows(self):
+        url = f"{settings.TMDB_BASE_URL}/trending/all/day?api_key={settings.TMDB_API_KEY}"
         r = requests.get(url)
         if r.status_code != 200:
             return []
         results = json.loads(r.content).get("results")
         shows = []
         for result in results:
-            backdrop_path = result.get("backdrop_path")
-            poster_path = result.get("poster_path")
-            show = {
-                "backdrop_pic": settings.TMDB_BASE_IMAGE_URL + backdrop_path if backdrop_path else None,
-                "date_released": result.get("release_date"),
-                "ext_api_id": result.get("id"),
-                "ext_api_source": "tmdb",
-                "is_adult": result.get("adult"),
-                "is_tv": False,
-                "language": result.get("original_language"),
-                "plot": result.get("overview"),
-                "poster_pic": settings.TMDB_BASE_IMAGE_URL + poster_path if poster_path else None,
-                "title": result.get("title"),
-            }
-            shows.append(show)
+            if result.get("media_type") == "movie":
+                shows.append(self.get_movie_info(result))
+            elif result.get("media_type") == "tv":
+                shows.append(self.get_tv_info(result))
         return shows
