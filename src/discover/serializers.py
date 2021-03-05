@@ -14,8 +14,6 @@ from .models import Discover
 class DiscoverSerializer(serializers.ModelSerializer):
     friend_recommendations = serializers.SerializerMethodField(method_name="get_friend_recommendations")
     friend_lsts = serializers.SerializerMethodField(method_name="select_friend_lsts")
-    # trending_lsts = serializers.SerializerMethodField(method_name="select_trending_lsts")
-    # trending_shows = serializers.SerializerMethodField(method_name="select_trending_shows")
     friend_shows = serializers.SerializerMethodField(method_name="select_friend_shows")
     friend_comments = SimpleCommentSerializer(many=True)
 
@@ -24,8 +22,6 @@ class DiscoverSerializer(serializers.ModelSerializer):
         fields = (
             "friend_recommendations",
             "friend_lsts",
-            # "trending_lsts",
-            # "trending_shows",
             "friend_shows",
             "friend_comments",
         )
@@ -39,16 +35,6 @@ class DiscoverSerializer(serializers.ModelSerializer):
         serializer = ProfileFriendRecommendationSerializer(
             instance.friend_recommendations, many=True, context=self.context
         )
-        return serializer.data
-
-    def select_trending_lsts(self, instance):
-        select_lsts = instance.trending_lsts.all().order_by("?")[:10]
-        serializer = LstWithSimpleShowsSerializer(select_lsts, many=True, context=self.context)
-        return serializer.data
-
-    def select_trending_shows(self, instance):
-        select_shows = instance.trending_shows.all().order_by("?")[:10]
-        serializer = ShowSimpleSerializer(select_shows, many=True)
         return serializer.data
 
     def select_friend_shows(self, instance):
