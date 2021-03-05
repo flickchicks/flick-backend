@@ -26,6 +26,8 @@ jobs:
             - name: Run tests
               run: |
                   cd src
+                  python manage.py makemigrations
+                  python manage.py migrate
                   python manage.py test --exclude-tag=flakey
               env:
                   DEBUG: "True"
