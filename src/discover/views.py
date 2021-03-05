@@ -29,7 +29,7 @@ class DiscoverShow(APIView):
         friends = Friend.objects.friends(user=user)
         friends_friend = (
             Friend.objects.all()
-            .filter(Q(from_user__in=friends) & ~Q(to_user=user) & ~Q(to_user_in=friends))
+            .filter(Q(from_user__in=friends) & ~Q(to_user=user) & ~Q(to_user__in=friends))
             .values("to_user")
         )
         most_friended_by_friends = friends_friend.annotate(Count("to_user")).order_by("-to_user__count")[:10]
@@ -86,9 +86,9 @@ class DiscoverShow(APIView):
         user_discover.friend_recommendations.set(self.get_friend_recommendations(user))
         user_discover.friend_shows.set(self.get_friend_shows(user_friends))
         user_discover.trending_shows.set(self.get_trending_shows())
-        user_discover.friend_comments.set(self.get_friend_comments(user_friends))
-        user_discover.trending_lsts.set(self.get_trending_lsts())
         user_discover.friend_lsts.set(self.get_friend_lsts(user_friends))
+        user_discover.trending_lsts.set(self.get_trending_lsts())
+        user_discover.friend_comments.set(self.get_friend_comments(user_friends))
         user_discover.save()
 
         serializer = DiscoverSerializer(user_discover, context={"request": request})
