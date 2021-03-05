@@ -108,12 +108,13 @@ class GroupDetailAdd(generics.GenericAPIView):
 
         rec_shows = []
         if num_random_shows > 0:
+            show_lst = []
             lsts = Lst.objects.filter(is_private=False, owner__in=group.members.all())
             show_lst = [lst.shows.filter(ext_api_source="tmdb") for lst in lsts]
-            if group.shows:
-                show_lst.append(group.shows.filter(ext_api_source="tmdb"))
             shows = list(chain.from_iterable(show_lst))
-            shows = sample(shows, min(10, len(shows)))
+            shows = sample(shows, min(5, len(shows)))
+            for show in group.shows.filter(ext_api_source="tmdb"):
+                shows.append(show)
 
             for show in shows:
                 if not show:

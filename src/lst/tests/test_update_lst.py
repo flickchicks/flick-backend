@@ -222,6 +222,7 @@ class UpdateLstTests(FlickTestCase):
             from_user_id=2, notified_c_tokens=[self.user_token, self.friend2_token], c_ids_removed=[3]
         )
 
+    @tag("flakey")
     def test_add_and_remove_from_lst(self):
         self._create_list()
         show_ids = self._get_created_show_ids(num_shows=2)

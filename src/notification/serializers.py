@@ -5,6 +5,7 @@ from group.serializers import GroupSimpleSerializer
 from lst.simple_serializers import LstSimpleSerializer
 from notification.models import Notification
 from rest_framework import serializers
+from suggestion.serializers import SimpleSuggestionSerializer
 
 
 class NotificationSerializer(serializers.ModelSerializer):
@@ -12,6 +13,7 @@ class NotificationSerializer(serializers.ModelSerializer):
     to_user = ProfileSimpleSerializer(many=False)
     lst = LstSimpleSerializer(many=False)
     group = GroupSimpleSerializer(many=False)
+    suggestion = SimpleSuggestionSerializer(many=False)
     new_owner = ProfileSimpleSerializer(many=False)
     collaborators_added = ProfileSimpleSerializer(many=True)
     collaborators_removed = ProfileSimpleSerializer(many=True)
@@ -27,6 +29,7 @@ class NotificationSerializer(serializers.ModelSerializer):
             "lst",
             "group",
             "comment",
+            "suggestion",
             "new_owner",
             "num_shows_added",
             "num_shows_removed",

@@ -4,6 +4,7 @@ from comment.models import Comment
 from django.db import models
 from group.models import Group
 from lst.models import Lst
+from suggestion.models import PrivateSuggestion
 
 
 class Notification(models.Model):
@@ -14,6 +15,7 @@ class Notification(models.Model):
         ("outgoing_friend_request_accepted", "Outoing Friend Request Accepted"),
         ("comment_like", "Comment Like"),
         ("list_like", "List Like"),
+        ("suggestion_like", "Suggestion Like"),
         ("group_invite", "Group Invite"),
     )
 
@@ -27,6 +29,9 @@ class Notification(models.Model):
     lst = models.ForeignKey(Lst, on_delete=models.CASCADE, blank=True, null=True, related_name="notification")
     group = models.ForeignKey(Group, on_delete=models.CASCADE, blank=True, null=True, related_name="notification")
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE, blank=True, null=True, related_name="notification")
+    suggestion = models.ForeignKey(
+        PrivateSuggestion, on_delete=models.CASCADE, blank=True, null=True, related_name="notification"
+    )
     num_shows_added = models.IntegerField(blank=True, null=True)
     num_shows_removed = models.IntegerField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
