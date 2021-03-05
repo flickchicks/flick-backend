@@ -27,7 +27,11 @@ class DiscoverShow(APIView):
 
     def get_friend_recommendations(self, user):
         friends = Friend.objects.friends(user=user)
-        friends_friend = Friend.objects.all().filter(Q(from_user__in=friends) & ~Q(to_user=user)).values("to_user")
+        friends_friend = (
+            Friend.objects.all()
+            .filter(Q(from_user__in=friends) & ~Q(to_user=user) & ~Q(to_user_in=friends))
+            .values("to_user")
+        )
         most_friended_by_friends = friends_friend.annotate(Count("to_user")).order_by("-to_user__count")[:10]
         return [Profile.objects.get(user=u["to_user"]) for u in most_friended_by_friends]
 
