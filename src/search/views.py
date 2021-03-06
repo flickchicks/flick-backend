@@ -72,8 +72,8 @@ class Search(APIView):
     def get_lsts_by_name(self, query):
         lsts = Lst.objects.filter(
             Q(name__icontains=query) & Q(is_private=False) & Q(is_saved=False) & Q(is_watch_later=False)
-        )
-        serializer = LstSerializer(lsts, many=True)
+        ).prefetch_related("collaborators", "shows", "custom_tags")
+        serializer = LstSerializer(lsts, many=True, context={"request": self.request})
         return serializer.data
 
     def get_tags_by_name(self, query):

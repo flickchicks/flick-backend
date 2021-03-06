@@ -1,0 +1,11 @@
+test_authenticate (flick_auth.tests.test_authenticate.AuthenticateTests),6.293523
+test_diff_social_id_but_social_id_token_taken (flick_auth.tests.test_authenticate.AuthenticateTests),3.517955
+test_must_supply_name_if_missing_username (flick_auth.tests.test_authenticate.AuthenticateTests),0.835042
+test_no_name_ok (flick_auth.tests.test_authenticate.AuthenticateTests),3.299194
+test_username_taken (flick_auth.tests.test_authenticate.AuthenticateTests),3.485300
+test_username_availability (flick_auth.tests.test_check_username.CheckUsernameTests),1.910931
+test_username_char_limit (flick_auth.tests.test_check_username.CheckUsernameTests),0.992576
+test_me (flick_auth.tests.test_me.MeTests),4.988704
+test_update_me_empty_fields_except_username_ok (flick_auth.tests.test_me.MeTests),4.720980
+test_update_me_empty_username_fails (flick_auth.tests.test_me.MeTests),3.505506
+test_accept_incoming_friend_request (friend.tests.test_friendship.FriendshipTests),9.358937
