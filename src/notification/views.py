@@ -22,7 +22,17 @@ class NotificationList(generics.GenericAPIView):
     def get(self, request):
         """See all notifications."""
         profile = Profile.objects.get(user=request.user)
-        notifs = Notification.objects.filter(Q(to_user=profile))
+        notifs = Notification.objects.filter(Q(to_user=profile)).prefetch_related(
+            "from_user",
+            "to_user",
+            "lst",
+            "group",
+            "comment",
+            "suggestion",
+            "new_owner",
+            "collaborators_added",
+            "collaborators_removed",
+        )
         serializer = self.serializer_class(notifs, many=True)
         return success_response(serializer.data)
 

@@ -24,7 +24,9 @@ class LstList(generics.GenericAPIView):
     def get(self, request):
         """See all possible lists."""
         profile = Profile.objects.get(user=request.user)
-        lsts = Lst.objects.filter(Q(owner=profile) | Q(collaborators=profile) | Q(is_private=False))
+        lsts = Lst.objects.filter(Q(owner=profile) | Q(collaborators=profile) | Q(is_private=False)).prefetch_related(
+            "collaborators", "owner", "shows", "custom_tags"
+        )
         serializer = self.serializer_class(lsts, many=True, context={"request": request})
         return success_response(serializer.data)
 
