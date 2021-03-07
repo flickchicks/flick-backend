@@ -96,7 +96,12 @@ class DiscoverView(APIView):
             user_discover.save()
             serializer_data = DiscoverSerializer(user_discover, context={"request": request}).data
         else:
-            serializer_data = dict()
+            serializer_data = {
+                "friend_recommendations": [],
+                "friend_shows": [],
+                "friend_lsts": [],
+                "friend_comments": [],
+            }
         serializer_data["trending_shows"] = self.get_trending_shows()
         serializer_data["trending_lsts"] = self.get_trending_lsts(request)
         return success_response(serializer_data)
