@@ -10,6 +10,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("user", "0001_initial"),
+        ("vote", "0001_initial"),
         ("show", "0001_initial"),
         ("vote", "0001_initial"),
     ]

@@ -51,8 +51,6 @@ class Migration(migrations.Migration):
                 ("ratings", models.ManyToManyField(blank=True, to="rating.Rating")),
                 ("tags", models.ManyToManyField(blank=True, related_name="shows", to="tag.Tag")),
             ],
-            options={
-                "unique_together": {("title", "ext_api_id", "ext_api_source", "poster_pic")},
-            },
+            options={"unique_together": {("title", "ext_api_id", "ext_api_source", "poster_pic")}},
         ),
     ]

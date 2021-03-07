@@ -38,9 +38,7 @@ class Migration(migrations.Migration):
                 ),
                 ("shows", models.ManyToManyField(blank=True, to="show.Show")),
             ],
-            options={
-                "ordering": ["-updated_at"],
-            },
+            options={"ordering": ["-updated_at"]},
         ),
         migrations.CreateModel(
             name="LstSaveActivity",
@@ -78,9 +76,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "ordering": ["-created_at"],
-                "unique_together": {("lst", "show")},
-            },
+            options={"ordering": ["-created_at"], "unique_together": {("lst", "show")}},
         ),
     ]

@@ -71,9 +71,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "ordering": ["-created_at"],
-                "unique_together": {("liker", "comment")},
-            },
+            options={"ordering": ["-created_at"], "unique_together": {("liker", "comment")}},
         ),
     ]

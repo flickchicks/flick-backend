@@ -66,9 +66,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "ordering": ["-updated_at"],
-                "unique_together": {("message", "show", "from_user", "to_user")},
-            },
+            options={"ordering": ["-updated_at"], "unique_together": {("message", "show", "from_user", "to_user")}},
         ),
     ]

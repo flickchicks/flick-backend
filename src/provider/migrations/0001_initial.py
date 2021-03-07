@@ -18,8 +18,6 @@ class Migration(migrations.Migration):
                 ("name", models.CharField(max_length=100)),
                 ("image", models.URLField(blank=True, null=True)),
             ],
-            options={
-                "unique_together": {("name", "image")},
-            },
+            options={"unique_together": {("name", "image")}},
         ),
     ]
