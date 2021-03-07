@@ -6,6 +6,16 @@ from show.serializers import ShowSearchSerializer
 from .models import Group
 
 
+class GroupSuperSimpleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = (
+            "id",
+            "name",
+        )
+        read_only_fields = fields
+
+
 class GroupSimpleSerializer(serializers.ModelSerializer):
     members = ProfileSimpleSerializer(many=True)
 
