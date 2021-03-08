@@ -35,7 +35,7 @@ class GroupList(generics.GenericAPIView):
     def get(self, request):
         """See all groups that request.user belongs to."""
         profile = Profile.objects.get(user=request.user)
-        groups = Group.objects.filter(members=profile)
+        groups = Group.objects.filter(members=profile).prefetch_related("members")
         serializer = self.serializer_class(groups, many=True)
         return success_response(serializer.data)
 
@@ -65,14 +65,14 @@ class GroupDetail(generics.GenericAPIView):
     def get(self, request, pk):
         """Get a group by id. If request.user does not belong to the group, return a failure response."""
         profile = Profile.objects.get(user=request.user)
-        group = profile.groups.get(id=pk)
+        group = profile.groups.filter(id=pk).prefetch_related("members", "shows")[0]
         serializer = self.serializer_class(group)
         return success_response(serializer.data)
 
     def post(self, request, pk):
         """Update a group by id. For now, only supports renaming."""
         profile = Profile.objects.get(user=request.user)
-        group = profile.groups.get(id=pk)
+        group = profile.groups.filter(id=pk).prefetch_related("members", "shows")[0]
         data = json.loads(request.body)
         group.name = data.get("name")
         group.save()
@@ -217,7 +217,11 @@ class GroupPendingList(generics.GenericAPIView):
         profile = Profile.objects.get(user=request.user)
         group = profile.groups.get(id=pk)
         voted_show_ids = group.votes.filter(voter=profile).values_list("show", flat=True)
-        all_show_ids = group.shows.all().values_list("id", flat=True)
+        all_show_ids = (
+            group.shows.all()
+            .prefetch_related("tags", "ratings", "providers", "comments", "ratings")
+            .values_list("id", flat=True)
+        )
         pending_show_ids = all_show_ids.difference(voted_show_ids)
         serializer = self.serializer_class(
             group.shows.filter(id__in=pending_show_ids), context={"request": self.request}, many=True
