@@ -35,7 +35,7 @@ class GroupList(generics.GenericAPIView):
     def get(self, request):
         """See all groups that request.user belongs to."""
         profile = Profile.objects.get(user=request.user)
-        groups = Group.objects.filter(members=profile).prefetch_related()
+        groups = Group.objects.filter(members=profile)
         serializer = self.serializer_class(groups, many=True)
         return success_response(serializer.data)
 
