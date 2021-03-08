@@ -1,5 +1,5 @@
 from rest_framework.serializers import ModelSerializer
-from tags.simple_serializers import TagSimpleSerializer
+from tag.simple_serializers import TagSimpleSerializer
 
 from .models import Show
 
