@@ -26,7 +26,16 @@ class UserView(generics.GenericAPIView):
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
     def get(self, request):
-        profile = Profile.objects.get(user=self.request.user)
+        profile = Profile.objects.filter(user=self.request.user).prefetch_related(
+            "owner_lsts",
+            "collab_lsts",
+            "owner_lsts__owner",
+            "owner_lsts__collaborators",
+            "owner_lsts__shows",
+            "collab_lsts__owner",
+            "collab_lsts__collaborators",
+            "collab_lsts__shows",
+        )[0]
         serializer = self.serializer_class(profile)
         return success_response(serializer.data)
 
