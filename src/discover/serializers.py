@@ -1,7 +1,7 @@
 from user.models import Profile
 from user.profile_simple_serializers import ProfileFriendRecommendationSerializer
 
-from comment.serializers import SimpleCommentSerializer
+from comment.serializers import CommentDiscoverSerializer
 from friendship.models import Friend
 from lst.serializers import LstSaveActivitySerializer
 from lst.serializers import LstWithSimpleShowsSerializer
@@ -15,7 +15,7 @@ class DiscoverSerializer(serializers.ModelSerializer):
     friend_recommendations = serializers.SerializerMethodField(method_name="get_friend_recommendations")
     friend_lsts = serializers.SerializerMethodField(method_name="select_friend_lsts")
     friend_shows = serializers.SerializerMethodField(method_name="select_friend_shows")
-    friend_comments = SimpleCommentSerializer(many=True)
+    friend_comments = CommentDiscoverSerializer(many=True)
 
     class Meta:
         model = Discover

@@ -15,3 +15,20 @@ class ShowSimplestSerializer(ModelSerializer):
         model = Show
         fields = ("id", "ext_api_id", "ext_api_source", "title", "poster_pic")
         read_only_fields = fields
+
+
+class ShowDiscoverSerializer(ModelSerializer):
+    class Meta:
+        model = Show
+        fields = (
+            "id",
+            "ext_api_id",
+            "ext_api_source",
+            "title",
+            "poster_pic",
+            "is_tv",
+            "plot",
+            "date_released",
+            "tags",
+        )
+        read_only_fields = fields
