@@ -34,7 +34,7 @@ class NotificationList(generics.GenericAPIView):
             "suggestion",
             "suggestion__to_user",
             "suggestion__from_user",
-            "sugestion__show",
+            "suggestion__show",
             "new_owner",
             "collaborators_added",
             "collaborators_removed",
