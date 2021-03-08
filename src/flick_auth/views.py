@@ -7,6 +7,7 @@ from api import settings as api_settings
 from api.utils import failure_response
 from api.utils import success_response
 from django.contrib.auth import logout
+from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.shortcuts import reverse
 from rest_framework import generics
@@ -63,6 +64,8 @@ class UserProfileView(generics.GenericAPIView):
     def get(self, request, pk):
         if request.user.id == pk:
             return HttpResponseRedirect(reverse("me"))
+        if not User.objects.filter(id=pk):
+            return failure_response(f"User of id {pk} not found.")
         profile = Profile.objects.filter(user__id=pk).prefetch_related(
             "owner_lsts",
             "collab_lsts",
