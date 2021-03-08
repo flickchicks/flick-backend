@@ -66,7 +66,16 @@ class UserProfileView(generics.GenericAPIView):
             return HttpResponseRedirect(reverse("me"))
         if not User.objects.filter(id=pk):
             return failure_response(f"User of id {pk} not found.")
-        profile = Profile.objects.get(user__id=pk)
+        profile = Profile.objects.filter(user__id=pk).prefetch_related(
+            "owner_lsts",
+            "collab_lsts",
+            "owner_lsts__owner",
+            "owner_lsts__collaborators",
+            "owner_lsts__shows",
+            "collab_lsts__owner",
+            "collab_lsts__collaborators",
+            "collab_lsts__shows",
+        )[0]
         return success_response(self.serializer_class(profile, context={"request": self.request}).data)
 
 
