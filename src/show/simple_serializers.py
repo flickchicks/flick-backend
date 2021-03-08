@@ -1,4 +1,5 @@
 from rest_framework.serializers import ModelSerializer
+from tag.simple_serializers import TagSimpleSerializer
 
 from .models import Show
 
@@ -18,6 +19,8 @@ class ShowSimplestSerializer(ModelSerializer):
 
 
 class ShowDiscoverSerializer(ModelSerializer):
+    tags = TagSimpleSerializer(read_only=True, many=True)
+
     class Meta:
         model = Show
         fields = (
