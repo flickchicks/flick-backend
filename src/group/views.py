@@ -217,7 +217,11 @@ class GroupPendingList(generics.GenericAPIView):
         profile = Profile.objects.get(user=request.user)
         group = profile.groups.get(id=pk)
         voted_show_ids = group.votes.filter(voter=profile).values_list("show", flat=True)
-        all_show_ids = group.shows.all().values_list("id", flat=True)
+        all_show_ids = (
+            group.shows.all()
+            .prefetch_related("tags", "ratings", "providers", "comments", "ratings")
+            .values_list("id", flat=True)
+        )
         pending_show_ids = all_show_ids.difference(voted_show_ids)
         serializer = self.serializer_class(
             group.shows.filter(id__in=pending_show_ids), context={"request": self.request}, many=True
