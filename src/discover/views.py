@@ -46,19 +46,25 @@ class DiscoverView(APIView):
 
     def get_friend_shows(self, user_friends):
         public_lsts = Lst.objects.filter(is_private=False)
-        activities = LstSaveActivity.objects.filter(lst__in=public_lsts, saved_by__in=user_friends)
+        activities = LstSaveActivity.objects.filter(lst__in=public_lsts, saved_by__in=user_friends).prefetch_related(
+            "saved_by", "show", "lst"
+        )
         friend_shows = activities.values_list("show", flat=True).distinct()[:10]
         return friend_shows
 
     def get_friend_lsts(self, user_friends):
-        public_lsts = Lst.objects.filter(is_private=False, is_saved=False, is_watch_later=False)
-        friend_lsts = public_lsts.filter(owner__in=user_friends)[:10]
+        public_lsts = Lst.objects.filter(is_private=False, is_saved=False, is_watch_later=False).prefetch_related(
+            "shows"
+        )
+        friend_lsts = public_lsts.filter(owner__in=user_friends).prefetch_related("shows")[:10]
         return friend_lsts
 
     def get_trending_lsts(self, request):
         trending_lsts = local_cache.get(("trending_lsts"))
         if not trending_lsts:
-            public_lsts = Lst.objects.filter(is_private=False, is_saved=False, is_watch_later=False)
+            public_lsts = Lst.objects.filter(is_private=False, is_saved=False, is_watch_later=False).prefetch_related(
+                "shows"
+            )
             trending_lsts = public_lsts.order_by("-num_likes")[:20]
             trending_lsts = LstWithSimpleShowsSerializer(trending_lsts, many=True, context={"request": request}).data
             local_cache.set(("trending_lsts"), trending_lsts)
@@ -66,7 +72,11 @@ class DiscoverView(APIView):
         return trending_lsts
 
     def get_friend_comments(self, user_friends):
-        comments = Comment.objects.filter(owner__in=user_friends).order_by("-created_at")[:10]
+        comments = (
+            Comment.objects.filter(owner__in=user_friends)
+            .prefetch_related("show", "owner")
+            .order_by("-created_at")[:10]
+        )
         return comments
 
     def get(self, request, *args, **kwargs):
@@ -74,7 +84,9 @@ class DiscoverView(APIView):
 
         if not user.is_anonymous:
             if Discover.objects.filter(user=user):
-                user_discover = Discover.objects.get(user=user)
+                user_discover = Discover.objects.filter(user=user).prefetch_related(
+                    "user", "friend_recommendations", "friend_shows", "friend_lsts", "friend_comments"
+                )[0]
                 utc = pytz.utc
                 delta = datetime.datetime.now(tz=utc) - user_discover.updated_at
                 minutes = (delta.total_seconds() % 3600) // 60
