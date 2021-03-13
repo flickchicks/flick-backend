@@ -48,9 +48,7 @@ class LstDetail(generics.GenericAPIView):
         If the request user is a collaborator or an owner or is looking at a list that is public,
         then the list will be returned.
         """
-        if not Lst.objects.filter(pk=pk):
-            return failure_response(f"List of id {pk} does not exist.")
-        lst = Lst.objects.get(pk=pk)
+        lst = Lst.objects.filter(pk=pk).prefetch_related("collaborators", "owner", "shows", "custom_tags")[0]
         profile = Profile.objects.get(user=request.user)
         if not profile:
             return failure_response(f"No user to be found with id of {request.user.id}.")
