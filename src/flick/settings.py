@@ -77,6 +77,7 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
+    "qinspect.middleware.QueryInspectMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -132,6 +133,64 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
+# Whether the Query Inspector should do anything (default: False)
+QUERY_INSPECT_ENABLED = True
+# Whether to log the stats via Django logging (default: True)
+QUERY_INSPECT_LOG_STATS = True
+# Whether to add stats headers (default: True)
+QUERY_INSPECT_HEADER_STATS = True
+# Whether to log duplicate queries (default: False)
+QUERY_INSPECT_LOG_QUERIES = True
+# Whether to log queries that are above an absolute limit (default: None - disabled)
+QUERY_INSPECT_ABSOLUTE_LIMIT = 100  # in milliseconds
+# Whether to log queries that are more than X standard deviations above the mean query time (default: None - disabled)
+QUERY_INSPECT_STANDARD_DEVIATION_LIMIT = 2
+# Whether to include tracebacks in the logs (default: False)
+# QUERY_INSPECT_LOG_TRACEBACKS = True
+# Project root (a list of directories, see below - default empty)
+# QUERY_INSPECT_TRACEBACK_ROOTS = ["/path/to/my/django/project/"]
+# Minimum number of duplicates needed to log the query (default: 2)
+QUERY_INSPECT_DUPLICATE_MIN = 1  # to force logging of all queries
+# Whether to truncate SQL queries in logs to specified size, for readability purposes (default: None - full SQL query is included)
+QUERY_INSPECT_SQL_LOG_LIMIT = 120  # limit to 120 chars
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": True,
+    "formatters": {
+        "verbose": {"format": "%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s"},
+        "simple": {"format": "%(levelname)s %(message)s"},
+    },
+    "handlers": {
+        "null": {
+            "level": "DEBUG",
+            "class": "logging.NullHandler",
+        },
+        "console": {"level": "DEBUG", "class": "logging.StreamHandler", "formatter": "simple"},
+        "mail_admins": {
+            "level": "ERROR",
+            "class": "django.utils.log.AdminEmailHandler",
+            "filters": [],
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["null"],
+            "propagate": True,
+            "level": "INFO",
+        },
+        "django.request": {
+            "handlers": ["mail_admins"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+        "qinspect": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
+    },
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
