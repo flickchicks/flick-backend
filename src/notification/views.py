@@ -25,9 +25,7 @@ class NotificationList(generics.GenericAPIView):
             "to_user",
             "lst",
             "group",
-            # "group__members", not in supersimpleserializer
             "comment",
-            # "comment__owner", makes 13 to 12 duplicates for some reason
             "comment__show",
             "suggestion",
             "suggestion__to_user",
