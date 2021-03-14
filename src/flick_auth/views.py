@@ -106,7 +106,7 @@ class UserLikedLstsView(generics.GenericAPIView):
         )[0]
 
         lsts = [like.lst for like in profile.lst_likes]
-        return success_response(self.serializer_class(lsts, many=True, context={"request": self.request}).data)
+        return success_response(self.serializer_class(lsts, many=True).data)
 
 
 class LogoutView(generics.GenericAPIView):
