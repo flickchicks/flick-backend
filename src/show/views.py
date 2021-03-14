@@ -79,7 +79,7 @@ class ShowDetail(generics.GenericAPIView):
         return success_response(self.serializer_class(show, context={"request": request}).data)
 
 
-class AddToListView(generics.GenericAPIView):
+class AddShowToListsView(generics.GenericAPIView):
 
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 

@@ -39,7 +39,7 @@ from read.views import ReadView
 from recommend.views import LstRecommendView
 from rest_framework import routers
 from search.views import Search
-from show.views import AddToListView
+from show.views import AddShowToListsView
 from show.views import ShowDetail
 from show.views import ShowViewSet
 from suggestion.views import CreateSuggestion
@@ -87,7 +87,7 @@ urlpatterns = [
     path("media/image/", UploadImage.as_view(), name="upload"),
     path("search/", Search.as_view(), name="search"),
     path("show/<int:pk>/", ShowDetail.as_view(), name="show-detail"),
-    path("show/<int:pk>/tolist/", AddToListView.as_view(), name="show-tolist"),
+    path("show/<int:pk>/lsts/add", AddShowToListsView.as_view(), name="show-tolist"),
     path("suggest/", CreateSuggestion.as_view(), name="private-suggestion"),
     path("suggestions/", SuggestionList.as_view(), name="private-suggestion-list"),
     path("suggestions/<int:pk>/like/", SuggestionLikeView.as_view(), name="like-private-suggestion"),
