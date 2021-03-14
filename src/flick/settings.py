@@ -146,9 +146,9 @@ QUERY_INSPECT_ABSOLUTE_LIMIT = 100  # in milliseconds
 # Whether to log queries that are more than X standard deviations above the mean query time (default: None - disabled)
 QUERY_INSPECT_STANDARD_DEVIATION_LIMIT = 2
 # Whether to include tracebacks in the logs (default: False)
-# QUERY_INSPECT_LOG_TRACEBACKS = True
+QUERY_INSPECT_LOG_TRACEBACKS = True
 # Project root (a list of directories, see below - default empty)
-# QUERY_INSPECT_TRACEBACK_ROOTS = ["/path/to/my/django/project/"]
+QUERY_INSPECT_TRACEBACK_ROOTS = ["."]
 # Minimum number of duplicates needed to log the query (default: 2)
 QUERY_INSPECT_DUPLICATE_MIN = 1  # to force logging of all queries
 # Whether to truncate SQL queries in logs to specified size, for readability purposes (default: None - full SQL query is included)
