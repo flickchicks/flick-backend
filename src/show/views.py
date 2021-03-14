@@ -6,8 +6,6 @@ from api import settings as api_settings
 from api.utils import failure_response
 from api.utils import success_response
 from flick.tasks import populate_show_details
-from lst.models import Lst
-from lst.serializers import LstWithSimpleShowsSerializer
 import pytz
 from rest_framework import generics
 from rest_framework import mixins
@@ -15,6 +13,7 @@ from rest_framework import viewsets
 
 from .models import Show
 from .serializers import ShowSerializer
+from .tasks import add_show_to_lists
 
 
 class ShowViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
@@ -87,23 +86,5 @@ class AddToListView(generics.GenericAPIView):
     def post(self, request, pk):
         data = json.loads(request.body)
         list_ids = data.get("list_ids")
-        if not Show.objects.filter(pk=pk):
-            return failure_response(f"show with id {pk} does not exist")
-
-        show = Show.objects.get(pk=pk)
-        success_lists = []
-        for lst_id in list_ids:
-            lst = Lst.objects.filter(pk=lst_id)
-            if lst:
-                lst = Lst.objects.get(pk=lst_id)
-                user_profile = Profile.objects.get(user=request.user)
-                is_owner = user_profile == lst.owner
-                is_collaborator = user_profile in lst.collaborators.all()
-                if not is_owner and not is_collaborator:
-                    continue
-                lst.shows.add(show)
-                success_lists.append(lst)
-
-        return success_response(
-            LstWithSimpleShowsSerializer(success_lists, many=True, context={"request": request}).data
-        )
+        add_show_to_lists(pk, list_ids, request.user)
+        return success_response()
