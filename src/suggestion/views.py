@@ -26,9 +26,7 @@ class SuggestionList(generics.GenericAPIView):
 
     def get(self, request):
         """See all suggestions."""
-        user = request.user
-        profile = Profile.objects.get(user=user)
-        suggestions = profile.suggestions_received.all().prefetch_related("to_user", "from_user", "show")
+        suggestions = request.user.profile.suggestions_received.all().prefetch_related("from_user", "show")
         suggestion_data = PrivateSuggestionSerializer(suggestions, context={"request": request}, many=True)
         return success_response(suggestion_data.data)
 

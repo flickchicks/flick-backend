@@ -1,4 +1,3 @@
-from user.models import Profile
 from user.profile_simple_serializers import ProfileSimpleSerializer
 
 from rest_framework import serializers
@@ -22,9 +21,7 @@ class PrivateSuggestionSerializer(serializers.ModelSerializer):
 
     def get_has_liked(self, instance):
         request = self.context.get("request")
-        user = request.user
-        profile = Profile.objects.get(user=user)
-        has_liked = instance.likers.filter(liker=profile).exists()
+        has_liked = instance.likers.filter(liker__user=request.user).exists()
         return has_liked
 
 
