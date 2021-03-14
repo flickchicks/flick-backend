@@ -95,28 +95,17 @@ class UserLikedLstsView(generics.GenericAPIView):
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
     def get(self, request, pk):
-        if not User.objects.filter(id=pk):
-            return failure_response(f"User of id {pk} not found.")
-        profile = (
-            Profile.objects.filter(user__id=pk)
-            .prefetch_related(
-                Prefetch("likes", queryset=Like.objects.filter(like_type="list_like", to_attr="lst_likes"))
+        profile = Profile.objects.filter(user__id=pk).prefetch_related(
+            Prefetch(
+                "likes",
+                queryset=Like.objects.filter(like_type="list_like").prefetch_related(
+                    "lst", "lst__owner", "lst__collaborators", "lst__shows"
+                ),
+                to_attr="lst_likes",
             )
-            .get()
-        )
-        lsts = profile.lst_likes.values_list("lst", flat=True)
+        )[0]
 
-        # someAlbums = PhotoAlbum.objects.filter(author="Davey Jones").prefetch_related(
-        #     Prefetch(ßß
-        #         "photo_set",
-        #         queryset=Photo.objects.filter(format=1),
-        #         to_attr="some_photos"
-        #     )
-        # )
-
-        # for a in someAlbums:
-        #     somePhotos = a.some_photos
-
+        lsts = [like.lst for like in profile.lst_likes]
         return success_response(self.serializer_class(lsts, many=True, context={"request": self.request}).data)
 
 

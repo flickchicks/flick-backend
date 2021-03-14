@@ -40,7 +40,7 @@ class LikeView(generics.GenericAPIView):
             comment.num_likes += 1
             like = Like()
             like.comment = comment
-            like.type = "comment_like"
+            like.like_type = "comment_like"
             like.liker = profile
             like.save()
         else:
@@ -69,7 +69,7 @@ class LstLikeView(generics.GenericAPIView):
     def _create_like(self, lst, liker_profile):
         like = Like()
         like.lst = lst
-        like.type = "list_like"
+        like.like_type = "list_like"
         like.liker = liker_profile
         like.save()
 
@@ -88,7 +88,6 @@ class LstLikeView(generics.GenericAPIView):
         else:
             lst.num_likes -= 1
             existing_like.delete()
-
         lst.save(update_fields=["num_likes"])
         lst_data = LstWithSimpleShowsSerializer(lst, context={"request": request}).data
         return success_response(lst_data)
@@ -109,7 +108,7 @@ class SuggestionLikeView(generics.GenericAPIView):
     def _create_like(self, suggestion, liker_profile):
         like = Like()
         like.suggestion = suggestion
-        like.type = "suggestion_like"
+        like.like_type = "suggestion_like"
         like.liker = liker_profile
         like.save()
 
