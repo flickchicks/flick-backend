@@ -13,7 +13,7 @@ class FriendUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (User.USERNAME_FIELD, "id", "name", "bio", "profile_pic")
-        write_only_fields = fields
+        read_only_fields = fields
 
 
 class FriendRequestSerializer(serializers.ModelSerializer):

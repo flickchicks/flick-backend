@@ -4,7 +4,6 @@ from user.models import Profile
 from api import settings as api_settings
 from api.utils import failure_response
 from api.utils import success_response
-from django.db.models import Q
 from django.utils.dateparse import parse_datetime
 from notification.models import Notification
 from notification.serializers import NotificationSerializer
@@ -21,15 +20,12 @@ class NotificationList(generics.GenericAPIView):
 
     def get(self, request):
         """See all notifications."""
-        profile = Profile.objects.get(user=request.user)
-        notifs = Notification.objects.filter(Q(to_user=profile)).prefetch_related(
+        notifs = Notification.objects.filter(to_user__user=request.user).prefetch_related(
             "from_user",
             "to_user",
             "lst",
             "group",
-            "group__members",
             "comment",
-            "comment__owner",
             "comment__show",
             "suggestion",
             "suggestion__to_user",

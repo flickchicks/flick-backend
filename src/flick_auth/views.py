@@ -25,6 +25,13 @@ class UserView(generics.GenericAPIView):
     serializer_class = ProfileSerializer
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
+    def delete(self, request):
+        try:
+            request.user.delete()
+        except Exception as e:
+            return failure_response(f"An exception occurred {e}.")
+        return success_response(f"User with id {request.user.id} has been deleted.")
+
     def get(self, request):
         profile = Profile.objects.filter(user=self.request.user).prefetch_related(
             "owner_lsts",

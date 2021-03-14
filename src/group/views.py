@@ -62,6 +62,11 @@ class GroupDetail(generics.GenericAPIView):
     serializer_class = GroupSerializer
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
+    def delete(self, request, pk):
+        """Remove a group by id."""
+        request.user.profile.groups.get(id=pk).delete()
+        return success_response(f"Group with id {pk} has been deleted.")
+
     def get(self, request, pk):
         """Get a group by id. If request.user does not belong to the group, return a failure response."""
         profile = Profile.objects.get(user=request.user)
@@ -105,7 +110,6 @@ class GroupDetailAdd(generics.GenericAPIView):
                 group.shows.add(show)
             except:
                 continue
-
         rec_shows = []
         if num_random_shows > 0:
             show_lst = []

@@ -5,6 +5,7 @@ from asset.views import AssetBundleList
 from discover.views import DiscoverView
 from django.urls import include
 from django.urls import path
+from flick_auth.async_views import index
 from flick_auth.views import AuthenticateView
 from flick_auth.views import CheckUsernameView
 from flick_auth.views import LogoutView
@@ -51,6 +52,7 @@ router.register(r"users", UserViewSet)
 router.register(r"shows", ShowViewSet)
 
 urlpatterns = [
+    path("async/", index, name="async"),
     path("", include(router.urls)),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     path("asset-bundles/", AssetBundleList.as_view(), name="asset-bundles-list"),

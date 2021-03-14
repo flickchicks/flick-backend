@@ -22,7 +22,7 @@ class AuthenticateSerializer(serializers.ModelSerializer):
             "social_id_token_type",
             "date_joined",
         )
-        write_only_fields = fields
+        read_only_fields = fields
 
     def get_auth_token(self, instance):
         return self.context.get("auth_token")

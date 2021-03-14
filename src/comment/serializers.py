@@ -1,4 +1,3 @@
-from user.models import Profile
 from user.profile_simple_serializers import ProfileSimpleSerializer
 
 from rest_framework import serializers
@@ -20,23 +19,16 @@ class CommentSerializer(serializers.ModelSerializer):
 
     def get_has_liked(self, instance):
         request = self.context.get("request")
-        user = request.user
-
-        profile = Profile.objects.get(user=user)
-
-        has_liked = instance.likers.filter(liker=profile).exists()
+        has_liked = instance.likers.filter(liker=request.user.profile).exists()
         return has_liked
 
     def get_is_readable(self, instance):
         if not instance.is_spoiler:
             return True
         request = self.context.get("request")
-        user = request.user
-
-        profile = Profile.objects.get(user=user)
+        profile = request.user.profile
         if instance.owner == profile:
             return True
-
         is_readable = instance.reads.filter(reader=profile).exists()
         return is_readable
 
