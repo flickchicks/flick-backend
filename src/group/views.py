@@ -98,8 +98,18 @@ class GroupDetailAdd(generics.GenericAPIView):
         member_ids = data.get("members", [])
         show_ids = data.get("shows", [])
         num_random_shows = data.get("num_random_shows", 0)
-        group.members.add(*Profile.objects.filter(user__id_in=member_ids))
-        group.shows.add(*Show.objects.filter(id__in=show_ids))
+        for member_id in member_ids:
+            try:
+                member_profile = Profile.objects.get(user__id=member_id)
+                group.members.add(member_profile)
+            except:
+                continue
+        for show_id in show_ids:
+            try:
+                show = Show.objects.get(id=show_id)
+                group.shows.add(show)
+            except:
+                continue
         rec_shows = []
         if num_random_shows > 0:
             show_lst = []
