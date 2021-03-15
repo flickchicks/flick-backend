@@ -9,6 +9,7 @@ from flick_auth.async_views import index
 from flick_auth.views import AuthenticateView
 from flick_auth.views import CheckUsernameView
 from flick_auth.views import LogoutView
+from flick_auth.views import UserLikedLstsView
 from flick_auth.views import UserProfileView
 from flick_auth.views import UserView
 from friend.views import FriendAcceptListAndCreate
@@ -18,6 +19,7 @@ from friend.views import FriendRemoveListAndCreate
 from friend.views import FriendRequestListAndCreate
 from friend.views import UserFriendList
 from group.views import GroupClearShows
+from group.views import GroupClearVotes
 from group.views import GroupDetail
 from group.views import GroupDetailAdd
 from group.views import GroupDetailRemove
@@ -76,6 +78,7 @@ urlpatterns = [
     path("groups/<int:pk>/shows/", GroupShowList.as_view(), name="group-show-list"),
     path("groups/<int:pk>/shows/clear/", GroupClearShows.as_view(), name="group-clear-shows"),
     path("groups/<int:group_pk>/shows/<int:show_pk>/vote/", GroupVoteShow.as_view(), name="group-vote-show"),
+    path("groups/<int:pk>/votes/clear/", GroupClearVotes.as_view(), name="clear-votes"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("lsts/", LstList.as_view(), name="lst-list"),
     path("lsts/<int:pk>/", LstDetail.as_view(), name="lst-detail"),
@@ -94,7 +97,8 @@ urlpatterns = [
     path("tags/", TagList.as_view(), name="tag-list"),
     path("tags/<int:pk>/", TagDetail.as_view(), name="tag-detail"),
     path("user/<int:pk>/", UserProfileView.as_view(), name="user-profile"),
-    path("user/<int:pk>/friends/", UserFriendList.as_view(), name="user-friend-lists"),
+    path("user/<int:pk>/liked-lists/", UserLikedLstsView.as_view(), name="user-liked-lists"),
+    path("user/<int:pk>/friends/", UserFriendList.as_view(), name="user-friend-list"),
     path("username/", CheckUsernameView.as_view(), name="check-username"),
     path("notifications/", NotificationList.as_view(), name="notif-list"),
     path("notifications/enable/", NotificationEnable.as_view(), name="notif-enable"),

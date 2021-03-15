@@ -21,6 +21,7 @@ from .models import Group
 from .serializers import GroupSerializer
 from .serializers import GroupSimpleSerializer
 from .tasks import clear_shows
+from .tasks import clear_votes
 from .tasks import create_new_group_notif
 from .tasks import vote
 
@@ -61,6 +62,11 @@ class GroupList(generics.GenericAPIView):
 class GroupDetail(generics.GenericAPIView):
     serializer_class = GroupSerializer
     permission_classes = api_settings.CONSUMER_PERMISSIONS
+
+    def delete(self, request, pk):
+        """Remove a group by id."""
+        request.user.profile.groups.get(id=pk).delete()
+        return success_response(f"Group with id {pk} has been deleted.")
 
     def get(self, request, pk):
         """Get a group by id. If request.user does not belong to the group, return a failure response."""
@@ -105,7 +111,6 @@ class GroupDetailAdd(generics.GenericAPIView):
                 group.shows.add(show)
             except:
                 continue
-
         rec_shows = []
         if num_random_shows > 0:
             show_lst = []
@@ -169,12 +174,20 @@ class GroupDetailRemove(generics.GenericAPIView):
 
 
 class GroupClearShows(generics.GenericAPIView):
-    serializer_class = GroupSerializer
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
     def post(self, request, pk):
         """Clear all shows in a group by id."""
         clear_shows.delay(user_id=request.user.id, group_id=pk)
+        return success_response()
+
+
+class GroupClearVotes(generics.GenericAPIView):
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
+
+    def post(self, request, pk):
+        """Clear all votes in a group by id."""
+        clear_votes.delay(user_id=request.user.id, group_id=pk)
         return success_response()
 
 

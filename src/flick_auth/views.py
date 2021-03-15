@@ -8,8 +8,11 @@ from api.utils import failure_response
 from api.utils import success_response
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
+from django.db.models import Prefetch
 from django.http import HttpResponseRedirect
 from django.shortcuts import reverse
+from like.models import Like
+from lst.simple_serializers import MeLstSerializer
 from rest_framework import generics
 from rest_framework.authtoken.models import Token
 
@@ -84,6 +87,25 @@ class UserProfileView(generics.GenericAPIView):
             "collab_lsts__shows",
         )[0]
         return success_response(self.serializer_class(profile, context={"request": self.request}).data)
+
+
+class UserLikedLstsView(generics.GenericAPIView):
+    serializer_class = MeLstSerializer
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
+
+    def get(self, request, pk):
+        profile = Profile.objects.filter(user__id=pk).prefetch_related(
+            Prefetch(
+                "likes",
+                queryset=Like.objects.filter(like_type="list_like").prefetch_related(
+                    "lst", "lst__owner", "lst__collaborators", "lst__shows"
+                ),
+                to_attr="lst_likes",
+            )
+        )[0]
+
+        lsts = [like.lst for like in profile.lst_likes]
+        return success_response(self.serializer_class(lsts, many=True).data)
 
 
 class LogoutView(generics.GenericAPIView):
