@@ -9,6 +9,7 @@ from flick_auth.async_views import index
 from flick_auth.views import AuthenticateView
 from flick_auth.views import CheckUsernameView
 from flick_auth.views import LogoutView
+from flick_auth.views import UserLikedLstsView
 from flick_auth.views import UserProfileView
 from flick_auth.views import UserView
 from friend.views import FriendAcceptListAndCreate
@@ -94,6 +95,7 @@ urlpatterns = [
     path("tags/", TagList.as_view(), name="tag-list"),
     path("tags/<int:pk>/", TagDetail.as_view(), name="tag-detail"),
     path("user/<int:pk>/", UserProfileView.as_view(), name="user-profile"),
+    path("user/<int:pk>/liked-lists/", UserLikedLstsView.as_view(), name="user-liked-lists"),
     path("user/<int:pk>/friends/", UserFriendList.as_view(), name="user-friend-list"),
     path("username/", CheckUsernameView.as_view(), name="check-username"),
     path("notifications/", NotificationList.as_view(), name="notif-list"),
