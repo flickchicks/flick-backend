@@ -14,7 +14,6 @@ def add_show_to_lsts(show_id, list_ids, user_id):
         is_collaborator = lst.collaborators.filter(user=user).exists()
         if not is_owner and not is_collaborator:
             continue
-        print("??")
         lst.shows.add(show)
         lst.save()
     return

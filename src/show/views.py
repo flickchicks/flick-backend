@@ -88,5 +88,5 @@ class AddShowToListsView(generics.GenericAPIView):
         """
         data = json.loads(request.body)
         list_ids = data.get("list_ids")
-        add_show_to_lsts.delay(show_id=pk, list_ids=list_ids, user_id=request.user.id)
+        add_show_to_lsts(show_id=pk, list_ids=list_ids, user_id=request.user.id)
         return success_response()
