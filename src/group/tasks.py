@@ -20,6 +20,13 @@ def clear_shows(user_id, group_id):
     profile = Profile.objects.get(user__id=user_id)
     group = profile.groups.get(id=group_id)
     group.shows.clear()
+    return
+
+
+@shared_task
+def clear_votes(user_id, group_id):
+    profile = Profile.objects.get(user__id=user_id)
+    group = profile.groups.get(id=group_id)
     group.votes.clear()
     return
 
