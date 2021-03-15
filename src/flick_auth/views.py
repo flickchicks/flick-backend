@@ -90,7 +90,6 @@ class UserProfileView(generics.GenericAPIView):
 
 
 class UserLikedLstsView(generics.GenericAPIView):
-    model = Profile
     serializer_class = MeLstSerializer
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
