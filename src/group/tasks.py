@@ -91,8 +91,8 @@ def create_new_group_notif(profile_id, group_id, member_ids):
 
 
 @shared_task
-def add_shows_to_group(user, group_id, show_ids, num_random_shows):
-    profile = user.profile
+def add_shows_to_group(user_id, group_id, show_ids, num_random_shows):
+    profile = Profile.objects.get(user__id=user_id)
     group = profile.groups.get(id=group_id)
     api = flicktmdb()
     for show_id in show_ids:
@@ -128,13 +128,13 @@ def add_shows_to_group(user, group_id, show_ids, num_random_shows):
     for rec_show in rec_shows:
         group.shows.add(rec_show)
     group.save()
-
     return
 
 
 @shared_task
-def remove_shows_from_group(user, group_id, show_ids):
-    group = user.profile.groups.get(id=group_id)
+def remove_shows_from_group(user_id, group_id, show_ids):
+    profile = Profile.objects.get(user__id=user_id)
+    group = profile.groups.get(id=group_id)
     for show_id in show_ids:
         try:
             show = Show.objects.get(id=show_id)
