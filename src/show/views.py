@@ -13,7 +13,7 @@ from rest_framework import viewsets
 
 from .models import Show
 from .serializers import ShowSerializer
-from .tasks import add_show_to_lists
+from .tasks import add_show_to_lsts
 
 
 class ShowViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
@@ -80,11 +80,13 @@ class ShowDetail(generics.GenericAPIView):
 
 
 class AddShowToListsView(generics.GenericAPIView):
-
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
     def post(self, request, pk):
+        """
+        Add one show to a multiple lists.
+        """
         data = json.loads(request.body)
         list_ids = data.get("list_ids")
-        add_show_to_lists(pk, list_ids, request.user)
+        add_show_to_lsts.delay(show_id=pk, list_ids=list_ids, user_id=request.user.id)
         return success_response()
