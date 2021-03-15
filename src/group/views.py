@@ -21,6 +21,7 @@ from .models import Group
 from .serializers import GroupSerializer
 from .serializers import GroupSimpleSerializer
 from .tasks import clear_shows
+from .tasks import clear_votes
 from .tasks import create_new_group_notif
 from .tasks import vote
 
@@ -173,12 +174,20 @@ class GroupDetailRemove(generics.GenericAPIView):
 
 
 class GroupClearShows(generics.GenericAPIView):
-    serializer_class = GroupSerializer
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
     def post(self, request, pk):
         """Clear all shows in a group by id."""
         clear_shows.delay(user_id=request.user.id, group_id=pk)
+        return success_response()
+
+
+class GroupClearVotes(generics.GenericAPIView):
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
+
+    def post(self, request, pk):
+        """Clear all votes in a group by id."""
+        clear_votes.delay(user_id=request.user.id, group_id=pk)
         return success_response()
 
 
