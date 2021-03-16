@@ -1,14 +1,19 @@
 import datetime
+from itertools import chain
 import json
+from random import sample
 from user.models import Profile
 
 from api import settings as api_settings
 from api.utils import success_response
 from django.core.cache import caches
+from lst.models import Lst
 import pytz
 from rest_framework import generics
+from show.models import Show
 from show.serializers import GroupShowSerializer
 from show.serializers import ShowSerializer
+from show.show_api_utils import ShowAPI
 from show.tmdb import flicktmdb
 from vote.serializers import VoteSerializer
 
@@ -150,6 +155,93 @@ class GroupShowsRemove(generics.GenericAPIView):
         show_ids = data.get("shows", [])
         remove_shows_from_group.delay(user_id=request.user.id, group_id=pk, show_ids=show_ids)
         return success_response()
+
+
+class GroupDetailAdd(generics.GenericAPIView):
+    serializer_class = GroupSerializer
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
+    api = flicktmdb()
+
+    def post(self, request, pk):
+        """Update a group by id by adding members and shows."""
+        profile = Profile.objects.get(user=request.user)
+        group = profile.groups.get(id=pk)
+        data = json.loads(request.body)
+        member_ids = data.get("members", [])
+        show_ids = data.get("shows", [])
+        num_random_shows = data.get("num_random_shows", 0)
+        for member_id in member_ids:
+            try:
+                member_profile = Profile.objects.get(user__id=member_id)
+                group.members.add(member_profile)
+            except:
+                continue
+        for show_id in show_ids:
+            try:
+                show = Show.objects.get(id=show_id)
+                group.shows.add(show)
+            except:
+                continue
+        rec_shows = []
+        if num_random_shows > 0:
+            show_lst = []
+            lsts = Lst.objects.filter(is_private=False, owner__in=group.members.all())
+            show_lst = [lst.shows.filter(ext_api_source="tmdb") for lst in lsts]
+            shows = list(chain.from_iterable(show_lst))
+            shows = sample(shows, min(5, len(shows)))
+            for show in group.shows.filter(ext_api_source="tmdb"):
+                shows.append(show)
+
+            for show in shows:
+                if not show:
+                    continue
+                similar = local_cache.get((show.id, "similar"))
+                if not similar:
+                    similar = self.api.get_similar_shows(show.ext_api_id, show.is_tv)
+                    local_cache.set((show.id, "similar"), similar)
+                rec_shows.extend(similar)
+
+            if len(rec_shows) < num_random_shows:
+                rec_shows.extend(self.api.get_trending_shows())
+
+            data = ShowAPI.create_show_objects_no_serialization(rec_shows)
+            rec_shows = sample(data, num_random_shows)
+
+        for rec_show in rec_shows:
+            group.shows.add(rec_show)
+        group.save()
+
+        create_new_group_notif.delay(profile_id=profile.id, group_id=group.id, member_ids=member_ids)
+        serializer = self.serializer_class(group)
+        return success_response(serializer.data)
+
+
+class GroupDetailRemove(generics.GenericAPIView):
+    serializer_class = GroupSerializer
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
+
+    def post(self, request, pk):
+        """Update a group by id by removing members and shows."""
+        profile = Profile.objects.get(user=request.user)
+        group = profile.groups.get(id=pk)
+        data = json.loads(request.body)
+        member_ids = data.get("members", [])
+        show_ids = data.get("shows", [])
+        for member_id in member_ids:
+            try:
+                member_profile = Profile.objects.get(user__id=member_id)
+                group.members.remove(member_profile)
+            except:
+                continue
+        for show_id in show_ids:
+            try:
+                show = Show.objects.get(id=show_id)
+                group.shows.remove(show)
+            except:
+                continue
+        group.save()
+        serializer = self.serializer_class(group)
+        return success_response(serializer.data)
 
 
 class GroupClearShows(generics.GenericAPIView):

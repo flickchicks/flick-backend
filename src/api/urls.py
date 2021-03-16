@@ -19,6 +19,8 @@ from friend.views import FriendRequestListAndCreate
 from friend.views import UserFriendList
 from group.views import GroupClearShows
 from group.views import GroupDetail
+from group.views import GroupDetailAdd
+from group.views import GroupDetailRemove
 from group.views import GroupList
 from group.views import GroupMembersAdd
 from group.views import GroupMembersRemove
@@ -71,6 +73,8 @@ urlpatterns = [
     path("friends/remove/", FriendRemoveListAndCreate.as_view(), name="friend-remove"),
     path("groups/", GroupList.as_view(), name="group-list"),
     path("groups/<int:pk>/", GroupDetail.as_view(), name="group-detail"),
+    path("groups/<int:pk>/add/", GroupDetailAdd.as_view(), name="group-detail-add"),
+    path("groups/<int:pk>/remove/", GroupDetailRemove.as_view(), name="group-detail-remove"),
     path("groups/<int:pk>/members/add/", GroupMembersAdd.as_view(), name="group-members-add"),
     path("groups/<int:pk>/members/remove/", GroupMembersRemove.as_view(), name="group-members-remove"),
     path("groups/<int:pk>/shows/add/", GroupShowsAdd.as_view(), name="group-shows-add"),
