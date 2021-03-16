@@ -24,8 +24,12 @@ from group.views import GroupDetail
 from group.views import GroupDetailAdd
 from group.views import GroupDetailRemove
 from group.views import GroupList
+from group.views import GroupMembersAdd
+from group.views import GroupMembersRemove
 from group.views import GroupPendingList
 from group.views import GroupShowList
+from group.views import GroupShowsAdd
+from group.views import GroupShowsRemove
 from group.views import GroupVoteShow
 from like.views import LikeView
 from like.views import LstLikeView
@@ -74,6 +78,10 @@ urlpatterns = [
     path("groups/<int:pk>/", GroupDetail.as_view(), name="group-detail"),
     path("groups/<int:pk>/add/", GroupDetailAdd.as_view(), name="group-detail-add"),
     path("groups/<int:pk>/remove/", GroupDetailRemove.as_view(), name="group-detail-remove"),
+    path("groups/<int:pk>/members/add/", GroupMembersAdd.as_view(), name="group-members-add"),
+    path("groups/<int:pk>/members/remove/", GroupMembersRemove.as_view(), name="group-members-remove"),
+    path("groups/<int:pk>/shows/add/", GroupShowsAdd.as_view(), name="group-shows-add"),
+    path("groups/<int:pk>/shows/remove/", GroupShowsRemove.as_view(), name="group-shows-remove"),
     path("groups/<int:pk>/pending/", GroupPendingList.as_view(), name="group-pending-list"),
     path("groups/<int:pk>/shows/", GroupShowList.as_view(), name="group-show-list"),
     path("groups/<int:pk>/shows/clear/", GroupClearShows.as_view(), name="group-clear-shows"),

@@ -50,19 +50,29 @@ class GroupTests(FlickTestCase):
 
     def _update_group(self, group_id=1, name="", members=[], shows=[], is_add=False, is_remove=False):
         if is_add:
-            url = reverse("group-detail-add", kwargs={"pk": group_id})
+            url_shows = reverse("group-shows-add", kwargs={"pk": group_id})
+            url_members = reverse("group-members-add", kwargs={"pk": group_id})
         elif is_remove:
-            url = reverse("group-detail-remove", kwargs={"pk": group_id})
+            url_shows = reverse("group-shows-remove", kwargs={"pk": group_id})
+            url_members = reverse("group-members-remove", kwargs={"pk": group_id})
         else:
             url = reverse("group-detail", kwargs={"pk": group_id})
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user_token)
-        request_data = {
-            "name": name,
-            "members": members,
+        request_data_shows = {
             "shows": shows,
         }
-        response = self.client.post(url, request_data, format="json")
-        self.assertEqual(response.status_code, 200)
+        request_data_members = {
+            "members": members,
+        }
+        request_data = {"members": members, "shows": shows}
+        if is_add or is_remove:
+            response = self.client.post(url_members, request_data_shows, format="json")
+            self.assertEqual(response.status_code, 200)
+            response = self.client.post(url_shows, request_data_members, format="json")
+            self.assertEqual(response.status_code, 200)
+        else:
+            response = self.client.post(url, request_data, format="json")
+
         data = json.loads(response.content)["data"]
         return data
 
