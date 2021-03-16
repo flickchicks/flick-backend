@@ -101,6 +101,17 @@ class GroupShowsAdd(generics.GenericAPIView):
         return success_response()
 
 
+class GroupShowsRemove(generics.GenericAPIView):
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
+
+    def post(self, request, pk):
+        """Update a group by id by removing shows."""
+        data = json.loads(request.body)
+        show_ids = data.get("shows", [])
+        remove_shows_from_group.delay(user_id=request.user.id, group_id=pk, show_ids=show_ids)
+        return success_response()
+
+
 class GroupMembersAdd(generics.GenericAPIView):
     serializer_class = GroupSimpleSerializer
     permission_classes = api_settings.CONSUMER_PERMISSIONS
@@ -144,17 +155,6 @@ class GroupMembersRemove(generics.GenericAPIView):
         group.save()
         serializer = self.serializer_class(group)
         return success_response(serializer.data)
-
-
-class GroupShowsRemove(generics.GenericAPIView):
-    permission_classes = api_settings.CONSUMER_PERMISSIONS
-
-    def post(self, request, pk):
-        """Update a group by id by removing shows."""
-        data = json.loads(request.body)
-        show_ids = data.get("shows", [])
-        remove_shows_from_group.delay(user_id=request.user.id, group_id=pk, show_ids=show_ids)
-        return success_response()
 
 
 class GroupDetailAdd(generics.GenericAPIView):
