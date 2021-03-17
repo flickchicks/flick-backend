@@ -123,7 +123,6 @@ def modify_lst_shows(user_id, lst_id, show_ids, is_add, is_remove):
     if not is_owner and not is_collaborator:
         return
     for show in Show.objects.filter(id__in=show_ids).prefetch_related("activity"):
-
         if is_add:
             if lst.shows.filter(id=show.id).exists():
                 return
