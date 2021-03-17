@@ -20,8 +20,11 @@ from vote.serializers import VoteSerializer
 from .models import Group
 from .serializers import GroupSerializer
 from .serializers import GroupSimpleSerializer
+from .tasks import add_shows_to_group
 from .tasks import clear_shows
+from .tasks import clear_votes
 from .tasks import create_new_group_notif
+from .tasks import remove_shows_from_group
 from .tasks import vote
 
 local_cache = caches["local"]
@@ -80,6 +83,76 @@ class GroupDetail(generics.GenericAPIView):
         group = profile.groups.filter(id=pk).prefetch_related("members", "shows")[0]
         data = json.loads(request.body)
         group.name = data.get("name")
+        group.save()
+        serializer = self.serializer_class(group)
+        return success_response(serializer.data)
+
+
+class GroupShowsAdd(generics.GenericAPIView):
+    serializer_class = GroupSerializer
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
+    api = flicktmdb()
+
+    def post(self, request, pk):
+        """Update a group by id by adding shows"""
+        data = json.loads(request.body)
+        show_ids = data.get("shows", [])
+        num_random_shows = data.get("num_random_shows", 0)
+        add_shows_to_group.delay(request.user.id, pk, show_ids, num_random_shows)
+        return success_response()
+
+
+class GroupShowsRemove(generics.GenericAPIView):
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
+
+    def post(self, request, pk):
+        """Update a group by id by removing shows."""
+        data = json.loads(request.body)
+        show_ids = data.get("shows", [])
+        remove_shows_from_group.delay(user_id=request.user.id, group_id=pk, show_ids=show_ids)
+        return success_response()
+
+
+class GroupMembersAdd(generics.GenericAPIView):
+    serializer_class = GroupSimpleSerializer
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
+    api = flicktmdb()
+
+    def post(self, request, pk):
+        """Update a group by id by adding members"""
+        profile = Profile.objects.get(user=request.user)
+        group = profile.groups.get(id=pk)
+        data = json.loads(request.body)
+        member_ids = data.get("members", [])
+        for member_id in member_ids:
+            try:
+                member_profile = Profile.objects.get(user__id=member_id)
+                group.members.add(member_profile)
+            except:
+                continue
+        group.save()
+
+        create_new_group_notif.delay(profile_id=profile.id, group_id=group.id, member_ids=member_ids)
+        serializer = self.serializer_class(group)
+        return success_response(serializer.data)
+
+
+class GroupMembersRemove(generics.GenericAPIView):
+    serializer_class = GroupSimpleSerializer
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
+
+    def post(self, request, pk):
+        """Update a group by id by removing members."""
+        profile = Profile.objects.get(user=request.user)
+        group = profile.groups.get(id=pk)
+        data = json.loads(request.body)
+        member_ids = data.get("members", [])
+        for member_id in member_ids:
+            try:
+                member_profile = Profile.objects.get(user__id=member_id)
+                group.members.remove(member_profile)
+            except:
+                continue
         group.save()
         serializer = self.serializer_class(group)
         return success_response(serializer.data)
@@ -173,12 +246,20 @@ class GroupDetailRemove(generics.GenericAPIView):
 
 
 class GroupClearShows(generics.GenericAPIView):
-    serializer_class = GroupSerializer
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
     def post(self, request, pk):
         """Clear all shows in a group by id."""
         clear_shows.delay(user_id=request.user.id, group_id=pk)
+        return success_response()
+
+
+class GroupClearVotes(generics.GenericAPIView):
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
+
+    def post(self, request, pk):
+        """Clear all votes in a group by id."""
+        clear_votes.delay(user_id=request.user.id, group_id=pk)
         return success_response()
 
 

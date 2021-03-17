@@ -9,6 +9,7 @@ from flick_auth.async_views import index
 from flick_auth.views import AuthenticateView
 from flick_auth.views import CheckUsernameView
 from flick_auth.views import LogoutView
+from flick_auth.views import UserLikedLstsView
 from flick_auth.views import UserProfileView
 from flick_auth.views import UserView
 from friend.views import FriendAcceptListAndCreate
@@ -18,12 +19,17 @@ from friend.views import FriendRemoveListAndCreate
 from friend.views import FriendRequestListAndCreate
 from friend.views import UserFriendList
 from group.views import GroupClearShows
+from group.views import GroupClearVotes
 from group.views import GroupDetail
 from group.views import GroupDetailAdd
 from group.views import GroupDetailRemove
 from group.views import GroupList
+from group.views import GroupMembersAdd
+from group.views import GroupMembersRemove
 from group.views import GroupPendingList
 from group.views import GroupShowList
+from group.views import GroupShowsAdd
+from group.views import GroupShowsRemove
 from group.views import GroupVoteShow
 from like.views import LikeView
 from like.views import LstLikeView
@@ -39,6 +45,7 @@ from read.views import ReadView
 from recommend.views import LstRecommendView
 from rest_framework import routers
 from search.views import Search
+from show.views import AddShowToListsView
 from show.views import ShowDetail
 from show.views import ShowViewSet
 from suggestion.views import CreateSuggestion
@@ -71,10 +78,15 @@ urlpatterns = [
     path("groups/<int:pk>/", GroupDetail.as_view(), name="group-detail"),
     path("groups/<int:pk>/add/", GroupDetailAdd.as_view(), name="group-detail-add"),
     path("groups/<int:pk>/remove/", GroupDetailRemove.as_view(), name="group-detail-remove"),
+    path("groups/<int:pk>/members/add/", GroupMembersAdd.as_view(), name="group-members-add"),
+    path("groups/<int:pk>/members/remove/", GroupMembersRemove.as_view(), name="group-members-remove"),
+    path("groups/<int:pk>/shows/add/", GroupShowsAdd.as_view(), name="group-shows-add"),
+    path("groups/<int:pk>/shows/remove/", GroupShowsRemove.as_view(), name="group-shows-remove"),
     path("groups/<int:pk>/pending/", GroupPendingList.as_view(), name="group-pending-list"),
     path("groups/<int:pk>/shows/", GroupShowList.as_view(), name="group-show-list"),
     path("groups/<int:pk>/shows/clear/", GroupClearShows.as_view(), name="group-clear-shows"),
     path("groups/<int:group_pk>/shows/<int:show_pk>/vote/", GroupVoteShow.as_view(), name="group-vote-show"),
+    path("groups/<int:pk>/votes/clear/", GroupClearVotes.as_view(), name="clear-votes"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("lsts/", LstList.as_view(), name="lst-list"),
     path("lsts/<int:pk>/", LstDetail.as_view(), name="lst-detail"),
@@ -86,12 +98,14 @@ urlpatterns = [
     path("media/image/", UploadImage.as_view(), name="upload"),
     path("search/", Search.as_view(), name="search"),
     path("show/<int:pk>/", ShowDetail.as_view(), name="show-detail"),
+    path("show/<int:pk>/lsts/add/", AddShowToListsView.as_view(), name="add-show-to-list"),
     path("suggest/", CreateSuggestion.as_view(), name="private-suggestion"),
     path("suggestions/", SuggestionList.as_view(), name="private-suggestion-list"),
     path("suggestions/<int:pk>/like/", SuggestionLikeView.as_view(), name="like-private-suggestion"),
     path("tags/", TagList.as_view(), name="tag-list"),
     path("tags/<int:pk>/", TagDetail.as_view(), name="tag-detail"),
     path("user/<int:pk>/", UserProfileView.as_view(), name="user-profile"),
+    path("user/<int:pk>/liked-lists/", UserLikedLstsView.as_view(), name="user-liked-lists"),
     path("user/<int:pk>/friends/", UserFriendList.as_view(), name="user-friend-list"),
     path("username/", CheckUsernameView.as_view(), name="check-username"),
     path("notifications/", NotificationList.as_view(), name="notif-list"),
