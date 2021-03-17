@@ -6,9 +6,11 @@ from user.models import Profile
 from celery import shared_task
 from django.contrib.auth.models import User
 from lst.models import Lst
+from lst.models import LstSaveActivity
 from notification.models import Notification
 from push_notifications.models import APNSDevice
 from push_notifications.models import GCMDevice
+from show.models import Show
 
 
 @shared_task
@@ -108,3 +110,47 @@ def create_modified_collaborators_notif(
         )
         ios_devices.send_message(message={"title": message_title, "body": message_body})
         android_devices.send_message(message={"title": message_title, "body": message_body})
+
+
+@shared_task
+def modify_lst_shows(user_id, lst_id, show_ids, is_add, is_remove):
+    lst = Lst.objects.get(id=lst_id)
+    modified_shows = []
+    user_profile = Profile.objects.get(user__id=user_id)
+    is_owner = user_profile == lst.owner
+    is_collaborator = lst.collaborators.filter(user__id=user_id).exists()
+    # stop the task if the user does not have edit access
+    if not is_owner and not is_collaborator:
+        return
+    for show in Show.objects.filter(id__in=show_ids).prefetch_related("activity"):
+
+        if is_add:
+            if lst.shows.filter(id=show.id).exists():
+                return
+            lst.shows.add(show)
+            if not lst.activity.filter(show=show):
+                lst_activity = LstSaveActivity()
+                lst_activity.show = show
+                lst_activity.saved_by = user_profile
+                lst_activity.lst = lst
+                lst_activity.save()
+        if is_remove:
+            lst.shows.remove(show)
+            activity = lst.activity.filter(show=show)
+            if activity:
+                activity[0].delete()
+                modified_shows.append(show)
+        modified_shows.append(show)
+    if not modified_shows:
+        return
+    # notify the collaborators
+    to_profile_ids = list(lst.collaborators.values_list("id", flat=True))
+    create_lst_edit_notif.delay(
+        from_profile_id=user_id,
+        to_profile_ids=to_profile_ids,
+        lst_id=lst.id,
+        num_modified_shows=len(modified_shows),
+        is_add=is_add,
+        is_remove=is_remove,
+    )
+    return

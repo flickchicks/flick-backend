@@ -12,6 +12,7 @@ from .controllers.delete_lst_controller import DeleteLstController
 from .controllers.update_lst_controller import UpdateLstController
 from .models import Lst
 from .serializers import LstWithSimpleShowsSerializer
+from .tasks import modify_lst_shows
 
 
 class LstList(generics.GenericAPIView):
@@ -96,6 +97,34 @@ class LstDetailAdd(generics.GenericAPIView):
         return UpdateLstController(
             request=request, pk=pk, data=data, serializer=self.serializer_class, is_add=True, is_remove=False
         ).process()
+
+
+class LstShowsAdd(generics.GenericAPIView):
+
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
+
+    def post(self, request, pk):
+        """
+        add shows to a list
+        """
+        data = json.loads(request.body)
+        show_ids = data.get("shows", [])
+        modify_lst_shows.delay(request.user.id, pk, show_ids, is_add=True, is_remove=False)
+        return success_response()
+
+
+class LstShowsRemove(generics.GenericAPIView):
+
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
+
+    def post(self, request, pk):
+        """
+        remove shows from a list
+        """
+        data = json.loads(request.body)
+        show_ids = data.get("shows", [])
+        modify_lst_shows.delay(request.user.id, pk, show_ids, is_add=False, is_remove=True)
+        return success_response()
 
 
 class LstDetailRemove(generics.GenericAPIView):
