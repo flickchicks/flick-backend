@@ -105,7 +105,7 @@ class LstShowsAdd(generics.GenericAPIView):
 
     def post(self, request, pk):
         """
-        Add shows to a list
+        Add shows to a list.
         """
         data = json.loads(request.body)
         show_ids = data.get("shows", [])
@@ -119,7 +119,7 @@ class LstShowsRemove(generics.GenericAPIView):
 
     def post(self, request, pk):
         """
-        Remove shows from a list
+        Remove shows from a list.
         """
         data = json.loads(request.body)
         show_ids = data.get("shows", [])
