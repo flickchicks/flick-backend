@@ -45,11 +45,9 @@ class Profile(models.Model):
         super(Profile, self).save()
 
     def upload_profile_pic(self):
-        print("reaching upload profile pic")
         from upload.utils import upload_image_helper
 
         if self.profile_pic:
-            print("self.profile pic", self.profile_pic[:30])
             img_url = upload_image_helper(self.profile_pic)
             self.profile_pic_url = img_url
             self.profile_pic = None
