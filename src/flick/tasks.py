@@ -1,14 +1,8 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-import base64
-from io import BytesIO
-
 from celery import shared_task
-from celery.utils.log import get_task_logger
-from django.conf import settings
 from imdb import IMDb
-from PIL import Image
 from provider.models import Provider
 from show.animelist import flickanimelist
 from show.models import Show
@@ -16,37 +10,10 @@ from show.tmdb import flicktmdb
 from tag.models import Tag
 import tmdbsimple as tmdb
 
-
 # If you want to print, you need to log these and they will appear in the celery terminal process
-
-logger = get_task_logger(__name__)
+# from celery.utils.log import get_task_logger
+# logger = get_task_logger(__name__)
 # logger.info("hello world")
-
-
-@shared_task
-def async_upload_image(salt, img_str, img_ext):
-    # get PIL image
-    logger.info("hello world")
-    img_data = base64.b64decode(img_str)
-    img = Image.open(BytesIO(img_data))
-
-    img_filename = f"{salt}.{img_ext}"
-    img_temploc = f"{settings.TEMP_DIR}/{img_filename}"
-    img.save(img_temploc)
-
-    # upload image to S3
-    # s3_client = boto3.client("s3")
-    # res = s3_client.upload_file(img_temploc, settings.S3_BUCKET, f"image/{img_filename}")
-    # logger.info("res", res)
-
-    # # make S3 image url public
-    # s3_resource = boto3.resource("s3")
-    # object_acl = s3_resource.ObjectAcl(settings.S3_BUCKET, f"image/{img_filename}")
-    # object_acl.put(ACL="public-read")
-    # logger.info("asdfasdfs")
-
-    # os.remove(img_temploc)
-    return
 
 
 @shared_task
