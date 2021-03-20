@@ -154,43 +154,43 @@ QUERY_INSPECT_DUPLICATE_MIN = 1  # to force logging of all queries
 # Whether to truncate SQL queries in logs to specified size, for readability purposes (default: None - full SQL query is included)
 QUERY_INSPECT_SQL_LOG_LIMIT = 120  # limit to 120 chars
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": True,
-    "formatters": {
-        "verbose": {"format": "%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s"},
-        "simple": {"format": "%(levelname)s %(message)s"},
-    },
-    "handlers": {
-        "null": {
-            "level": "DEBUG",
-            "class": "logging.NullHandler",
-        },
-        "console": {"level": "DEBUG", "class": "logging.StreamHandler", "formatter": "simple"},
-        "mail_admins": {
-            "level": "ERROR",
-            "class": "django.utils.log.AdminEmailHandler",
-            "filters": [],
-        },
-    },
-    "loggers": {
-        "django": {
-            "handlers": ["null"],
-            "propagate": True,
-            "level": "INFO",
-        },
-        "django.request": {
-            "handlers": ["mail_admins"],
-            "level": "ERROR",
-            "propagate": False,
-        },
-        "qinspect": {
-            "handlers": ["console"],
-            "level": "DEBUG",
-            "propagate": True,
-        },
-    },
-}
+# LOGGING = {
+#     "version": 1,
+#     "disable_existing_loggers": True,
+#     "formatters": {
+#         "verbose": {"format": "%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s"},
+#         "simple": {"format": "%(levelname)s %(message)s"},
+#     },
+#     "handlers": {
+#         "null": {
+#             "level": "DEBUG",
+#             "class": "logging.NullHandler",
+#         },
+#         "console": {"level": "DEBUG", "class": "logging.StreamHandler", "formatter": "simple"},
+#         "mail_admins": {
+#             "level": "ERROR",
+#             "class": "django.utils.log.AdminEmailHandler",
+#             "filters": [],
+#         },
+#     },
+#     "loggers": {
+#         "django": {
+#             "handlers": ["null"],
+#             "propagate": True,
+#             "level": "INFO",
+#         },
+#         "django.request": {
+#             "handlers": ["mail_admins"],
+#             "level": "ERROR",
+#             "propagate": False,
+#         },
+#         "qinspect": {
+#             "handlers": ["console"],
+#             "level": "DEBUG",
+#             "propagate": True,
+#         },
+#     },
+# }
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
