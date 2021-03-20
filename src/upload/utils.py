@@ -16,6 +16,7 @@ def upload_image_helper(image_data):
         return failure_response("Image type not accepted. Must be jpeg, jpg, png, or gif.")
     salt = "".join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(16))
     img_filename = f"{salt}.{img_ext}"
+    print("filename", img_filename)
     async_upload_image.delay(image_data, img_filename)
     img_url = f"{settings.S3_BASE_URL}image/{img_filename}"
     return img_url
