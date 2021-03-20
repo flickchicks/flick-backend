@@ -12,7 +12,7 @@ class ProfileSimpleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ("id", "username", "name", "profile_pic")
+        fields = ("id", "username", "name", "profile_pic", "profile_pic_url")
         read_only_fields = fields
 
 
@@ -38,5 +38,5 @@ class ProfileFriendRecommendationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ("id", "username", "name", "profile_pic", "num_mutual_friends")
+        fields = ("id", "username", "name", "profile_pic", "profile_pic_url", "num_mutual_friends")
         read_only_fields = fields

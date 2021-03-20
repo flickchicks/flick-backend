@@ -5,13 +5,14 @@ from rest_framework import serializers
 
 class UserSimpleSerializer(serializers.ModelSerializer):
     profile_pic = serializers.CharField(source="profile.profile_pic")
+    profile_pic_url = serializers.CharField(source="profile.profile_pic_url")
     # profile_pic = AssetBundleDetailSerializer(source="profile.profile_asset_bundle")
     num_mutual_friends = serializers.SerializerMethodField(method_name="get_num_mutual_friends")
     name = serializers.CharField(source="first_name")
 
     class Meta:
         model = User
-        fields = ("id", "username", "name", "profile_pic", "num_mutual_friends")
+        fields = ("id", "username", "name", "profile_pic", "profile_pic_url", "num_mutual_friends")
         read_only_fields = fields
 
     def get_num_mutual_friends(self, instance):

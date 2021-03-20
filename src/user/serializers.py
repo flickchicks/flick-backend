@@ -114,6 +114,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "username",
             "name",
             "profile_pic",
+            "profile_pic_url",
             "bio",
             "collab_lsts",
             "owner_lsts",
