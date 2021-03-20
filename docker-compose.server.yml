@@ -24,6 +24,7 @@ services:
         restart: always
         volumes:
             - static:/static
+            - /home/alanna/.aws:/usr/src/app/.aws
             - /home/alanna/docker-compose/aps.pem:/usr/src/app/aps.pem
             - /home/alanna/docker-compose/apple_private.p8:/usr/src/app/apple_private.p8
 
@@ -43,6 +44,7 @@ services:
             - main
         restart: always
         volumes:
+            - /home/alanna/.aws:/usr/src/app/.aws
             - /home/alanna/docker-compose/aps.pem:/usr/src/app/aps.pem
             - /home/alanna/docker-compose/apple_private.p8:/usr/src/app/apple_private.p8
 
