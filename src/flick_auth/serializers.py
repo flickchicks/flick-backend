@@ -4,6 +4,7 @@ from rest_framework import serializers
 
 class AuthenticateSerializer(serializers.ModelSerializer):
     profile_pic = serializers.CharField(source="profile.profile_pic")
+    profile_pic_url = serializers.CharField(source="profile.profile_pic_url")
     social_id = serializers.CharField(source="profile.social_id")
     social_id_token = serializers.CharField(source="profile.social_id_token")
     social_id_token_type = serializers.CharField(source="profile.social_id_token_type")
@@ -17,6 +18,7 @@ class AuthenticateSerializer(serializers.ModelSerializer):
             User.USERNAME_FIELD,
             "name",
             "profile_pic",
+            "profile_pic_url",
             "social_id",
             "social_id_token",
             "social_id_token_type",

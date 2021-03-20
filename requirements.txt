@@ -63,3 +63,5 @@ yarl==1.6.3
 zipp==3.4.0
 tmdbsimple==2.2.15
 django-queryinspect==1.1.0
+Pillow==7.1.2
+
