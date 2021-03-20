@@ -7,18 +7,20 @@ import re
 
 import boto3
 from celery import shared_task
+from celery.utils.log import get_task_logger
 from django.conf import settings
 from PIL import Image
 import tmdbsimple as tmdb
 
 # If you want to print, you need to log these and they will appear in the celery terminal process
-# from celery.utils.log import get_task_logger
-# logger = get_task_logger(__name__)
-# logger.info("hello world")
+
+logger = get_task_logger(__name__)
 
 
 @shared_task
-def upload_image(image_data, img_filename):
+def async_upload_image(image_data, img_filename):
+    logger.info("hello world")
+
     img_str = re.sub("^data:image/.+;base64,", "", image_data)
     img_data = base64.b64decode(img_str)
     img = Image.open(BytesIO(img_data))
@@ -30,3 +32,4 @@ def upload_image(image_data, img_filename):
     s3_resource = boto3.resource("s3")
     object_acl = s3_resource.ObjectAcl(settings.S3_BUCKET, f"image/{img_filename}")
     object_acl.put(ACL="public-read")
+    return
