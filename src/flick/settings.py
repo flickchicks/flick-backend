@@ -212,6 +212,8 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = "/static"
 
+TEMP_DIR = "/tmp"
+
 S3_BUCKET = "flick"
 S3_BASE_URL = f"https://{S3_BUCKET}.s3-us-west-1.amazonaws.com/"
 

@@ -3,9 +3,7 @@ from __future__ import unicode_literals
 
 import base64
 from io import BytesIO
-import os
 
-import boto3
 from celery import shared_task
 from celery.utils.log import get_task_logger
 from django.conf import settings
@@ -37,15 +35,17 @@ def async_upload_image(salt, img_str, img_ext):
     img.save(img_temploc)
 
     # upload image to S3
-    s3_client = boto3.client("s3")
-    s3_client.upload_file(img_temploc, settings.S3_BUCKET, f"image/{img_filename}")
+    # s3_client = boto3.client("s3")
+    # res = s3_client.upload_file(img_temploc, settings.S3_BUCKET, f"image/{img_filename}")
+    # logger.info("res", res)
 
-    # make S3 image url public
-    s3_resource = boto3.resource("s3")
-    object_acl = s3_resource.ObjectAcl(settings.S3_BUCKET, f"image/{img_filename}")
-    object_acl.put(ACL="public-read")
+    # # make S3 image url public
+    # s3_resource = boto3.resource("s3")
+    # object_acl = s3_resource.ObjectAcl(settings.S3_BUCKET, f"image/{img_filename}")
+    # object_acl.put(ACL="public-read")
+    # logger.info("asdfasdfs")
 
-    os.remove(img_temploc)
+    # os.remove(img_temploc)
     return
 
 

@@ -28,7 +28,7 @@ def upload_image(image_data, user):
         img_filename = f"{salt}.{img_ext}"
         print("img_filename", img_filename)
         async_upload_image.delay(salt, img_str, img_ext)
-        return f"{settings.S3_BASE_URL}{img_filename}"
+        return f"{settings.S3_BASE_URL}image/{img_filename}"
     except Exception as e:
         return failure_response(f"Unable to upload image because of {e}.")
     return failure_response("Image upload no longer supported.")
