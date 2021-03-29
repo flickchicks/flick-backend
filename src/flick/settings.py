@@ -162,14 +162,33 @@ LOGGING = {
         "simple": {"format": "%(levelname)s %(message)s"},
     },
     "handlers": {
-        "null": {"level": "DEBUG", "class": "logging.NullHandler", },
+        "null": {
+            "level": "DEBUG",
+            "class": "logging.NullHandler",
+        },
         "console": {"level": "DEBUG", "class": "logging.StreamHandler", "formatter": "simple"},
-        "mail_admins": {"level": "ERROR", "class": "django.utils.log.AdminEmailHandler", "filters": [], },
+        "mail_admins": {
+            "level": "ERROR",
+            "class": "django.utils.log.AdminEmailHandler",
+            "filters": [],
+        },
     },
     "loggers": {
-        "django": {"handlers": ["null"], "propagate": True, "level": "INFO", },
-        "django.request": {"handlers": ["mail_admins"], "level": "ERROR", "propagate": False, },
-        "qinspect": {"handlers": ["console"], "level": "DEBUG", "propagate": True, },
+        "django": {
+            "handlers": ["null"],
+            "propagate": True,
+            "level": "INFO",
+        },
+        "django.request": {
+            "handlers": ["mail_admins"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+        "qinspect": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
     },
 }
 
@@ -226,9 +245,6 @@ VALIDATE_APPLE_TOKEN_URL = "https://appleid.apple.com/auth/token"
 # Testing
 TEST_RUNNER = "django_slowtests.testrunner.DiscoverSlowestTestsRunner"
 NUM_SLOW_TESTS = 5
-
-# telebuddies account username
-TELIEBUDDIES_USRNAME = "teliebuddies"
 
 # Caches
 CACHES = {
