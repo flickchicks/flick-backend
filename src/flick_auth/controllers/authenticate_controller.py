@@ -7,7 +7,9 @@ from django.contrib.auth import login
 from django.contrib.auth.models import Group
 from django.contrib.auth.models import User
 from django.core import signing
+from django.db.models import Q
 from flick_auth import settings as auth_settings
+from friendship.models import Friend
 from lst.models import Lst
 import requests
 from rest_framework.authtoken.models import Token
@@ -154,6 +156,9 @@ class AuthenticateController:
             "social_id_token_type": self._social_id_token_type,
         }
         self._create_profile(profile_data)
+        teliebuddies = User.objects.filter(Q(username=settings.TELIEBUDDIES_USRNAME) & ~Q(username=user.username))
+        if teliebuddies:
+            Friend.objects.add_friend(user, teliebuddies[0]).accept()
         login(self._request, user)
         auth_token = self._issue_auth_token(user, "login")
         return success_response(self._serializer(user, context={"auth_token": auth_token}).data)
