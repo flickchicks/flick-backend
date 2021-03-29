@@ -246,7 +246,7 @@ VALIDATE_APPLE_TOKEN_URL = "https://appleid.apple.com/auth/token"
 TEST_RUNNER = "django_slowtests.testrunner.DiscoverSlowestTestsRunner"
 NUM_SLOW_TESTS = 5
 
-# telebuddies account username
+# Telebuddies account username
 TELIEBUDDIES_USRNAME = "teliebuddies"
 
 # Caches
