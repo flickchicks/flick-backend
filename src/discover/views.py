@@ -1,3 +1,4 @@
+import datetime
 from random import sample
 from user.models import Profile
 
@@ -10,6 +11,7 @@ from friendship.models import Friend
 from lst.models import Lst
 from lst.models import LstSaveActivity
 from lst.serializers import LstWithSimpleShowsSerializer
+import pytz
 from rest_framework.views import APIView
 from show.show_api_utils import ShowAPI
 from show.simple_serializers import ShowSimpleSerializer
@@ -28,7 +30,7 @@ class DiscoverView(APIView):
         friends_friend = (
             Friend.objects.all()
             .filter(Q(from_user__in=friends) & ~Q(to_user=user) & ~Q(to_user__in=friends))
-            .values("to_user")
+            .prefetch_related("pr")
         )
         most_friended_by_friends = friends_friend.annotate(Count("to_user")).order_by("-to_user__count")[:10]
         return [Profile.objects.get(user=u["to_user"]) for u in most_friended_by_friends]
@@ -96,14 +98,14 @@ class DiscoverView(APIView):
             )
             if existing_user_discover:
                 user_discover = existing_user_discover[0]
-                # utc = pytz.utc
-                # delta = datetime.datetime.now(tz=utc) - user_discover.updated_at
-                # minutes = (delta.total_seconds() % 3600) // 60
-                # if minutes < 15:
-                #     serializer_data = DiscoverSerializer(user_discover, context={"request": request}).data
-                #     serializer_data["trending_shows"] = self.get_trending_shows()
-                #     serializer_data["trending_lsts"] = self.get_trending_lsts(request)
-                #     return success_response(serializer_data)
+                utc = pytz.utc
+                delta = datetime.datetime.now(tz=utc) - user_discover.updated_at
+                minutes = (delta.total_seconds() % 3600) // 60
+                if minutes < 15:
+                    serializer_data = DiscoverSerializer(user_discover, context={"request": request}).data
+                    serializer_data["trending_shows"] = self.get_trending_shows()
+                    serializer_data["trending_lsts"] = self.get_trending_lsts(request)
+                    return success_response(serializer_data)
             else:
                 user_discover = Discover()
                 user_discover.user = user
@@ -112,7 +114,7 @@ class DiscoverView(APIView):
             friends = Friend.objects.friends(user=user)
             user_friends = [Profile.objects.get(user=friend) for friend in friends]
             user_discover.friend_recommendations.set(self.get_friend_recommendations(user, friends))
-            # user_discover.friend_shows.set(self.get_friend_shows(user_friends))
+            user_discover.friend_shows.set(self.get_friend_shows(user_friends))
             user_discover.friend_lsts.set(self.get_friend_lsts(user_friends))
             user_discover.friend_comments.set(self.get_friend_comments(user_friends))
             user_discover.save()
