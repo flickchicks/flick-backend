@@ -27,10 +27,8 @@ class DiscoverView(APIView):
     api = flicktmdb()
 
     def get_friend_recommendations(self, user, friends):
-        friends_friend = (
-            Friend.objects.all()
-            .filter(Q(from_user__in=friends) & ~Q(to_user=user) & ~Q(to_user__in=friends))
-            .prefetch_related("pr")
+        friends_friend = Friend.objects.all().filter(
+            Q(from_user__in=friends) & ~Q(to_user=user) & ~Q(to_user__in=friends)
         )
         most_friended_by_friends = friends_friend.annotate(Count("to_user")).order_by("-to_user__count")[:10]
         return [Profile.objects.get(user=u["to_user"]) for u in most_friended_by_friends]
