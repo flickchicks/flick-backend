@@ -55,7 +55,6 @@ class LstWithSimpleShowsSerializer(serializers.ModelSerializer):
     collaborators = ProfileSimpleSerializer(many=True)
     owner = ProfileSimpleSerializer(many=False)
     shows = ShowSimplestSerializer(many=True)
-    tags = TagSimpleSerializer(many=True)
     likers = LikeSerializer(many=True)
     has_liked = serializers.SerializerMethodField(method_name="get_has_liked")
 
@@ -81,7 +80,6 @@ class LstWithSimpleShowsSerializer(serializers.ModelSerializer):
             "collaborators",
             "owner",
             "shows",
-            "tags",
             "num_likes",
             "has_liked",
             "likers",
