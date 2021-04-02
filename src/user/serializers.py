@@ -46,7 +46,6 @@ class ProfileSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(source="user.id")
     name = serializers.CharField(source="user.first_name")
     username = serializers.CharField(source="user.username")
-    # profile_pic = AssetBundleDetailSerializer(source="profile_asset_bundle")
     owner_lsts = MeLstSerializer(many=True)
     collab_lsts = MeLstSerializer(many=True)
     friends = serializers.SerializerMethodField("get_friends_profiles")
@@ -63,6 +62,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             "name",
             "notif_time_viewed",
             "profile_pic",
+            "profile_pic_url",
             "bio",
             "phone_number",
             "social_id",
@@ -114,6 +114,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "username",
             "name",
             "profile_pic",
+            "profile_pic_url",
             "bio",
             "collab_lsts",
             "owner_lsts",

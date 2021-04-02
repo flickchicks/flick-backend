@@ -38,6 +38,8 @@ from lst.views import LstDetail
 from lst.views import LstDetailAdd
 from lst.views import LstDetailRemove
 from lst.views import LstList
+from lst.views import LstShowsAdd
+from lst.views import LstShowsRemove
 from notification.views import NotificationEnable
 from notification.views import NotificationList
 from notification.views import NotificationTest
@@ -91,8 +93,10 @@ urlpatterns = [
     path("lsts/", LstList.as_view(), name="lst-list"),
     path("lsts/<int:pk>/", LstDetail.as_view(), name="lst-detail"),
     path("lsts/<int:pk>/add/", LstDetailAdd.as_view(), name="lst-detail-add"),
+    path("lsts/<int:pk>/shows/add/", LstShowsAdd.as_view(), name="lst-shows-add"),
     path("lsts/<int:pk>/recommend/", LstRecommendView.as_view(), name="lst-recommend"),
     path("lsts/<int:pk>/remove/", LstDetailRemove.as_view(), name="lst-detail-remove"),
+    path("lsts/<int:pk>/shows/remove/", LstShowsRemove.as_view(), name="lst-shows-remove"),
     path("lsts/<int:pk>/like/", LstLikeView.as_view(), name="like-list"),
     path("me/", UserView.as_view(), name="me"),
     path("media/image/", UploadImage.as_view(), name="upload"),
