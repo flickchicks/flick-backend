@@ -5,8 +5,8 @@ from comment.serializers import CommentDiscoverSerializer
 from django.db.models import Prefetch
 from friendship.models import Friend
 from lst.models import LstSaveActivity
+from lst.serializers import LstDiscoverSerializer
 from lst.serializers import LstSaveActivitySerializer
-from lst.serializers import LstWithSimpleShowsSerializer
 from rest_framework import serializers
 from show.simple_serializers import ShowSimpleSerializer
 
@@ -35,7 +35,7 @@ class DiscoverSerializer(serializers.ModelSerializer):
         return serializer.data
 
     def select_friend_lsts(self, instance):
-        serializer = LstWithSimpleShowsSerializer(instance.friend_lsts, many=True, context=self.context)
+        serializer = LstDiscoverSerializer(instance.friend_lsts, many=True, context=self.context)
         return serializer.data
 
     def get_friend_recommendations(self, instance):

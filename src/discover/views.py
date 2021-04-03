@@ -10,7 +10,7 @@ from django.db.models import Q
 from friendship.models import Friend
 from lst.models import Lst
 from lst.models import LstSaveActivity
-from lst.serializers import LstWithSimpleShowsSerializer
+from lst.serializers import LstDiscoverSerializer
 import pytz
 from rest_framework.views import APIView
 from show.show_api_utils import ShowAPI
@@ -27,8 +27,11 @@ class DiscoverView(APIView):
     api = flicktmdb()
 
     def get_friend_recommendations(self, user, friends):
-        friends_friend = Friend.objects.all().filter(
-            Q(from_user__in=friends) & ~Q(to_user=user) & ~Q(to_user__in=friends)
+        friends_friend = (
+            Friend.objects.all()
+            .filter(Q(from_user__in=friends) & ~Q(to_user=user) & ~Q(to_user__in=friends))
+            .prefetch_related("to_user")
+            .values("to_user")
         )
         most_friended_by_friends = friends_friend.annotate(Count("to_user")).order_by("-to_user__count")[:10]
         return [Profile.objects.get(user=u["to_user"]) for u in most_friended_by_friends]
@@ -52,9 +55,11 @@ class DiscoverView(APIView):
 
     def get_friend_lsts(self, user_friends):
 
-        friend_lsts = Lst.objects.filter(
-            is_private=False, is_saved=False, is_watch_later=False, owner__in=user_friends
-        ).prefetch_related("shows", "owner")[:10]
+        friend_lsts = (
+            Lst.objects.filter(is_private=False, is_saved=False, is_watch_later=False, owner__in=user_friends)
+            .exclude(shows=None)
+            .prefetch_related("shows", "owner")[:10]
+        )
         return friend_lsts
 
     def get_trending_lsts(self, request):
@@ -66,7 +71,7 @@ class DiscoverView(APIView):
                 .prefetch_related("shows", "owner", "likers")
             )
             trending_lsts = public_lsts.order_by("-num_likes")[:20]
-            trending_lsts = LstWithSimpleShowsSerializer(trending_lsts, many=True, context={"request": request}).data
+            trending_lsts = LstDiscoverSerializer(trending_lsts, many=True, context={"request": request}).data
             local_cache.set(("trending_lsts"), trending_lsts)
         trending_lsts = [lst for lst in trending_lsts if lst.get("owner").get("id") != request.user.id]
         trending_lsts = sample(trending_lsts, min(len(trending_lsts), 10))
@@ -85,7 +90,6 @@ class DiscoverView(APIView):
 
         if not user.is_anonymous:
             existing_user_discover = Discover.objects.filter(user=user).prefetch_related(
-                "user",
                 "friend_recommendations",
                 "friend_shows",
                 "friend_lsts",
