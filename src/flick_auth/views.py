@@ -104,7 +104,11 @@ class UserLikedLstsView(generics.GenericAPIView):
             )
         )[0]
 
-        lsts = [like.lst for like in profile.lst_likes]
+        lsts = []
+        for like in profile.lst_likes:
+            lst = like.lst
+            if not lst.is_private or profile in lst.collaborators.all() or request.user.id == pk:
+                lsts.append(lst)
         return success_response(self.serializer_class(lsts, many=True).data)
 
 
