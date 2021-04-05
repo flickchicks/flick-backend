@@ -55,8 +55,8 @@ class LstWithSimpleShowsSerializer(serializers.ModelSerializer):
     collaborators = ProfileSimpleSerializer(many=True)
     owner = ProfileSimpleSerializer(many=False)
     shows = ShowSimplestSerializer(many=True)
-    tags = TagSimpleSerializer(many=True)
     likers = LikeSerializer(many=True)
+    tags = TagSimpleSerializer(many=True)
     has_liked = serializers.SerializerMethodField(method_name="get_has_liked")
 
     def get_has_liked(self, lst):
@@ -67,6 +67,49 @@ class LstWithSimpleShowsSerializer(serializers.ModelSerializer):
         profile = Profile.objects.get(user=user)
         has_liked = lst.likers.filter(liker=profile).exists()
         return has_liked
+
+    class Meta:
+        model = Lst
+        fields = (
+            "id",
+            "name",
+            "pic",
+            "description",
+            "is_saved",
+            "is_private",
+            "is_watch_later",
+            "collaborators",
+            "owner",
+            "shows",
+            "tags",
+            "num_likes",
+            "has_liked",
+            "likers",
+        )
+        read_only_fields = fields
+
+
+class LstDiscoverSerializer(serializers.ModelSerializer):
+    collaborators = ProfileSimpleSerializer(many=True)
+    owner = ProfileSimpleSerializer(many=False)
+    shows = serializers.SerializerMethodField(method_name="get_trimmed_shows")
+    likers = LikeSerializer(many=True)
+    tags = TagSimpleSerializer(many=True)
+    has_liked = serializers.SerializerMethodField(method_name="get_has_liked")
+
+    def get_has_liked(self, lst):
+        request = self.context.get("request")
+        user = request.user
+        if user.is_anonymous or not Profile.objects.filter(user=user):
+            return False
+        profile = Profile.objects.get(user=user)
+        has_liked = lst.likers.filter(liker=profile).exists()
+        return has_liked
+
+    def get_trimmed_shows(self, lst):
+        shows = lst.shows.all()[:3]
+        show_data = ShowSimplestSerializer(shows, many=True).data
+        return show_data
 
     class Meta:
         model = Lst

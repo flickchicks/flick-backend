@@ -16,16 +16,13 @@ class ShowAPI:
         for show_info in show_info_lst:
             if not show_info:
                 continue
-            if Show.objects.filter(
+            existing_show = Show.objects.filter(
                 title=show_info.get("title"),
                 ext_api_id=show_info.get("ext_api_id"),
                 ext_api_source=show_info.get("ext_api_source"),
-            ):
-                show = Show.objects.get(
-                    title=show_info.get("title"),
-                    ext_api_id=show_info.get("ext_api_id"),
-                    ext_api_source=show_info.get("ext_api_source"),
-                )
+            )
+            if existing_show:
+                show = existing_show[0]
                 s = serializer(show)
                 serializer_data.append(s.data)
             else:
@@ -55,17 +52,13 @@ class ShowAPI:
         for show_info in show_info_lst:
             if not show_info:
                 continue
-            if Show.objects.filter(
+            existing_show = Show.objects.filter(
                 title=show_info.get("title"),
                 ext_api_id=show_info.get("ext_api_id"),
                 ext_api_source=show_info.get("ext_api_source"),
-            ):
-                show = Show.objects.get(
-                    title=show_info.get("title"),
-                    ext_api_id=show_info.get("ext_api_id"),
-                    ext_api_source=show_info.get("ext_api_source"),
-                )
-                show_objects.append(show)
+            )
+            if existing_show:
+                show_objects.append(existing_show[0])
             else:
                 try:
                     show = Show()

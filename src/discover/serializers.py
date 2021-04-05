@@ -2,9 +2,11 @@ from user.models import Profile
 from user.profile_simple_serializers import ProfileFriendRecommendationSerializer
 
 from comment.serializers import CommentDiscoverSerializer
+from django.db.models import Prefetch
 from friendship.models import Friend
+from lst.models import LstSaveActivity
+from lst.serializers import LstDiscoverSerializer
 from lst.serializers import LstSaveActivitySerializer
-from lst.serializers import LstWithSimpleShowsSerializer
 from rest_framework import serializers
 from show.simple_serializers import ShowSimpleSerializer
 
@@ -15,7 +17,7 @@ class DiscoverSerializer(serializers.ModelSerializer):
     friend_recommendations = serializers.SerializerMethodField(method_name="get_friend_recommendations")
     friend_lsts = serializers.SerializerMethodField(method_name="select_friend_lsts")
     friend_shows = serializers.SerializerMethodField(method_name="select_friend_shows")
-    friend_comments = CommentDiscoverSerializer(many=True)
+    friend_comments = serializers.SerializerMethodField(method_name="select_friend_comments")
 
     class Meta:
         model = Discover
@@ -27,8 +29,13 @@ class DiscoverSerializer(serializers.ModelSerializer):
         )
         ready_only_fields = fields
 
+    def select_friend_comments(self, instance):
+        comments = instance.friend_comments.order_by("-created_at")
+        serializer = CommentDiscoverSerializer(comments, many=True)
+        return serializer.data
+
     def select_friend_lsts(self, instance):
-        serializer = LstWithSimpleShowsSerializer(instance.friend_lsts, many=True, context=self.context)
+        serializer = LstDiscoverSerializer(instance.friend_lsts, many=True, context=self.context)
         return serializer.data
 
     def get_friend_recommendations(self, instance):
@@ -41,11 +48,16 @@ class DiscoverSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         user = request.user
         friends = [Profile.objects.get(user=friend) for friend in Friend.objects.friends(user=user)]
-        friend_shows = []
 
-        for show in instance.friend_shows.all():
+        queryset = LstSaveActivity.objects.filter(saved_by__in=friends).prefetch_related("saved_by", "lst")
+        friend_shows = instance.friend_shows.all().prefetch_related(
+            Prefetch("activity", queryset=queryset, to_attr="show_activities",)
+        )
+
+        data = []
+
+        for show in friend_shows:
             serializer_data = ShowSimpleSerializer(show, many=False).data
-            activities = show.activity.filter(saved_by__in=friends)
-            serializer_data["saved_to_lsts"] = LstSaveActivitySerializer(activities, many=True).data
-            friend_shows.append(serializer_data)
-        return friend_shows
+            serializer_data["saved_to_lsts"] = LstSaveActivitySerializer(show.show_activities, many=True).data
+            data.append(serializer_data)
+        return data
