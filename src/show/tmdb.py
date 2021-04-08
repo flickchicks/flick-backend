@@ -76,12 +76,10 @@ class flicktmdb:
         if r.status_code != 200:
             return []
         videos = json.loads(r.content).get("results")
-        print(videos)
         trailer_keys = []
         for vid in videos:
             if vid.get("type") == "Trailer" and vid.get("site") == "YouTube":
                 trailer_keys.append(vid.get("key"))
-        print(trailer_keys)
         return ",".join(trailer_keys)
 
     def get_providers(self, tmdb_id, is_tv=False):
