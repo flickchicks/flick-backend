@@ -64,7 +64,6 @@ class flicktmdb:
         cast = credits.get("cast")
         cast = [p.get("name") for p in cast] if cast else []
         cast = ", ".join(cast)
-        print(f"cast {cast}")
         return {
             "cast": cast,
             "directors": directors,
