@@ -35,6 +35,7 @@ class Show(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     ratings = models.ManyToManyField(Rating, blank=True)
     providers = models.ManyToManyField(Provider, blank=True)
+    trailer_keys = models.TextField(blank=True, null=True)
 
     class Meta:
         unique_together = ("title", "ext_api_id", "ext_api_source", "poster_pic")

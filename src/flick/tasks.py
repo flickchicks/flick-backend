@@ -33,6 +33,7 @@ def populate_show_details(show_id):
     if not info:
         return
     show.cast = info.get("cast")
+    show.trailer_keys = info.get("trailer_keys")
     show.directors = info.get("directors")
     show.duration = info.get("duration")
     show.seasons = info.get("seasons")

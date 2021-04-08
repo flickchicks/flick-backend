@@ -49,6 +49,7 @@ class ShowSerializer(serializers.ModelSerializer):
             "comments",
             "keywords",
             "cast",
+            "trailer_keys",
         )
         read_only_fields = fields
 
