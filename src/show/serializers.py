@@ -55,6 +55,8 @@ class ShowSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
     def get_trailer_links(self, instance):
+        if not instance.trailer_keys:
+            return []
         keys = instance.trailer_keys.split(",")
         return [f"https://www.youtube.com/watch?v={k}" for k in keys]
 
