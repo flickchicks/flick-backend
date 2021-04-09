@@ -20,6 +20,7 @@ class flicktmdb:
         poster_path = result.get("poster_path")
         credits = self.get_credits(tmdb_id, is_tv)
         providers = self.get_providers(tmdb_id, is_tv)
+        trailer_keys = self.get_trailers(tmdb_id, is_tv)
 
         return {
             "backdrop_pic": settings.TMDB_BASE_IMAGE_URL + backdrop_path if backdrop_path else None,
@@ -43,6 +44,7 @@ class flicktmdb:
             "tagline": result.get("tagline"),
             "imdb_id": result.get("imdb_id"),
             "title": result.get("name" if is_tv else "title"),
+            "trailer_keys": trailer_keys,
         }
 
     def get_credits(self, tmdb_id, is_tv=False):
@@ -67,6 +69,19 @@ class flicktmdb:
             "cast": cast,
             "directors": directors,
         }
+
+    def get_trailers(self, tmdb_id, is_tv=False):
+        show_type = "tv" if is_tv else "movie"
+        url = f"{settings.TMDB_BASE_URL}/{show_type}/{tmdb_id}/videos?api_key={settings.TMDB_API_KEY}"
+        r = requests.get(url)
+        if r.status_code != 200:
+            return []
+        videos = json.loads(r.content).get("results")
+        trailer_keys = []
+        for vid in videos:
+            if vid.get("type") == "Trailer" and vid.get("site") == "YouTube":
+                trailer_keys.append(vid.get("key"))
+        return ",".join(trailer_keys)
 
     def get_providers(self, tmdb_id, is_tv=False):
         show_type = "tv" if is_tv else "movie"

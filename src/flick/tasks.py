@@ -30,9 +30,12 @@ def populate_show_details(show_id):
         info = flicktmdb().get_show(show.ext_api_id, is_tv=False)
     elif show.ext_api_source == "animelist":
         info = flickanimelist().get_anime(show.ext_api_id)
+
     if not info:
         return
+
     show.cast = info.get("cast")
+    show.trailer_keys = info.get("trailer_keys")
     show.directors = info.get("directors")
     show.duration = info.get("duration")
     show.seasons = info.get("seasons")

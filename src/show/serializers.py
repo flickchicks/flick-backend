@@ -18,6 +18,7 @@ class ShowSerializer(serializers.ModelSerializer):
     friends_rating = serializers.SerializerMethodField(method_name="calculate_friends_rating")
     user_rating = serializers.SerializerMethodField(method_name="get_user_rating")
     providers = ProviderSerializer(read_only=True, many=True)
+    trailers = serializers.SerializerMethodField(method_name="get_trailer_links")
 
     class Meta:
         model = Show
@@ -49,8 +50,15 @@ class ShowSerializer(serializers.ModelSerializer):
             "comments",
             "keywords",
             "cast",
+            "trailers",
         )
         read_only_fields = fields
+
+    def get_trailer_links(self, instance):
+        if not instance.trailer_keys:
+            return []
+        keys = instance.trailer_keys.split(",")
+        return [f"https://www.youtube.com/watch?v={k}" for k in keys]
 
     def calculate_friends_rating(self, instance):
         request = self.context.get("request")
