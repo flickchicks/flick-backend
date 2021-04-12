@@ -1,4 +1,6 @@
 from asset.models import AssetBundle
+import boto3
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q
@@ -40,6 +42,10 @@ class Profile(models.Model):
         return unviewed_notifs.count() + unviewed_suggests.count()
 
     def remove_profile_pic(self):
+        if self.profile_pic_url:
+            s3 = boto3.resource("s3")
+            key = self.profile_pic_url.split("image/")[1]
+            s3.Object(settings.S3_BUCKET, f"image/{key}").delete()
         self.profile_pic = ""
         self.profile_pic_url = ""
         super(Profile, self).save()
