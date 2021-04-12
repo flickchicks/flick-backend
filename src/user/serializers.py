@@ -51,9 +51,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     friends = serializers.SerializerMethodField("get_friends_profiles")
 
     def get_friends_profiles(self, profile):
-        friends = [
-            friend for friend in Friend.objects.friends(user=profile.user) if friend.profile.profile_pic_url is not None
-        ]
+        friends = [friend for friend in Friend.objects.friends(user=profile.user) if friend.profile.profile_pic_url]
         return FriendUserSerializer(friends[:7], many=True).data
 
     class Meta:
