@@ -38,6 +38,7 @@ class UpdateProfileController:
             if profile_pic_base64 == "":
                 profile.remove_profile_pic()
             else:
+                profile.remove_profile_pic()
                 profile.profile_pic = profile_pic_base64
         if bio is not None and profile.bio != bio:
             profile.bio = bio
