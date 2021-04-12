@@ -44,13 +44,15 @@ class DiscoverView(APIView):
             trending_shows_with_pic = [show for show in trending_shows if show.poster_pic is not None]
             trending_shows = ShowSimpleSerializer(trending_shows_with_pic, many=True).data
             local_cache.set(("trending_shows"), trending_shows)
-        trending_shows = sample(trending_shows, 10)
+        trending_shows = sample(trending_shows, min(10, len(trending_shows)))
         return trending_shows
 
     def get_friend_shows(self, user_friends):
         public_lsts = Lst.objects.filter(is_private=False)
-        activities = LstSaveActivity.objects.filter(lst__in=public_lsts, saved_by__in=user_friends).prefetch_related(
-            "saved_by", "show", "lst"
+        activities = (
+            LstSaveActivity.objects.filter(lst__in=public_lsts, saved_by__in=user_friends)
+            .exclude(show__poster_pic=None)
+            .prefetch_related("saved_by", "show", "lst")
         )
         friend_shows = activities.values_list("show", flat=True).distinct()[:10]
         return friend_shows
