@@ -61,7 +61,7 @@ def populate_show_details(show_id):
             try:
                 show.providers.create(name=provider.get("name"), image=provider.get("image"))
             except:
-                show.providers.add(Provider.objects.get(name=provider.get("name")))
+                show.providers.add(Provider.objects.filter(name=provider.get("name"))[0])
     imdb_id = info.get("imdb_id")
     if imdb_id:
         imdb_id = imdb_id[2:]
