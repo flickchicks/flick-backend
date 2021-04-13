@@ -136,19 +136,22 @@ class UpdateLstController:
         self._create_modified_collaborators_notification(modified_collaborators=modified_collaborators)
 
     def process(self):
+        existing_lst = Lst.objects.filter(pk=self._pk).prefetch_related(
+            "shows", "custom_tags", "owner", "collaborators"
+        )
+        if not existing_lst:
+            return failure_response(f"No list to be found with id of {self._pk}.")
+        self._lst = existing_lst[0]
+        self._profile = Profile.objects.get(user=self._user)
+
         name = self._data.get("name")
         lst_pic = self._data.get("lst_pic")
         description = self._data.get("description")
-        is_private = self._data.get("is_private", False)
+        is_private = self._data.get("is_private", self._lst.is_private)
         collaborator_ids = self._data.get("collaborators", [])
         owner_id = self._data.get("owner", self._user.id)
         show_ids = self._data.get("shows", [])
         tag_ids = self._data.get("tags", [])
-
-        if not Lst.objects.filter(pk=self._pk):
-            return failure_response(f"No list to be found with id of {self._pk}.")
-        self._lst = Lst.objects.get(pk=self._pk)
-        self._profile = Profile.objects.get(user=self._user)
 
         user_is_owner = self._profile == self._lst.owner
         user_is_collaborator = self._profile in self._lst.collaborators.all()
