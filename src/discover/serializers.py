@@ -58,6 +58,6 @@ class DiscoverSerializer(serializers.ModelSerializer):
 
         for show in friend_shows:
             serializer_data = ShowSimpleSerializer(show, many=False).data
-            serializer_data["saved_to_lsts"] = LstSaveActivitySerializer(show.show_activities, many=True).data
+            serializer_data["saved_to_lsts"] = LstSaveActivitySerializer(show.show_activities[:3], many=True).data
             data.append(serializer_data)
         return data

@@ -40,15 +40,19 @@ class DiscoverView(APIView):
         trending_shows = local_cache.get(("trending_shows"))
         if not trending_shows:
             trending = self.api.get_trending_shows()
-            trending_shows = ShowAPI.create_show_objects(trending, ShowSimpleSerializer)
+            trending_shows = ShowAPI.create_show_objects_no_serialization(trending)
+            trending_shows_with_pic = [show for show in trending_shows if show.poster_pic is not None]
+            trending_shows = ShowSimpleSerializer(trending_shows_with_pic, many=True).data
             local_cache.set(("trending_shows"), trending_shows)
-        trending_shows = sample(trending_shows, 10)
+        trending_shows = sample(trending_shows, min(10, len(trending_shows)))
         return trending_shows
 
     def get_friend_shows(self, user_friends):
         public_lsts = Lst.objects.filter(is_private=False)
-        activities = LstSaveActivity.objects.filter(lst__in=public_lsts, saved_by__in=user_friends).prefetch_related(
-            "saved_by", "show", "lst"
+        activities = (
+            LstSaveActivity.objects.filter(lst__in=public_lsts, saved_by__in=user_friends)
+            .exclude(show__poster_pic=None)
+            .prefetch_related("saved_by", "show", "lst")
         )
         friend_shows = activities.values_list("show", flat=True).distinct()[:10]
         return friend_shows
@@ -94,6 +98,7 @@ class DiscoverView(APIView):
                 "friend_shows",
                 "friend_lsts",
                 "friend_lsts__owner",
+                "friend_lsts__collaborators",
                 "friend_comments",
                 "friend_comments__show",
                 "friend_comments__owner",
