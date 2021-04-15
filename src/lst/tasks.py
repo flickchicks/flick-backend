@@ -87,29 +87,29 @@ def create_modified_collaborators_notif(
             ios_devices.send_message(message={"title": message_title, "body": message_body})
             android_devices.send_message(message={"title": message_title, "body": message_body})
     # Notify old collaborators that collaborators have been updated
-    for to_profile_id in to_profile_ids:
-        to_profile = Profile.objects.get(id=to_profile_id)
-        lst = Lst.objects.get(id=lst_id)
-        notif = Notification()
-        notif.notif_type = "list_edit"
-        notif.from_user = from_profile
-        notif.to_user = to_profile
-        notif.lst = lst
-        notif.save()
-        modified_collaborators = Profile.objects.filter(id__in=modified_profile_ids)
-        if is_add:
-            notif.collaborators_added.add(*modified_collaborators)
-        elif is_remove:
-            notif.collaborators_removed.add(*modified_collaborators)
-        notif.save()
-        ios_devices = APNSDevice.objects.filter(user=to_profile.user, active=True)
-        android_devices = GCMDevice.objects.filter(user=to_profile.user, active=True)
-        message_title = "Telie"
-        message_body = (
-            f"🥳 {from_profile.user.first_name} (@{from_profile.user.username}) updated the collaborators in {lst.name}."
-        )
-        ios_devices.send_message(message={"title": message_title, "body": message_body})
-        android_devices.send_message(message={"title": message_title, "body": message_body})
+    # for to_profile_id in to_profile_ids:
+    #     to_profile = Profile.objects.get(id=to_profile_id)
+    #     lst = Lst.objects.get(id=lst_id)
+    #     notif = Notification()
+    #     notif.notif_type = "list_edit"
+    #     notif.from_user = from_profile
+    #     notif.to_user = to_profile
+    #     notif.lst = lst
+    #     notif.save()
+    #     modified_collaborators = Profile.objects.filter(id__in=modified_profile_ids)
+    #     if is_add:
+    #         notif.collaborators_added.add(*modified_collaborators)
+    #     elif is_remove:
+    #         notif.collaborators_removed.add(*modified_collaborators)
+    #     notif.save()
+    #     ios_devices = APNSDevice.objects.filter(user=to_profile.user, active=True)
+    #     android_devices = GCMDevice.objects.filter(user=to_profile.user, active=True)
+    #     message_title = "Telie"
+    #     message_body = (
+    #         f"🥳 {from_profile.user.first_name} (@{from_profile.user.username}) updated the collaborators in {lst.name}."
+    #     )
+    #     ios_devices.send_message(message={"title": message_title, "body": message_body})
+    #     android_devices.send_message(message={"title": message_title, "body": message_body})
 
 
 @shared_task
