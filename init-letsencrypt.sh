@@ -5,7 +5,7 @@ if ! [ -x "$(command -v docker-compose)" ]; then
   exit 1
 fi
 
-domains=(localhost rpi100.ddnsfree.com www.rpi100.ddnsfree.com)
+domains=(rpi100.ddnsfree.com www.rpi100.ddnsfree.com)
 rsa_key_size=4096
 data_path="./data/certbot"
 email="asz33@cornell.edu" # Adding a valid address is strongly recommended
