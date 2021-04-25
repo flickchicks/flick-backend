@@ -60,14 +60,14 @@ services:
         restart: always
         volumes:
             - static:/var/www/app/static
-            - ./data/certbot/conf:/etc/letsencrypt
-            - ./data/certbot/www:/var/www/certbot
+            - /etc/letsencrypt/live/rpi800.ddnsfree.com/fullchain.pem:/etc/letsencrypt/live/rpi800.ddnsfree.com/fullchain.pem
+            - /etc/letsencrypt/live/rpi800.ddnsfree.com/privkey.pem:/etc/letsencrypt/live/rpi800.ddnsfree.com/privkey.pem
 
     certbot:
         image: certbot/certbot
         volumes:
-            - ./data/certbot/conf:/etc/letsencrypt
-            - ./data/certbot/www:/var/www/certbot
+            - /etc/letsencrypt/live/rpi800.ddnsfree.com/fullchain.pem:/etc/letsencrypt/live/rpi800.ddnsfree.com/fullchain.pem
+            - /etc/letsencrypt/live/rpi800.ddnsfree.com/privkey.pem:/etc/letsencrypt/live/rpi800.ddnsfree.com/privkey.pem
 
 networks:
     main:
