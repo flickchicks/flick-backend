@@ -11,7 +11,6 @@ class ProfileAdmin(admin.ModelAdmin):
         "phone_number",
         "social_id",
         "social_id_token_type",
-        "social_id_token",
         "notif_time_viewed",
         "suggest_time_viewed",
     ]
