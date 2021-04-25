@@ -6,17 +6,28 @@ services:
         hostname: redis
         networks:
             - main
+        deploy:
+            replicas: 2
+            restart_policy:
+                condition: on-failure
         ports:
             - "6379:6379"
         restart: always
 
     app:
-        image: alannazhou/app:latest
+        image: alannazhou/app:${IMAGE_TAG}
         hostname: app
         env_file: .env
+        environment:
+            - AWS_ACCESS_KEY_ID=
+            - AWS_SECRET_ACCESS_KEY=
         command: sh -c "python manage.py makemigrations && python manage.py migrate && gunicorn flick.wsgi -b 0.0.0.0:8000"
         depends_on:
             - redis
+        deploy:
+            replicas: 5
+            restart_policy:
+                condition: on-failure
         expose:
             - "8000"
         networks:
@@ -24,34 +35,43 @@ services:
         restart: always
         volumes:
             - static:/static
-            - /home/alanna/.aws:/usr/src/app/.aws
+            - /home/alanna/.aws/config:/root/.aws/config:ro
+            - /home/alanna/.aws/credentials:/root/.aws/credentials:ro
             - /home/alanna/docker-compose/aps.pem:/usr/src/app/aps.pem
             - /home/alanna/docker-compose/apple_private.p8:/usr/src/app/apple_private.p8
 
     celery_worker:
-        image: alannazhou/app:latest
+        image: alannazhou/app:${IMAGE_TAG}
         hostname: celery_worker
         env_file: .env
+        environment:
+            - AWS_ACCESS_KEY_ID=
+            - AWS_SECRET_ACCESS_KEY=
         command: sh -c "./wait-for-it.sh redis:6379 && ./wait-for-it.sh app:8000 -- celery -A flick worker -l info"
         depends_on:
             - app
             - redis
         deploy:
-            replicas: 2
+            replicas: 5
             restart_policy:
                 condition: on-failure
         networks:
             - main
         restart: always
         volumes:
-            - /home/alanna/.aws:/usr/src/app/.aws
+            - /home/alanna/.aws/config:/root/.aws/config:ro
+            - /home/alanna/.aws/credentials:/root/.aws/credentials:ro
             - /home/alanna/docker-compose/aps.pem:/usr/src/app/aps.pem
             - /home/alanna/docker-compose/apple_private.p8:/usr/src/app/apple_private.p8
 
     nginx:
-        image: alannazhou/nginx:latest
+        image: alannazhou/nginx:faster
         depends_on:
             - app
+        deploy:
+            replicas: 5
+            restart_policy:
+                condition: on-failure
         networks:
             - main
         ports:
@@ -60,14 +80,12 @@ services:
         restart: always
         volumes:
             - static:/var/www/app/static
-            - /etc/letsencrypt/live/rpi800.ddnsfree.com/fullchain.pem:/etc/letsencrypt/live/rpi800.ddnsfree.com/fullchain.pem
-            - /etc/letsencrypt/live/rpi800.ddnsfree.com/privkey.pem:/etc/letsencrypt/live/rpi800.ddnsfree.com/privkey.pem
+            - /etc/letsencrypt/:/etc/letsencrypt/
 
     certbot:
         image: certbot/certbot
         volumes:
-            - /etc/letsencrypt/live/rpi800.ddnsfree.com/fullchain.pem:/etc/letsencrypt/live/rpi800.ddnsfree.com/fullchain.pem
-            - /etc/letsencrypt/live/rpi800.ddnsfree.com/privkey.pem:/etc/letsencrypt/live/rpi800.ddnsfree.com/privkey.pem
+            - /etc/letsencrypt/:/etc/letsencrypt/
 
 networks:
     main:
