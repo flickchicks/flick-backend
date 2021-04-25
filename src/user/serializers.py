@@ -84,6 +84,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
     # profile_pic = AssetBundleDetailSerializer(source="profile_asset_bundle")
     owner_lsts = serializers.SerializerMethodField("get_owner_lsts")
     collab_lsts = serializers.SerializerMethodField("get_collab_lsts")
+    friends = serializers.SerializerMethodField("get_friends_profiles")
+
+    def get_friends_profiles(self, profile):
+        friends = [friend for friend in Friend.objects.friends(user=profile.user) if friend.profile.profile_pic_url]
+        return FriendUserSerializer(friends[:7], many=True).data
 
     def get_owner_lsts(self, profile):
         lists = profile.owner_lsts.all().filter(is_private=False)
@@ -118,5 +123,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "bio",
             "collab_lsts",
             "owner_lsts",
+            "friends",
         )
         read_only_fields = fields
