@@ -1,4 +1,5 @@
-import datetime
+from datetime import datetime
+from datetime import timedelta
 import json
 from user.models import Profile
 
@@ -41,9 +42,8 @@ class ShowDetail(generics.GenericAPIView):
                 return failure_response(f"Show of id {pk} does not exist.")
             show = Show.objects.get(pk=pk)
             utc = pytz.utc
-            delta = datetime.datetime.now(tz=utc) - show.updated_at
-            minutes = (delta.total_seconds() % 3600) // 60
-            if minutes > 30:
+            delta = datetime.now(tz=utc) - show.updated_at
+            if delta > timedelta(days=7) or show.directors is None:
                 populate_show_details(show.id)
         except Exception as e:
             return failure_response(message=f"Oh no! {e}")
