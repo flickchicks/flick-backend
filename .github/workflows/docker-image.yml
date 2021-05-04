@@ -39,3 +39,4 @@ jobs:
                       docker stack rm flick
                       sleep 20s
                       docker stack deploy -c docker-compose.yml flick
+                      docker system prune -a
