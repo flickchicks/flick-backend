@@ -64,7 +64,7 @@ class ShowSerializer(serializers.ModelSerializer):
         return [f"https://www.youtube.com/watch?v={k}" for k in keys]
 
     def get_image_urls(self, instance):
-        if not instance.images_keys:
+        if not instance.image_keys:
             return []
         keys = instance.image_keys.split(",")
         return [f"{settings.TMDB_BASE_IMAGE_URL}{k}" for k in keys]
