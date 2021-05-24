@@ -2,7 +2,7 @@ name: Docker Build & Push and Deploy telie-prod
 
 on:
     push:
-        branches: [master]
+        branches: [prod]
 jobs:
     path-context:
         runs-on: ubuntu-latest
