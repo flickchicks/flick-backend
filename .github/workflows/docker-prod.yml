@@ -1,4 +1,4 @@
-name: Docker Build & Push and Deploy telie-prod
+name: Production Docker Build & Push and Deploy
 
 on:
     push:
@@ -25,7 +25,7 @@ jobs:
                   context: .
                   file: ./Dockerfile
                   push: true
-                  tags: ${{ secrets.DOCKER_USERNAME }}/app-prod:${{ steps.vars.outputs.sha_short }}
+                  tags: ${{ secrets.DOCKER_USERNAME }}/app:${{ steps.vars.outputs.sha_short }}
             - name: Remote ssh and deploy
               uses: appleboy/ssh-action@master
               with:
