@@ -3,6 +3,8 @@ name: Production Docker Build & Push and Deploy
 on:
     push:
         branches: [prod]
+    pull_request:
+        branches: [prod]
 jobs:
     path-context:
         runs-on: ubuntu-latest
