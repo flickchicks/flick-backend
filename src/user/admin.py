@@ -7,7 +7,7 @@ class ProfileAdmin(admin.ModelAdmin):
     list_display = [
         "user",
         "bio",
-        "profile_pic",
+        "profile_pic_url",
         "phone_number",
         "social_id",
         "social_id_token_type",
