@@ -171,6 +171,8 @@ class UpdateLstController:
             self._modify_tags(tag_ids)
             if not (self._lst.is_saved or self._lst.is_watch_later):
                 if name:
+                    if len(name) > 100:
+                        return failure_response("A list name must be 100 characters or fewer.")
                     self._lst.name = name
                 if description:
                     self._lst.description = description
