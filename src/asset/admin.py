@@ -16,7 +16,7 @@ class AssetBundleAdmin(admin.ModelAdmin):
         html += "</ul>"
         return mark_safe(html)
 
-    list_display = ["salt", "kind"]
+    list_display = ["salt"]
     readonly_fields = ("preview",)
 
 
@@ -31,7 +31,7 @@ class AssetAdmin(admin.ModelAdmin):
 
     preview.allow_tags = True
 
-    list_display = ["preview", "kind", "extension", "full_url"]
+    list_display = ["preview", "extension", "full_url"]
 
 
 admin.site.register(Asset, AssetAdmin)

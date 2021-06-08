@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -18,7 +17,7 @@ class AssetBundle(models.Model):
     )
     salt = models.CharField(max_length=16)  # unique id, used to generate file names
     kind = models.CharField(max_length=5, choices=KIND_CHOICES, default="image")
-    base_url = models.CharField(max_length=255, default=settings.S3_BASE_URL)
+    base_url = models.CharField(max_length=255)
 
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -37,8 +36,6 @@ class AssetBundle(models.Model):
 
 
 class Asset(models.Model):
-    KIND_CHOICES = (("original", "Original"), ("large", "Large"), ("small", "Small"))
-
     EXTENSION_CHOICES = (
         ("png", "png"),
         ("gif", "gif"),
@@ -46,13 +43,11 @@ class Asset(models.Model):
         ("jpeg", "jpeg"),
     )
     asset_bundle = models.ForeignKey(AssetBundle, on_delete=models.CASCADE)
-    kind = models.CharField(max_length=8, choices=KIND_CHOICES, default=settings.S3_BASE_URL)
     width = models.IntegerField(default=0)
     height = models.IntegerField(default=0)
     extension = models.CharField(max_length=4, choices=EXTENSION_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    is_processing = models.BooleanField()
 
     def __str__(self):
         return f"Asset: {self.asset_bundle.salt}: {self.kind}"
