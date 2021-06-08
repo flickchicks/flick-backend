@@ -16,5 +16,5 @@ def upload_image_helper(image_data):
     salt = "".join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(16))
     img_filename = f"{salt}.{img_ext}"
     async_upload_image.delay(image_data, img_filename)
-    img_url = f"{settings.S3_BASE_URL}image/{img_filename}"
+    img_url = f"{settings.SPACES_ENDPOINT_URL}/{settings.SPACES_BUCKET_NAME}/{img_filename}"
     return img_url

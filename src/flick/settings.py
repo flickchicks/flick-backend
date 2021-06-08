@@ -214,8 +214,14 @@ STATIC_ROOT = "/static"
 
 TEMP_DIR = "/tmp"
 
-S3_BUCKET = "flick"
-S3_BASE_URL = f"https://{S3_BUCKET}.s3-us-west-1.amazonaws.com/"
+# S3_BUCKET = "flick"
+# S3_BASE_URL = f"https://{S3_BUCKET}.s3-us-west-1.amazonaws.com/"
+
+SPACES_ACCESS_KEY_ID = os.getenv("SPACES_ACCESS_KEY_ID")
+SPACES_SECRET_ACCESS_KEY = os.getenv("SPACES_SECRET_ACCESS_KEY")
+SPACES_BUCKET_NAME = os.getenv("SPACES_BUCKET_NAME")
+SPACES_ENDPOINT_URL = os.getenv("SPACES_ENDPOINT_URL")
+SPACES_REGION_NAME = os.getenv("SPACES_REGION_NAME")
 
 # if running without docker, update redis to localhost
 if DEBUG:
