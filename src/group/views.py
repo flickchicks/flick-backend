@@ -5,6 +5,7 @@ from random import sample
 from user.models import Profile
 
 from api import settings as api_settings
+from api.utils import failure_response
 from api.utils import success_response
 from django.core.cache import caches
 from lst.models import Lst
@@ -47,7 +48,10 @@ class GroupList(generics.GenericAPIView):
         profile = Profile.objects.get(user=request.user)
         data = json.loads(request.body)
         member_ids = data.get("members", [])
-        group = Group.objects.create(name=data.get("name"))
+        name = data.get("name")
+        if len(name) > 30:
+            return failure_response("A group name must be 30 characters or fewer.")
+        group = Group.objects.create(name=name)
         group.members.add(profile)
         for member_id in member_ids:
             try:
@@ -82,7 +86,10 @@ class GroupDetail(generics.GenericAPIView):
         profile = Profile.objects.get(user=request.user)
         group = profile.groups.filter(id=pk).prefetch_related("members", "shows")[0]
         data = json.loads(request.body)
-        group.name = data.get("name")
+        name = data.get("name")
+        if len(name) > 30:
+            return failure_response("A group name must be 30 characters or fewer.")
+        group.name = name
         group.save()
         serializer = self.serializer_class(group)
         return success_response(serializer.data)
