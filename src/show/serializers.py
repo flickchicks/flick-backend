@@ -1,6 +1,7 @@
 from user.models import Profile
 
 from comment.serializers import CommentSerializer
+from django.conf import settings
 from django.db.models import Avg
 from friendship.models import Friend
 from group.models import Group
@@ -19,6 +20,7 @@ class ShowSerializer(serializers.ModelSerializer):
     user_rating = serializers.SerializerMethodField(method_name="get_user_rating")
     providers = ProviderSerializer(read_only=True, many=True)
     trailers = serializers.SerializerMethodField(method_name="get_trailer_links")
+    images = serializers.SerializerMethodField(method_name="get_image_urls")
 
     class Meta:
         model = Show
@@ -51,6 +53,7 @@ class ShowSerializer(serializers.ModelSerializer):
             "keywords",
             "cast",
             "trailers",
+            "images",
         )
         read_only_fields = fields
 
@@ -59,6 +62,12 @@ class ShowSerializer(serializers.ModelSerializer):
             return []
         keys = instance.trailer_keys.split(",")
         return [f"https://www.youtube.com/watch?v={k}" for k in keys]
+
+    def get_image_urls(self, instance):
+        if not instance.image_keys:
+            return []
+        keys = instance.image_keys.split(",")
+        return [f"{settings.TMDB_BASE_IMAGE_URL}{k}" for k in keys]
 
     def calculate_friends_rating(self, instance):
         request = self.context.get("request")
