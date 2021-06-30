@@ -20,12 +20,15 @@ class TagList(generics.GenericAPIView):
             page_number = int(request.query_params.get("page"))
         except Exception:
             page_number = 1
-        paginator = Paginator(self.get_queryset(), per_page=4, allow_empty_first_page=True)  # can change later
-        tag_page = paginator.get_page(page_number)
+        paginator = Paginator(self.get_queryset(), per_page=4)  # can change later
+        try:
+            tag_page = paginator.get_page(page_number)
+        except Exception:
+            tag_page = []
         serializer = self.serializer_class(tag_page, many=True)
         return paginated_success_response(
             data=serializer.data,
-            next_page_number=tag_page.next_page_number(),
+            page_number=tag_page.number,
             has_next_page=tag_page.has_next(),
             total_pages=paginator.num_pages,
         )

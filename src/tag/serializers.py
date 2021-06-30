@@ -7,13 +7,12 @@ from .models import Tag
 
 
 class TagSerializer(serializers.ModelSerializer):
-    # shows = ShowSimpleSerializer(many=True, read_only=True)
     lsts = LstSimpleSerializer(many=True, read_only=True)
     shows = serializers.SerializerMethodField("paginated_shows")
 
     def paginated_shows(self, obj):
         paginator = Paginator(obj.shows.all(), 3)
-        show_page = paginator.page(1)
+        show_page = paginator.get_page(1)
         serializer = ShowSimpleSerializer(show_page, many=True)
         return serializer.data
 
