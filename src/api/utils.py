@@ -34,7 +34,7 @@ def paginated_success_response(data=None, status=status.HTTP_200_OK, page_number
             "page_number": page_number,
             "has_next_page": has_next_page,
             "data": data,
-            "total": total_pages,
+            "total_pages": total_pages,
         },
         status=status,
     )
