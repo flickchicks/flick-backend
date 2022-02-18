@@ -9,7 +9,6 @@ class SeasonDetail(models.Model):
     ext_api_id = models.IntegerField(blank=True, null=True)  # will assume its parent show's ext_api_source
     poster_pic = models.URLField(blank=True, null=True)
     overview = models.TextField(null=True, blank=True)
-    # episodes =
 
     class Meta:
         unique_together = ("show", "season_num")
