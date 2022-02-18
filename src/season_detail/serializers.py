@@ -8,4 +8,4 @@ class SeasonDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SeasonDetail
-        fields = ("season_num", "episode_count", "ext_api_id", "poster_pic", "overview", "episode_details")
+        fields = ("id", "season_num", "episode_count", "ext_api_id", "poster_pic", "overview", "episode_details")
