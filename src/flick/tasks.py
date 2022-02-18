@@ -2,7 +2,6 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 from celery import shared_task
-from celery.utils.log import get_task_logger
 import flick.settings as settings
 from imdb import IMDb
 from provider.models import Provider
@@ -13,9 +12,9 @@ from tag.models import Tag
 import tmdbsimple as tmdb
 
 # If you want to print, you need to log these and they will appear in the celery terminal process
-
-logger = get_task_logger(__name__)
-logger.info("hello world")
+# from celery.utils.log import get_task_logger
+# logger = get_task_logger(__name__)
+# logger.info("hello world")
 
 
 @shared_task
@@ -69,9 +68,7 @@ def populate_show_details(show_id):
             except:
                 continue
     if info.get("seasons_details"):
-
         season_details = info.get("seasons_details")
-        logger.info("seaons_details", season_details)
         for season in season_details:
             try:
                 season_detail = show.season_details.create(
@@ -85,9 +82,9 @@ def populate_show_details(show_id):
                     for e in range(1, season.get("episode_count") + 1):
                         season_detail.episode_details.create(episode_num=e)
                 except Exception as e:
-                    logger.info("could not make ep", e)
+                    continue
             except Exception as e:
-                logger.info("could not make season", e)
+                continue
 
     imdb_id = info.get("imdb_id")
     if imdb_id:
