@@ -2,6 +2,8 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 from celery import shared_task
+from celery.utils.log import get_task_logger
+import flick.settings as settings
 from imdb import IMDb
 from provider.models import Provider
 from show.animelist import flickanimelist
@@ -11,9 +13,9 @@ from tag.models import Tag
 import tmdbsimple as tmdb
 
 # If you want to print, you need to log these and they will appear in the celery terminal process
-# from celery.utils.log import get_task_logger
-# logger = get_task_logger(__name__)
-# logger.info("hello world")
+
+logger = get_task_logger(__name__)
+logger.info("hello world")
 
 
 @shared_task
@@ -66,6 +68,27 @@ def populate_show_details(show_id):
                     show.providers.add(Provider.objects.filter(name=provider.get("name"))[0])
             except:
                 continue
+    if info.get("seasons_details"):
+
+        season_details = info.get("seasons_details")
+        logger.info("seaons_details", season_details)
+        for season in season_details:
+            try:
+                season_detail = show.season_details.create(
+                    season_num=season.get("season_number"),
+                    episode_count=season.get("episode_count"),
+                    ext_api_id=season.get("id"),
+                    poster_pic=f"{settings.TMDB_BASE_IMAGE_URL}{season.get('poster_path')}",
+                    overview=season.get("overview"),
+                )
+                try:
+                    for e in range(1, season.get("episode_count") + 1):
+                        season_detail.episode_details.create(episode_num=e)
+                except Exception as e:
+                    logger.info("could not make ep", e)
+            except Exception as e:
+                logger.info("could not make season", e)
+
     imdb_id = info.get("imdb_id")
     if imdb_id:
         imdb_id = imdb_id[2:]

@@ -7,6 +7,7 @@ from friendship.models import Friend
 from group.models import Group
 from provider.serializers import ProviderSerializer
 from rest_framework import serializers
+from season_detail.serializers import SeasonDetailSerializer
 from tag.simple_serializers import TagSimpleSerializer
 from vote.models import VoteType
 
@@ -21,6 +22,7 @@ class ShowSerializer(serializers.ModelSerializer):
     providers = ProviderSerializer(read_only=True, many=True)
     trailers = serializers.SerializerMethodField(method_name="get_trailer_links")
     images = serializers.SerializerMethodField(method_name="get_image_urls")
+    season_details = SeasonDetailSerializer(read_only=True, many=True)
 
     class Meta:
         model = Show
@@ -54,6 +56,7 @@ class ShowSerializer(serializers.ModelSerializer):
             "cast",
             "trailers",
             "images",
+            "season_details",
         )
         read_only_fields = fields
 
