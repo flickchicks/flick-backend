@@ -22,6 +22,7 @@ class flicktmdb:
         providers = self.get_providers(tmdb_id, is_tv)
         trailer_keys = self.get_trailers(tmdb_id, is_tv)
         image_keys = self.get_images(tmdb_id, is_tv)
+        seasons_details = result.get("seasons")
         return {
             "backdrop_pic": settings.TMDB_BASE_IMAGE_URL + backdrop_path if backdrop_path else None,
             "cast": credits.get("cast"),
@@ -46,6 +47,7 @@ class flicktmdb:
             "title": result.get("name" if is_tv else "title"),
             "trailer_keys": trailer_keys,
             "image_keys": image_keys,
+            "seasons_details": seasons_details if is_tv else [],
         }
 
     def get_credits(self, tmdb_id, is_tv=False):

@@ -63,6 +63,8 @@ INSTALLED_APPS = [
     "user",
     "vote",
     "discover",
+    "season_detail",
+    "episode_detail",
 ]
 
 PUSH_NOTIFICATIONS_SETTINGS = {

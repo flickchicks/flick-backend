@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 from celery import shared_task
+import flick.settings as settings
 from imdb import IMDb
 from provider.models import Provider
 from show.animelist import flickanimelist
@@ -66,6 +67,25 @@ def populate_show_details(show_id):
                     show.providers.add(Provider.objects.filter(name=provider.get("name"))[0])
             except:
                 continue
+    if info.get("seasons_details"):
+        season_details = info.get("seasons_details")
+        for season in season_details:
+            try:
+                season_detail = show.season_details.create(
+                    season_num=season.get("season_number"),
+                    episode_count=season.get("episode_count"),
+                    ext_api_id=season.get("id"),
+                    poster_pic=f"{settings.TMDB_BASE_IMAGE_URL}{season.get('poster_path')}",
+                    overview=season.get("overview"),
+                )
+                try:
+                    for e in range(1, season.get("episode_count") + 1):
+                        season_detail.episode_details.create(episode_num=e)
+                except Exception as e:
+                    continue
+            except Exception as e:
+                continue
+
     imdb_id = info.get("imdb_id")
     if imdb_id:
         imdb_id = imdb_id[2:]
