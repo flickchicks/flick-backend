@@ -21,8 +21,7 @@ class ReactionAdd(generics.GenericAPIView):
     def post(self, request):
         """
         Create a reaction
-            "show_id": <>,
-            "season_id": <>, // careful! this is not season_num or ext_api_id; this is telie id
+        {
             "episode_id": <>
             "text": <>,
         }
