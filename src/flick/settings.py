@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     "discover",
     "season_detail",
     "episode_detail",
+    "reaction",
 ]
 
 PUSH_NOTIFICATIONS_SETTINGS = {
