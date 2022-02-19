@@ -40,9 +40,6 @@ class ReactionAdd(generics.GenericAPIView):
 
 class ReactionDelete(generics.GenericAPIView):
 
-    queryset = Reaction.objects.all()
-    serializer_class = ReactionSerializer
-
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
     def post(self, request, pk):
