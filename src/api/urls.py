@@ -44,6 +44,7 @@ from notification.views import NotificationEnable
 from notification.views import NotificationList
 from notification.views import NotificationTest
 from reaction.views import ReactionAdd
+from reaction.views import ReactionsForEpisode
 from read.views import ReadView
 from recommend.views import LstRecommendView
 from rest_framework import routers
@@ -101,6 +102,7 @@ urlpatterns = [
     path("lsts/<int:pk>/like/", LstLikeView.as_view(), name="like-list"),
     path("me/", UserView.as_view(), name="me"),
     path("media/image/", UploadImage.as_view(), name="upload"),
+    path("reactions/", ReactionsForEpisode.as_view(), name="reactions-for-ep"),
     path("reactions/add/", ReactionAdd.as_view(), name="add-reaction"),
     path("search/", Search.as_view(), name="search"),
     path("show/<int:pk>/", ShowDetail.as_view(), name="show-detail"),
