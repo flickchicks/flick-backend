@@ -46,7 +46,7 @@ class ReactionRemove(generics.GenericAPIView):
         if not Reaction.objects.filter(id=pk).exists():
             return failure_response(f"Reaction with id {pk} does not exist!")
         reaction = Reaction.objects.get(id=pk)
-        if not reaction.author.user == request.user:
+        if reaction.author.user != request.user:
             return failure_response(f"User {request.user.id} is not authorized to delete reaction {pk}!")
         reaction.delete()
         return success_response()
