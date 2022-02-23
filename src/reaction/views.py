@@ -66,3 +66,17 @@ class ReactionAdd(generics.GenericAPIView):
         reaction.save()
         serializer = self.serializer_class(reaction)
         return success_response(serializer.data)
+
+
+class ReactionRemove(generics.GenericAPIView):
+
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
+
+    def post(self, request, pk):
+        if not Reaction.objects.filter(id=pk).exists():
+            return failure_response(f"Reaction with id {pk} does not exist!")
+        reaction = Reaction.objects.get(id=pk)
+        if reaction.author.user != request.user:
+            return failure_response(f"User {request.user.id} is not authorized to delete reaction {pk}!")
+        reaction.delete()
+        return success_response()
