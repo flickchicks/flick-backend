@@ -22,7 +22,7 @@ class ReactionsPerEpisodeForShow(generics.GenericAPIView):
 
     def get(self, request, pk):
         """
-        Given show id, get shortened list of reactions (in this case five).
+        Given show id, get shortened list of reactions (in this case max 10 reactions).
         Visibility of reactions by default is PUBLIC.
         """
         show = Show.objects.get(id=pk)
@@ -41,7 +41,7 @@ class ReactionsForEpisode(generics.GenericAPIView):
         Get all (relevant) reactions for one episode
         {
             "episode_id": <>,
-            "filter_by":  "public" or "friends"
+            "filter_by":  "public" or "friends" or ""
         }
         """
         data = json.loads(request.body)
@@ -81,6 +81,7 @@ class ReactionAdd(generics.GenericAPIView):
         {
             "episode_id": <>
             "text": <>,
+            "visibility": "public" or "friends"
         }
         """
         data = json.loads(request.body)
@@ -89,6 +90,11 @@ class ReactionAdd(generics.GenericAPIView):
             return failure_response(f"Episode with id {episode_id} does not exist!")
         text = data.get("text")
         reaction = Reaction(episode=EpisodeDetail.objects.get(id=episode_id), text=text, author=request.user.profile)
+        visibility = data.get("visibility")
+        if visibility == VisibilityChoice.PUBLIC:
+            reaction.visibility = VisibilityChoice.PUBLIC
+        elif visibility == VisibilityChoice.FRIENDS:
+            reaction.visibility = VisibilityChoice.FRIENDS
         reaction.save()
         serializer = self.serializer_class(reaction)
         return success_response(serializer.data)
