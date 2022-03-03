@@ -46,6 +46,7 @@ from notification.views import NotificationTest
 from reaction.views import ReactionAdd
 from reaction.views import ReactionRemove
 from reaction.views import ReactionsForEpisode
+from reaction.views import ReactionsPerEpisodeForShow
 from read.views import ReadView
 from recommend.views import LstRecommendView
 from rest_framework import routers
@@ -109,6 +110,7 @@ urlpatterns = [
     path("search/", Search.as_view(), name="search"),
     path("show/<int:pk>/", ShowDetail.as_view(), name="show-detail"),
     path("show/<int:pk>/lsts/add/", AddShowToListsView.as_view(), name="add-show-to-list"),
+    path("show/<int:pk>/reactions/", ReactionsPerEpisodeForShow.as_view(), name="reactions-per-ep-for-show"),
     path("suggest/", CreateSuggestion.as_view(), name="private-suggestion"),
     path("suggestions/", SuggestionList.as_view(), name="private-suggestion-list"),
     path("suggestions/<int:pk>/like/", SuggestionLikeView.as_view(), name="like-private-suggestion"),

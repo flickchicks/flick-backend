@@ -7,9 +7,27 @@ from episode_detail.models import EpisodeDetail
 from friendship.models import Friend
 from reaction.serializers import ReactionSerializer
 from rest_framework import generics
+from show.models import Show
+from show.serializers import ShowSeasonDetailSerializer
 
 from .models import Reaction
 from .models import VisibilityChoice
+
+
+class ReactionsPerEpisodeForShow(generics.GenericAPIView):
+    queryset = Reaction.objects.all()
+    serializer_class = ShowSeasonDetailSerializer
+
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
+
+    def get(self, request, pk):
+        """
+        Given show id, get shortened list of reactions (in this case five).
+        Visibility of reactions by default is PUBLIC.
+        """
+        show = Show.objects.get(id=pk)
+        serializer = self.serializer_class(show)
+        return success_response(serializer.data)
 
 
 class ReactionsForEpisode(generics.GenericAPIView):
@@ -29,7 +47,15 @@ class ReactionsForEpisode(generics.GenericAPIView):
         data = json.loads(request.body)
         episode_id = data.get("episode_id")
         filter_by = data.get("filter_by").lower()
-        if filter_by == VisibilityChoice.PUBLIC:
+
+        if not filter_by:
+            public_reactions = Reaction.objects.filter(episode__id=episode_id, visibility=VisibilityChoice.PUBLIC)
+            friends = [friend.profile for friend in Friend.objects.friends(user=request.user)]
+            friend_reactions = Reaction.objects.filter(
+                episode__id=episode_id, visibility=VisibilityChoice.FRIENDS, author__in=friends
+            )
+            reactions = public_reactions | friend_reactions
+        elif filter_by == VisibilityChoice.PUBLIC:
             reactions = Reaction.objects.filter(episode__id=episode_id, visibility=VisibilityChoice.PUBLIC)
         elif filter_by == VisibilityChoice.FRIENDS:
             friends = [friend.profile for friend in Friend.objects.friends(user=request.user)]

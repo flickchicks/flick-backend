@@ -8,10 +8,22 @@ from group.models import Group
 from provider.serializers import ProviderSerializer
 from rest_framework import serializers
 from season_detail.serializers import SeasonDetailSerializer
+from season_detail.serializers import SeasonDetailShortenedEpisodeDetailsSerializer
 from tag.simple_serializers import TagSimpleSerializer
 from vote.models import VoteType
 
 from .models import Show
+
+
+class ShowSeasonDetailSerializer(serializers.ModelSerializer):
+    season_details = SeasonDetailShortenedEpisodeDetailsSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Show
+        fields = (
+            "id",
+            "season_details",
+        )
 
 
 class ShowSerializer(serializers.ModelSerializer):

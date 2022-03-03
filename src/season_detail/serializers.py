@@ -1,4 +1,5 @@
 from episode_detail.serializers import EpisodeDetailSerializer
+from episode_detail.serializers import EpisodeDetailShortenedReactionsSerializer
 from rest_framework import serializers
 from season_detail.models import SeasonDetail
 
@@ -9,3 +10,12 @@ class SeasonDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = SeasonDetail
         fields = ("id", "season_num", "episode_count", "ext_api_id", "poster_pic", "overview", "episode_details")
+
+
+class SeasonDetailShortenedEpisodeDetailsSerializer(serializers.ModelSerializer):
+    episode_details = EpisodeDetailShortenedReactionsSerializer(many=True)
+
+    class Meta:
+        model = SeasonDetail
+        fields = ("id", "episode_details")
+        read_only_fields = fields
