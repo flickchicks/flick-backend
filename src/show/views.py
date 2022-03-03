@@ -47,7 +47,6 @@ class ShowDetail(generics.GenericAPIView):
             utc = pytz.utc
             delta = datetime.now(tz=utc) - show.updated_at
             if delta > timedelta(days=7) or show.directors is None or self.is_tv_and_has_no_season_details(show):
-                print("about to populate!")
                 populate_show_details(show.id)
         except Exception as e:
             return failure_response(message=f"Oh no! {e}")
