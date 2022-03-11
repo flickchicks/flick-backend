@@ -46,7 +46,7 @@ class ShowDetail(generics.GenericAPIView):
             show = Show.objects.get(pk=pk)
             utc = pytz.utc
             delta = datetime.now(tz=utc) - show.updated_at
-            if delta > timedelta(days=7) or show.directors is None or self.has_no_season_details(show):
+            if delta > timedelta(days=7) or self.has_no_season_details(show):
                 populate_show_details(show.id)
         except Exception as e:
             return failure_response(message=f"Oh no! {e}")
