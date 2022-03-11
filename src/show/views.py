@@ -35,8 +35,8 @@ class ShowDetail(generics.GenericAPIView):
 
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
-    def is_tv_and_has_no_season_details(self, show):
-        return show.is_tv and not show.season_details.exists()
+    def has_no_season_details(self, show):
+        return not show.season_details.exists()
 
     def get(self, request, pk):
         """Get a specific show by id. Comes with user rating, friend rating, and comments."""
@@ -46,7 +46,7 @@ class ShowDetail(generics.GenericAPIView):
             show = Show.objects.get(pk=pk)
             utc = pytz.utc
             delta = datetime.now(tz=utc) - show.updated_at
-            if delta > timedelta(days=7) or show.directors is None or self.is_tv_and_has_no_season_details(show):
+            if delta > timedelta(days=7) or self.has_no_season_details(show):
                 populate_show_details(show.id)
         except Exception as e:
             return failure_response(message=f"Oh no! {e}")

@@ -2,8 +2,8 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 from celery import shared_task
+from celery.utils.log import get_task_logger
 import flick.settings as settings
-from imdb import IMDb
 from provider.models import Provider
 from show.animelist import flickanimelist
 from show.models import Show
@@ -16,6 +16,8 @@ import tmdbsimple as tmdb
 # logger = get_task_logger(__name__)
 # logger.info("hello world")
 
+logger = get_task_logger(__name__)
+
 
 @shared_task
 def populate_show_details(show_id):
@@ -23,7 +25,6 @@ def populate_show_details(show_id):
     if not show:
         return
     show = Show.objects.get(id=show_id)
-    imdb_api = IMDb()
     info = None
     if show.ext_api_source == "tmdb" and show.is_tv is True:
         info = flicktmdb().get_show(show.ext_api_id, is_tv=True)
@@ -31,10 +32,8 @@ def populate_show_details(show_id):
         info = flicktmdb().get_show(show.ext_api_id, is_tv=False)
     elif show.ext_api_source == "animelist":
         info = flickanimelist().get_anime(show.ext_api_id)
-
     if not info:
         return
-
     show.cast = info.get("cast")
     show.trailer_keys = info.get("trailer_keys")
     show.image_keys = info.get("image_keys")
@@ -77,10 +76,12 @@ def populate_show_details(show_id):
                     ext_api_id=season.get("id"),
                     poster_pic=f"{settings.TMDB_BASE_IMAGE_URL}{season.get('poster_path')}",
                     overview=season.get("overview"),
+                    is_default=False,
                 )
                 try:
                     for episode in season.get("episodes"):
                         season_detail.episode_details.create(
+                            is_default=False,
                             episode_num=episode.get("episode_number"),
                             name=episode.get("name"),
                             overview=episode.get("overview"),
@@ -89,10 +90,16 @@ def populate_show_details(show_id):
                     continue
             except Exception as e:
                 continue
+    if show.is_tv is False:
+        try:
+            default_season_detail = show.season_details.create(episode_count=1, is_default=True)
+            default_season_detail.episode_details.create(is_default=True)
+        except Exception as e:
+            logger.info(str(e))
 
     imdb_id = info.get("imdb_id")
     if imdb_id:
         imdb_id = imdb_id[2:]
-        imdb_rating = imdb_api.get_movie(imdb_id).get("rating")
+        imdb_rating = flicktmdb().get_movie(imdb_id).get("rating")
         show.imdb_rating = imdb_rating
     show.save()
