@@ -85,6 +85,7 @@ def populate_show_details(show_id):
                             episode_num=episode.get("episode_number"),
                             name=episode.get("name"),
                             overview=episode.get("overview"),
+                            ext_api_id=episode.get("ext_api_id"),
                         )
                 except Exception as e:
                     continue
@@ -97,9 +98,9 @@ def populate_show_details(show_id):
         except Exception as e:
             logger.info(str(e))
 
-    imdb_id = info.get("imdb_id")
-    if imdb_id:
-        imdb_id = imdb_id[2:]
-        imdb_rating = flicktmdb().get_movie(imdb_id).get("rating")
-        show.imdb_rating = imdb_rating
+    # imdb_id = info.get("imdb_id")
+    # if imdb_id:
+    #     imdb_id = imdb_id[2:]
+    #     imdb_rating = flicktmdb().get_movie(imdb_id).get("rating")
+    #     show.imdb_rating = imdb_rating
     show.save()

@@ -69,6 +69,7 @@ class flicktmdb:
                         "episode_number": episode.get("episode_number"),
                         "name": episode.get("name"),
                         "overview": episode.get("overview"),
+                        "ext_api_id": episode.get("id"),
                     }
                 )
             season_with_episode = dict(season, episodes=episode_details)
