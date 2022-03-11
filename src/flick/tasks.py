@@ -12,6 +12,9 @@ from tag.models import Tag
 import tmdbsimple as tmdb
 
 # If you want to print, you need to log these and they will appear in the celery terminal process
+# from celery.utils.log import get_task_logger
+# logger = get_task_logger(__name__)
+# logger.info("hello world")
 
 logger = get_task_logger(__name__)
 
