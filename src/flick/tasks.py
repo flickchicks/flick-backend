@@ -79,8 +79,12 @@ def populate_show_details(show_id):
                     overview=season.get("overview"),
                 )
                 try:
-                    for e in range(1, season.get("episode_count") + 1):
-                        season_detail.episode_details.create(episode_num=e)
+                    for episode in season.get("episodes"):
+                        season_detail.episode_details.create(
+                            episode_num=episode.get("episode_number"),
+                            name=episode.get("name"),
+                            overview=episode.get("overview"),
+                        )
                 except Exception as e:
                     continue
             except Exception as e:

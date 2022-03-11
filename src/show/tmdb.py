@@ -23,6 +23,7 @@ class flicktmdb:
         trailer_keys = self.get_trailers(tmdb_id, is_tv)
         image_keys = self.get_images(tmdb_id, is_tv)
         seasons_details = result.get("seasons")
+        seasons_details_with_episode = self.get_seasons_details_with_episode(tmdb_id, is_tv, seasons_details)
         return {
             "backdrop_pic": settings.TMDB_BASE_IMAGE_URL + backdrop_path if backdrop_path else None,
             "cast": credits.get("cast"),
@@ -47,8 +48,32 @@ class flicktmdb:
             "title": result.get("name" if is_tv else "title"),
             "trailer_keys": trailer_keys,
             "image_keys": image_keys,
-            "seasons_details": seasons_details if is_tv else [],
+            "seasons_details": seasons_details_with_episode,
         }
+
+    def get_seasons_details_with_episode(self, tmdb_id, is_tv, seasons_details):
+        if not is_tv:
+            return []
+        seasons_details_with_apisode = []
+        for season in seasons_details:
+            season_num = season.get("season_number")
+            episode_details = []
+            for e in range(1, season.get("episode_count") + 1):
+                url = f"{settings.TMDB_BASE_URL}/tv/{tmdb_id}/season/{season_num}/episode/{e}?api_key={settings.TMDB_API_KEY}"
+                r = requests.get(url)
+                if r.status_code != 200:
+                    continue
+                episode = json.loads(r.content)
+                episode_details.append(
+                    {
+                        "episode_number": episode.get("episode_number"),
+                        "name": episode.get("name"),
+                        "overview": episode.get("overview"),
+                    }
+                )
+            season_with_episode = dict(season, episodes=episode_details)
+            seasons_details_with_apisode.append(season_with_episode)
+        return seasons_details_with_apisode
 
     def get_credits(self, tmdb_id, is_tv=False):
         show_type = "tv" if is_tv else "movie"
