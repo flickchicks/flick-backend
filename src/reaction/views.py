@@ -79,8 +79,8 @@ class ReactionDetail(generics.GenericAPIView):
         """Get a reaction by id. Comes with thoughts and has_liked."""
         if not Reaction.objects.filter(pk=pk):
             return failure_response(f"Reaction of id {pk} does not exist.")
-        show = Reaction.objects.get(pk=pk)
-        return success_response(self.serializer_class(show, context={"request": request}).data)
+        reaction = Reaction.objects.get(pk=pk)
+        return success_response(self.serializer_class(reaction, context={"request": request}).data)
 
 
 class ReactionAdd(generics.GenericAPIView):
@@ -103,6 +103,8 @@ class ReactionAdd(generics.GenericAPIView):
         episode_id = data.get("episode_id")
         if not EpisodeDetail.objects.filter(id=episode_id).exists():
             return failure_response(f"Episode with id {episode_id} does not exist!")
+        if request is None:
+            return failure_response("request is None")
         text = data.get("text")
         reaction = Reaction(episode=EpisodeDetail.objects.get(id=episode_id), text=text, author=request.user.profile)
         visibility = data.get("visibility")
@@ -111,7 +113,7 @@ class ReactionAdd(generics.GenericAPIView):
         elif visibility == VisibilityChoice.FRIENDS:
             reaction.visibility = VisibilityChoice.FRIENDS
         reaction.save()
-        serializer = self.serializer_class(reaction)
+        serializer = self.serializer_class(reaction, context={"request": request})
         return success_response(serializer.data)
 
 

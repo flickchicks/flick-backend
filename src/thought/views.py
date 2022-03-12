@@ -28,12 +28,12 @@ class ThoughtAdd(generics.GenericAPIView):
         data = json.loads(request.body)
         reaction_id = data.get("reaction_id")
         if not Reaction.objects.filter(id=reaction_id).exists():
-            return failure_response(f"Episode with id {reaction_id} does not exist!")
+            return failure_response(f"Reaction with id {reaction_id} does not exist!")
         reaction = Reaction.objects.get(id=reaction_id)
         text = data.get("text")
         thought = Thought(reaction=reaction, text=text, author=request.user.profile)
         thought.save()
-        serializer = self.serializer_class(thought)
+        serializer = self.serializer_class(thought, context={"request": request})
         return success_response(serializer.data)
 
 

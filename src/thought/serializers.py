@@ -6,7 +6,7 @@ from .models import Thought
 
 
 class ThoughtSerializer(serializers.ModelSerializer):
-    owner = ProfileSimpleSerializer(many=False)
+    author = ProfileSimpleSerializer(many=False)
     has_liked = serializers.SerializerMethodField(method_name="get_has_liked")
 
     class Meta:
