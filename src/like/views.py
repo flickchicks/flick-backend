@@ -135,15 +135,6 @@ class SuggestionLikeView(generics.GenericAPIView):
 class ReactionLikeView(generics.GenericAPIView):
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
-    # def _create_reaction_like_notification(self, from_user, to_user, reaction):
-    #     from_profile = Profile.objects.get(user=from_user)
-    #     notif = Notification()
-    #     notif.notif_type = "reaction_like"
-    #     notif.from_user = from_profile
-    #     notif.to_user = to_user
-    #     notif.reaction = reaction
-    #     notif.save()
-
     def _create_like(self, reaction, liker_profile):
         like = Like()
         like.reaction = reaction
@@ -159,8 +150,6 @@ class ReactionLikeView(generics.GenericAPIView):
         if not existing_like:
             self._create_like(reaction, profile)
             reaction.num_likes += 1
-            # if request.user.id != suggestion.from_user.user.id:
-            #     self._create_suggestion_like_notification(user, suggestion.from_user, suggestion)
         else:
             reaction.num_likes -= 1
             existing_like.delete()
@@ -172,15 +161,6 @@ class ReactionLikeView(generics.GenericAPIView):
 
 class ThoughtLikeView(generics.GenericAPIView):
     permission_classes = api_settings.CONSUMER_PERMISSIONS
-
-    # def _create_reaction_like_notification(self, from_user, to_user, reaction):
-    #     from_profile = Profile.objects.get(user=from_user)
-    #     notif = Notification()
-    #     notif.notif_type = "reaction_like"
-    #     notif.from_user = from_profile
-    #     notif.to_user = to_user
-    #     notif.reaction = reaction
-    #     notif.save()
 
     def _create_like(self, thought, liker_profile):
         like = Like()
@@ -197,8 +177,6 @@ class ThoughtLikeView(generics.GenericAPIView):
         if not existing_like:
             self._create_like(thought, profile)
             thought.num_likes += 1
-            # if request.user.id != suggestion.from_user.user.id:
-            #     self._create_suggestion_like_notification(user, suggestion.from_user, suggestion)
         else:
             thought.num_likes -= 1
             existing_like.delete()
