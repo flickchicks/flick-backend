@@ -58,12 +58,12 @@ class flicktmdb:
         for season in seasons_details:
             season_num = season.get("season_number")
             episode_details = []
-            for e in range(1, season.get("episode_count") + 1):
-                url = f"{settings.TMDB_BASE_URL}/tv/{tmdb_id}/season/{season_num}/episode/{e}?api_key={settings.TMDB_API_KEY}"
-                r = requests.get(url)
-                if r.status_code != 200:
-                    continue
-                episode = json.loads(r.content)
+            url = f"{settings.TMDB_BASE_URL}/tv/{tmdb_id}/season/{season_num}?api_key={settings.TMDB_API_KEY}"
+            r = requests.get(url)
+            if r.status_code != 200:
+                continue
+            season_info = json.loads(r.content)
+            for episode in season_info.get("episodes"):
                 episode_details.append(
                     {
                         "episode_number": episode.get("episode_number"),
@@ -72,7 +72,7 @@ class flicktmdb:
                         "ext_api_id": episode.get("id"),
                     }
                 )
-            season_with_episode = dict(season, episodes=episode_details)
+            season_with_episode = dict(season, episodes=episode_details, overview=season_info.get("overview"))
             seasons_details_with_episode.append(season_with_episode)
         return seasons_details_with_episode
 
