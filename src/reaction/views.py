@@ -5,6 +5,7 @@ from api.utils import failure_response
 from api.utils import success_response
 from episode_detail.models import EpisodeDetail
 from friendship.models import Friend
+from reaction.serializers import ReactionDetailSerializer
 from reaction.serializers import ReactionSerializer
 from rest_framework import generics
 from show.models import Show
@@ -66,6 +67,20 @@ class ReactionsForEpisode(generics.GenericAPIView):
             return failure_response(f"filter_by must be '{VisibilityChoice.PUBLIC}' or '{VisibilityChoice.FRIENDS}'!")
         serializer = self.serializer_class(reactions, many=True)
         return success_response(serializer.data)
+
+
+class ReactionDetail(generics.GenericAPIView):
+    queryset = Reaction.objects.all()
+    serializer_class = ReactionDetailSerializer
+
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
+
+    def get(self, request, pk):
+        """Get a reaction by id. Comes with thoughts and has_liked."""
+        if not Reaction.objects.filter(pk=pk):
+            return failure_response(f"Reaction of id {pk} does not exist.")
+        show = Reaction.objects.get(pk=pk)
+        return success_response(self.serializer_class(show, context={"request": request}).data)
 
 
 class ReactionAdd(generics.GenericAPIView):
