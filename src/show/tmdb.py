@@ -54,7 +54,7 @@ class flicktmdb:
     def get_seasons_details_with_episode(self, tmdb_id, is_tv, seasons_details):
         if not is_tv:
             return []
-        seasons_details_with_apisode = []
+        seasons_details_with_episode = []
         for season in seasons_details:
             season_num = season.get("season_number")
             episode_details = []
@@ -73,8 +73,8 @@ class flicktmdb:
                     }
                 )
             season_with_episode = dict(season, episodes=episode_details)
-            seasons_details_with_apisode.append(season_with_episode)
-        return seasons_details_with_apisode
+            seasons_details_with_episode.append(season_with_episode)
+        return seasons_details_with_episode
 
     def get_credits(self, tmdb_id, is_tv=False):
         show_type = "tv" if is_tv else "movie"
