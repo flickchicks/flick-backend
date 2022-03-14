@@ -112,9 +112,11 @@ class ShowFriendCompetitionView(generics.GenericAPIView):
         friends_with_reactions = friend_reactions.values_list("author__id", flat=True).distinct().order_by()
         lastest_reactions = []
         for friend in friends_with_reactions:
-            friend_latest_reaction = friend_reactions.filter(author=friend).order_by(
-                "-episode__episode_num", "-episode__season__season_num"
+            friend_latest_reaction = (
+                friend_reactions.filter(author=friend)
+                .order_by("-episode__episode_num", "-episode__season__season_num")
+                .first()
             )
-            lastest_reactions.append(friend_latest_reaction.first())
+            lastest_reactions.append(friend_latest_reaction)
         serializer = ReactionCompetitionSerializer(instance=lastest_reactions, many=True)
         return success_response(serializer.data)
