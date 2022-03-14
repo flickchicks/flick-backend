@@ -14,7 +14,7 @@ class EpisodeDetailShortenedReactionsSerializer(serializers.ModelSerializer):
     reactions = serializers.SerializerMethodField("get_subset_of_reactions")
 
     def get_subset_of_reactions(self, obj):
-        reactions = obj.reactions.filter(visibility=VisibilityChoice.PUBLIC).order_by("author", "-updated_at")
+        reactions = obj.reactions.filter(visibility=VisibilityChoice.PUBLIC).order_by("-updated_at", "author")
         if reactions.count() < 10:
             return ReactionSerializer(instance=reactions, many=True).data
         else:
@@ -23,8 +23,7 @@ class EpisodeDetailShortenedReactionsSerializer(serializers.ModelSerializer):
             for author in authors:
                 reaction = reactions.filter(author=author).first()
                 distinct_reactions.append(reaction), reaction_ids.append(reaction.id)
-            if authors.count() < 10:
-                additional_reactions = reactions.exclude(id__in=reaction_ids)[: 10 - authors.count()]
+            additional_reactions = obj.reactions.exclude(id__in=reaction_ids)[: 10 - authors.count()]
             return ReactionSerializer(instance=distinct_reactions + list(additional_reactions), many=True).data
 
     class Meta:
