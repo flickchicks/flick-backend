@@ -53,6 +53,7 @@ from rest_framework import routers
 from search.views import Search
 from show.views import AddShowToListsView
 from show.views import ShowDetail
+from show.views import ShowFriendCompetitionView
 from show.views import ShowViewSet
 from suggestion.views import CreateSuggestion
 from suggestion.views import SuggestionList
@@ -111,6 +112,7 @@ urlpatterns = [
     path("show/<int:pk>/", ShowDetail.as_view(), name="show-detail"),
     path("show/<int:pk>/lsts/add/", AddShowToListsView.as_view(), name="add-show-to-list"),
     path("show/<int:pk>/reactions/", ReactionsPerEpisodeForShow.as_view(), name="reactions-per-ep-for-show"),
+    path("show/<int:pk>/competition/", ShowFriendCompetitionView.as_view(), name="friend-competition-for-show"),
     path("suggest/", CreateSuggestion.as_view(), name="private-suggestion"),
     path("suggestions/", SuggestionList.as_view(), name="private-suggestion-list"),
     path("suggestions/<int:pk>/like/", SuggestionLikeView.as_view(), name="like-private-suggestion"),
