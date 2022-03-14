@@ -23,9 +23,8 @@ class EpisodeDetailShortenedReactionsSerializer(serializers.ModelSerializer):
             for author in authors:
                 reaction = reactions.filter(author=author).first()
                 distinct_reactions.append(reaction), reaction_ids.append(reaction.id)
-            if len(distinct_reactions) < 10:
-                additional_reactions = reactions.exclude(id__in=reaction_ids)[: 10 - len(distinct_reactions)]
-
+            if authors.count() < 10:
+                additional_reactions = reactions.exclude(id__in=reaction_ids)[: 10 - authors.count()]
             return ReactionSerializer(instance=distinct_reactions + list(additional_reactions), many=True).data
 
     class Meta:
