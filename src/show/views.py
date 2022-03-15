@@ -10,7 +10,7 @@ from flick.tasks import populate_show_details
 from friendship.models import Friend
 import pytz
 from reaction.models import Reaction
-from reaction.serializers import ReactionCompetitionSerializer
+from reaction.serializers import ReactionFriendsProgressSerializer
 from rest_framework import generics
 from rest_framework import mixins
 from rest_framework import viewsets
@@ -105,7 +105,7 @@ class AddShowToListsView(generics.GenericAPIView):
         return success_response()
 
 
-class ShowFriendCompetitionView(generics.GenericAPIView):
+class ShowFriendProgressView(generics.GenericAPIView):
     def get(self, request, pk):
         friends = Friend.objects.friends(user=request.user)
         friend_reactions = Reaction.objects.filter(episode__season__show__id=pk).filter(author__user__in=friends)
@@ -118,5 +118,5 @@ class ShowFriendCompetitionView(generics.GenericAPIView):
                 .first()
             )
             lastest_reactions.append(friend_latest_reaction)
-        serializer = ReactionCompetitionSerializer(instance=lastest_reactions, many=True)
+        serializer = ReactionFriendsProgressSerializer(instance=lastest_reactions, many=True)
         return success_response(serializer.data)

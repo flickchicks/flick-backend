@@ -17,7 +17,7 @@ class ReactionSerializer(serializers.ModelSerializer):
         fields = ("id", "text", "author", "visibility", "created_at", "updated_at")
 
 
-class ReactionCompetitionSerializer(serializers.ModelSerializer):
+class ReactionFriendsProgressSerializer(serializers.ModelSerializer):
     user = ProfileSimpleSerializer(many=False, source="author")
     episode = EpisodeSimpleSerializer(many=False)
 
