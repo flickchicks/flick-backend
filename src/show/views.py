@@ -105,7 +105,7 @@ class AddShowToListsView(generics.GenericAPIView):
         return success_response()
 
 
-class ShowFriendProgressView(generics.GenericAPIView):
+class ShowFriendsProgressView(generics.GenericAPIView):
     def get(self, request, pk):
         friends = Friend.objects.friends(user=request.user)
         friend_reactions = Reaction.objects.filter(episode__season__show__id=pk).filter(author__user__in=friends)
