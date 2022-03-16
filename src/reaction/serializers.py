@@ -1,6 +1,7 @@
 from user.profile_simple_serializers import ProfileSimpleSerializer
 
 from django.forms import ChoiceField
+from episode_detail.simple_serializers import EpisodeSimpleSerializer
 from rest_framework import serializers
 from thought.serializers import ThoughtSerializer
 
@@ -47,3 +48,12 @@ class ReactionDetailSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         has_liked = instance.likers.filter(liker=request.user.profile).exists()
         return has_liked
+
+
+class ReactionFriendsProgressSerializer(serializers.ModelSerializer):
+    user = ProfileSimpleSerializer(many=False, source="author")
+    episode = EpisodeSimpleSerializer(many=False)
+
+    class Meta:
+        model = Reaction
+        fields = ("user", "episode")

@@ -7,7 +7,10 @@ from api import settings as api_settings
 from api.utils import failure_response
 from api.utils import success_response
 from flick.tasks import populate_show_details
+from friendship.models import Friend
 import pytz
+from reaction.models import Reaction
+from reaction.serializers import ReactionFriendsProgressSerializer
 from rest_framework import generics
 from rest_framework import mixins
 from rest_framework import viewsets
@@ -100,3 +103,20 @@ class AddShowToListsView(generics.GenericAPIView):
         list_ids = data.get("list_ids")
         add_show_to_lsts.delay(show_id=pk, list_ids=list_ids, user_id=request.user.id)
         return success_response()
+
+
+class ShowFriendsProgressView(generics.GenericAPIView):
+    def get(self, request, pk):
+        friends = Friend.objects.friends(user=request.user)
+        friend_reactions = Reaction.objects.filter(episode__season__show__id=pk).filter(author__user__in=friends)
+        friends_with_reactions = friend_reactions.values_list("author__id", flat=True).distinct().order_by()
+        lastest_reactions = []
+        for friend in friends_with_reactions:
+            friend_latest_reaction = (
+                friend_reactions.filter(author=friend)
+                .order_by("-episode__episode_num", "-episode__season__season_num")
+                .first()
+            )
+            lastest_reactions.append(friend_latest_reaction)
+        serializer = ReactionFriendsProgressSerializer(instance=lastest_reactions, many=True)
+        return success_response(serializer.data)
