@@ -15,7 +15,7 @@ class ReactionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Reaction
-        fields = ("id", "text", "author", "visibility", "has_liked")
+        fields = ("id", "text", "author", "visibility", "has_liked", "created_at", "updated_at")
 
     def get_has_liked(self, instance):
         request = self.context.get("request")
@@ -31,7 +31,17 @@ class ReactionDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Reaction
-        fields = ("id", "text", "author", "visibility", "num_likes", "has_liked", "thoughts")
+        fields = (
+            "id",
+            "text",
+            "author",
+            "visibility",
+            "num_likes",
+            "has_liked",
+            "thoughts",
+            "created_at",
+            "updated_at",
+        )
 
     def get_has_liked(self, instance):
         request = self.context.get("request")
