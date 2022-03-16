@@ -19,5 +19,6 @@ class Reaction(models.Model):
     text = models.TextField(null=True, blank=True)
     author = models.ForeignKey(Profile, related_name="reaction", on_delete=models.CASCADE)
     visibility = models.CharField(max_length=20, choices=VisibilityChoice.choices, default=VisibilityChoice.PUBLIC)
+    num_likes = models.IntegerField(default=0, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

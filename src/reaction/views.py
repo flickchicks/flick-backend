@@ -5,6 +5,7 @@ from api.utils import failure_response
 from api.utils import success_response
 from episode_detail.models import EpisodeDetail
 from friendship.models import Friend
+from reaction.serializers import ReactionDetailSerializer
 from reaction.serializers import ReactionSerializer
 from rest_framework import generics
 from show.models import Show
@@ -68,6 +69,20 @@ class ReactionsForEpisode(generics.GenericAPIView):
         return success_response(serializer.data)
 
 
+class ReactionDetail(generics.GenericAPIView):
+    queryset = Reaction.objects.all()
+    serializer_class = ReactionDetailSerializer
+
+    permission_classes = api_settings.CONSUMER_PERMISSIONS
+
+    def get(self, request, pk):
+        """Get a reaction by id. Comes with thoughts and has_liked."""
+        if not Reaction.objects.filter(pk=pk):
+            return failure_response(f"Reaction of id {pk} does not exist.")
+        reaction = Reaction.objects.get(pk=pk)
+        return success_response(self.serializer_class(reaction, context={"request": request}).data)
+
+
 class ReactionAdd(generics.GenericAPIView):
 
     queryset = Reaction.objects.all()
@@ -88,6 +103,8 @@ class ReactionAdd(generics.GenericAPIView):
         episode_id = data.get("episode_id")
         if not EpisodeDetail.objects.filter(id=episode_id).exists():
             return failure_response(f"Episode with id {episode_id} does not exist!")
+        if request is None:
+            return failure_response("request is None")
         text = data.get("text")
         reaction = Reaction(episode=EpisodeDetail.objects.get(id=episode_id), text=text, author=request.user.profile)
         visibility = data.get("visibility")
@@ -96,7 +113,7 @@ class ReactionAdd(generics.GenericAPIView):
         elif visibility == VisibilityChoice.FRIENDS:
             reaction.visibility = VisibilityChoice.FRIENDS
         reaction.save()
-        serializer = self.serializer_class(reaction)
+        serializer = self.serializer_class(reaction, context={"request": request})
         return success_response(serializer.data)
 
 

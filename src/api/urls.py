@@ -33,7 +33,9 @@ from group.views import GroupShowsRemove
 from group.views import GroupVoteShow
 from like.views import LikeView
 from like.views import LstLikeView
+from like.views import ReactionLikeView
 from like.views import SuggestionLikeView
+from like.views import ThoughtLikeView
 from lst.views import LstDetail
 from lst.views import LstDetailAdd
 from lst.views import LstDetailRemove
@@ -44,6 +46,7 @@ from notification.views import NotificationEnable
 from notification.views import NotificationList
 from notification.views import NotificationTest
 from reaction.views import ReactionAdd
+from reaction.views import ReactionDetail
 from reaction.views import ReactionRemove
 from reaction.views import ReactionsForEpisode
 from reaction.views import ReactionsPerEpisodeForShow
@@ -59,6 +62,7 @@ from suggestion.views import CreateSuggestion
 from suggestion.views import SuggestionList
 from tag.views import TagDetail
 from tag.views import TagList
+from thought.views import ThoughtAdd
 from upload.views import UploadImage
 
 router = routers.DefaultRouter()
@@ -107,6 +111,8 @@ urlpatterns = [
     path("media/image/", UploadImage.as_view(), name="upload"),
     path("reactions/", ReactionsForEpisode.as_view(), name="reactions-for-ep"),
     path("reactions/add/", ReactionAdd.as_view(), name="add-reaction"),
+    path("reactions/<int:pk>/", ReactionDetail.as_view(), name="reaction-detail"),
+    path("reactions/<int:pk>/like/", ReactionLikeView.as_view(), name="like-reaction"),
     path("reactions/<int:pk>/remove/", ReactionRemove.as_view(), name="remove-reaction"),
     path("search/", Search.as_view(), name="search"),
     path("show/<int:pk>/", ShowDetail.as_view(), name="show-detail"),
@@ -118,6 +124,9 @@ urlpatterns = [
     path("suggestions/<int:pk>/like/", SuggestionLikeView.as_view(), name="like-private-suggestion"),
     path("tags/", TagList.as_view(), name="tag-list"),
     path("tags/<int:pk>/", TagDetail.as_view(), name="tag-detail"),
+    path("thoughts/add/", ThoughtAdd.as_view(), name="add-thought"),
+    path("thoughts/remove/", ThoughtAdd.as_view(), name="remove-thought"),
+    path("thoughts/<int:pk>/like/", ThoughtLikeView.as_view(), name="like-thought"),
     path("user/<int:pk>/", UserProfileView.as_view(), name="user-profile"),
     path("user/<int:pk>/liked-lists/", UserLikedLstsView.as_view(), name="user-liked-lists"),
     path("user/<int:pk>/friends/", UserFriendList.as_view(), name="user-friend-list"),
