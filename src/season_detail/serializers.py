@@ -17,5 +17,5 @@ class SeasonDetailShortenedEpisodeDetailsSerializer(serializers.ModelSerializer)
 
     class Meta:
         model = SeasonDetail
-        fields = ("id", "episode_details")
+        fields = ("id", "season_num", "episode_details")
         read_only_fields = fields
