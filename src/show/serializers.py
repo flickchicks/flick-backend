@@ -25,6 +25,10 @@ class ShowSeasonDetailSerializer(serializers.ModelSerializer):
             "season_details",
         )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["season_details"].context.update(self.context)
+
 
 class ShowSerializer(serializers.ModelSerializer):
     tags = TagSimpleSerializer(read_only=True, many=True)
