@@ -8,13 +8,9 @@ from comment.serializers import CommentSerializer
 from lst.models import Lst
 from lst.serializers import LstWithSimpleShowsSerializer
 from notification.models import Notification
-from reaction.models import Reaction
-from reaction.serializers import ReactionSerializer
 from rest_framework import generics
 from suggestion.models import PrivateSuggestion
 from suggestion.serializers import PrivateSuggestionSerializer
-from thought.models import Thought
-from thought.serializers import ThoughtSerializer
 
 from .models import Like
 
@@ -130,57 +126,3 @@ class SuggestionLikeView(generics.GenericAPIView):
 
         suggestion_data = PrivateSuggestionSerializer(suggestion, context={"request": request}).data
         return success_response(suggestion_data)
-
-
-class ReactionLikeView(generics.GenericAPIView):
-    permission_classes = api_settings.CONSUMER_PERMISSIONS
-
-    def _create_like(self, reaction, liker_profile):
-        like = Like()
-        like.reaction = reaction
-        like.like_type = "reaction_like"
-        like.liker = liker_profile
-        like.save()
-
-    def post(self, request, pk):
-        reaction = Reaction.objects.get(pk=pk)
-        user = request.user
-        profile = Profile.objects.get(user=user)
-        existing_like = reaction.likers.filter(liker=profile)
-        if not existing_like:
-            self._create_like(reaction, profile)
-            reaction.num_likes += 1
-        else:
-            reaction.num_likes -= 1
-            existing_like.delete()
-
-        reaction.save(update_fields=["num_likes"])
-        reaction_data = ReactionSerializer(reaction, context={"request": request}).data
-        return success_response(reaction_data)
-
-
-class ThoughtLikeView(generics.GenericAPIView):
-    permission_classes = api_settings.CONSUMER_PERMISSIONS
-
-    def _create_like(self, thought, liker_profile):
-        like = Like()
-        like.thought = thought
-        like.like_type = "thought_like"
-        like.liker = liker_profile
-        like.save()
-
-    def post(self, request, pk):
-        thought = Thought.objects.get(pk=pk)
-        user = request.user
-        profile = Profile.objects.get(user=user)
-        existing_like = thought.likers.filter(liker=profile)
-        if not existing_like:
-            self._create_like(thought, profile)
-            thought.num_likes += 1
-        else:
-            thought.num_likes -= 1
-            existing_like.delete()
-
-        thought.save(update_fields=["num_likes"])
-        thought_data = ThoughtSerializer(thought, context={"request": request}).data
-        return success_response(thought_data)
