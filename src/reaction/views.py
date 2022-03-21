@@ -27,7 +27,7 @@ class ReactionsPerEpisodeForShow(generics.GenericAPIView):
         Visibility of reactions by default is PUBLIC.
         """
         show = Show.objects.get(id=pk)
-        serializer = self.serializer_class(show, context={"request": request})
+        serializer = self.serializer_class(show)
         return success_response(serializer.data)
 
 
@@ -65,7 +65,7 @@ class ReactionsForEpisode(generics.GenericAPIView):
             )
         else:
             return failure_response(f"filter_by must be '{VisibilityChoice.PUBLIC}' or '{VisibilityChoice.FRIENDS}'!")
-        serializer = self.serializer_class(reactions, many=True, context={"request": request})
+        serializer = self.serializer_class(reactions, many=True)
         return success_response(serializer.data)
 
 
