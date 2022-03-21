@@ -19,7 +19,3 @@ class SeasonDetailShortenedEpisodeDetailsSerializer(serializers.ModelSerializer)
         model = SeasonDetail
         fields = ("id", "episode_details")
         read_only_fields = fields
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["episode_details"].context.update(self.context)
