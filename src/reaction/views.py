@@ -33,7 +33,7 @@ class ReactionsPerEpisodeForShow(generics.GenericAPIView):
 
 class ReactionsForEpisode(generics.GenericAPIView):
     queryset = Reaction.objects.all()
-    serializer_class = ReactionSerializer
+    serializer_class = ReactionDetailSerializer
 
     permission_classes = api_settings.CONSUMER_PERMISSIONS
 
