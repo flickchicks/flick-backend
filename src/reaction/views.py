@@ -55,9 +55,7 @@ class ReactionsForEpisode(generics.GenericAPIView):
             friend_reactions = Reaction.objects.filter(
                 episode__id=episode_id, visibility=VisibilityChoice.FRIENDS, author__in=friends
             )
-            user_reactions = Reaction.objects.filter(
-                episode__id=episode_id, visibility=VisibilityChoice.FRIENDS, author=request.user.profile
-            )
+            user_reactions = Reaction.objects.filter(episode__id=episode_id, author=request.user.profile)
             reactions = public_reactions | friend_reactions | user_reactions
         elif filter_by == VisibilityChoice.PUBLIC:
             reactions = Reaction.objects.filter(episode__id=episode_id, visibility=VisibilityChoice.PUBLIC)
