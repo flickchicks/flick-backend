@@ -1,4 +1,5 @@
 from episode_detail.models import EpisodeDetail
+from friendship.models import Friend
 from reaction.models import VisibilityChoice
 from reaction.serializers import ReactionSerializer
 from rest_framework import serializers
@@ -15,7 +16,14 @@ class EpisodeDetailShortenedReactionsSerializer(serializers.ModelSerializer):
 
     def get_subset_of_reactions(self, obj):
         serializer_context = {"request": self.context.get("request")}
-        reactions = obj.reactions.filter(visibility=VisibilityChoice.PUBLIC).order_by("-updated_at", "author")
+        request_user = serializer_context["request"].user
+        public_reactions = obj.reactions.filter(visibility=VisibilityChoice.PUBLIC)
+        friends = [friend.profile for friend in Friend.objects.friends(user=request_user)]
+        friend_reactions = obj.reactions.filter(visibility=VisibilityChoice.FRIENDS, author__in=friends)
+        user_reactions = obj.reactions.filter(author=request_user.profile)
+        reactions = public_reactions | friend_reactions | user_reactions
+        reactions = reactions.order_by("-updated_at", "author")
+
         if reactions.count() < 10:
             return ReactionSerializer(instance=reactions, many=True, context=serializer_context).data
         else:
