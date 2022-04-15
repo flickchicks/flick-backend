@@ -49,13 +49,14 @@ class ReactionsForEpisode(generics.GenericAPIView):
         episode_id = data.get("episode_id")
         filter_by = data.get("filter_by").lower()
 
+        user_reactions = Reaction.objects.filter(episode__id=episode_id, author=request.user.profile)
+
         if not filter_by:
             public_reactions = Reaction.objects.filter(episode__id=episode_id, visibility=VisibilityChoice.PUBLIC)
             friends = [friend.profile for friend in Friend.objects.friends(user=request.user)]
             friend_reactions = Reaction.objects.filter(
                 episode__id=episode_id, visibility=VisibilityChoice.FRIENDS, author__in=friends
             )
-            user_reactions = Reaction.objects.filter(episode__id=episode_id, author=request.user.profile)
             reactions = public_reactions | friend_reactions | user_reactions
         elif filter_by == VisibilityChoice.PUBLIC:
             reactions = Reaction.objects.filter(episode__id=episode_id, visibility=VisibilityChoice.PUBLIC)
@@ -66,6 +67,7 @@ class ReactionsForEpisode(generics.GenericAPIView):
             )
         else:
             return failure_response(f"filter_by must be '{VisibilityChoice.PUBLIC}' or '{VisibilityChoice.FRIENDS}'!")
+        reactions = reactions | user_reactions
         serializer = self.serializer_class(reactions, many=True, context={"request": request})
         return success_response(serializer.data)
 
