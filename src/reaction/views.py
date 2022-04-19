@@ -66,6 +66,7 @@ class ReactionsForEpisode(generics.GenericAPIView):
             )
         else:
             return failure_response(f"filter_by must be '{VisibilityChoice.PUBLIC}' or '{VisibilityChoice.FRIENDS}'!")
+        reactions = reactions.order_by("-updated_at", "author")
         serializer = self.serializer_class(reactions, many=True, context={"request": request})
         return success_response(serializer.data)
 
