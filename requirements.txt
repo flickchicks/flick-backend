@@ -18,7 +18,7 @@ distlib==0.3.1
 Django==3.1.5
 boto3>=1.13.16
 botocore>=1.16.16
-django-celery-results==2.0.1
+django-celery-results==2.4.0
 django-friendship==1.9.1
 django-lrucache-backend==4.0.0
 django-push-notifications>=2.0.0
